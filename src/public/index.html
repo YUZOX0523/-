@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>営業メール自動送信</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="header">
+    <h1>営業メール自動送信</h1>
+    <div class="nav">
+      <button class="active" onclick="showTab('dashboard')">ダッシュボード</button>
+      <button onclick="showTab('companies')">企業管理</button>
+      <button onclick="showTab('templates')">テンプレート</button>
+      <button onclick="showTab('send')">メール送信</button>
+      <button onclick="showTab('logs')">送信ログ</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- ダッシュボード -->
+    <div id="tab-dashboard">
+      <div class="stats">
+        <div class="stat-card">
+          <div class="number" id="stat-total">0</div>
+          <div class="label">総送信数</div>
+        </div>
+        <div class="stat-card success">
+          <div class="number" id="stat-success">0</div>
+          <div class="label">成功</div>
+        </div>
+        <div class="stat-card failed">
+          <div class="number" id="stat-failed">0</div>
+          <div class="label">失敗</div>
+        </div>
+      </div>
+      <div class="card">
+        <h2>最近の送信ログ</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>送信日時</th>
+              <th>企業名</th>
+              <th>メールアドレス</th>
+              <th>件名</th>
+              <th>ステータス</th>
+            </tr>
+          </thead>
+          <tbody id="recent-logs"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 企業管理 -->
+    <div id="tab-companies" class="hidden">
+      <div class="card">
+        <h2>企業を追加</h2>
+        <div class="actions">
+          <form id="add-company-form" style="display:flex;gap:8px;flex-wrap:wrap;align-items:end;">
+            <div class="form-group" style="margin-bottom:0">
+              <label>企業名 *</label>
+              <input type="text" id="c-name" required placeholder="株式会社サンプル">
+            </div>
+            <div class="form-group" style="margin-bottom:0">
+              <label>メールアドレス *</label>
+              <input type="email" id="c-email" required placeholder="info@example.com">
+            </div>
+            <div class="form-group" style="margin-bottom:0">
+              <label>業種</label>
+              <input type="text" id="c-industry" placeholder="IT">
+            </div>
+            <div class="form-group" style="margin-bottom:0">
+              <label>担当者</label>
+              <input type="text" id="c-contact" placeholder="担当者名">
+            </div>
+            <button type="submit" class="btn btn-primary">追加</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>CSVインポート</h2>
+        <p class="placeholder">CSVの列: 企業名, メールアドレス, 業種, 担当者, 備考</p>
+        <form id="csv-import-form" style="display:flex;gap:8px;align-items:end;">
+          <input type="file" id="csv-file" accept=".csv">
+          <button type="submit" class="btn btn-success">インポート</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2>企業一覧</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>企業名</th>
+              <th>メールアドレス</th>
+              <th>業種</th>
+              <th>担当者</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="companies-list"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- テンプレート -->
+    <div id="tab-templates" class="hidden">
+      <div class="card">
+        <h2>テンプレート作成</h2>
+        <p class="placeholder">変数: {{company_name}}, {{contact_person}}, {{industry}}</p>
+        <form id="add-template-form">
+          <div class="form-group">
+            <label>テンプレート名 *</label>
+            <input type="text" id="t-name" required placeholder="初回営業メール">
+          </div>
+          <div class="form-group">
+            <label>件名 *</label>
+            <input type="text" id="t-subject" required placeholder="{{company_name}}様 弊社サービスのご紹介">
+          </div>
+          <div class="form-group">
+            <label>本文 *</label>
+            <textarea id="t-body" required placeholder="{{company_name}}&#10;{{contact_person}}様&#10;&#10;お世話になっております。&#10;..."></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary">作成</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2>テンプレート一覧</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>テンプレート名</th>
+              <th>件名</th>
+              <th>更新日</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="templates-list"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- メール送信 -->
+    <div id="tab-send" class="hidden">
+      <div class="card">
+        <h2>一括メール送信</h2>
+        <form id="send-form">
+          <div class="form-group">
+            <label>テンプレート選択 *</label>
+            <select id="send-template"></select>
+          </div>
+          <div class="form-group">
+            <label>送信先企業</label>
+            <div class="actions">
+              <button type="button" class="btn btn-sm btn-primary" onclick="selectAllCompanies()">全選択</button>
+              <button type="button" class="btn btn-sm btn-danger" onclick="deselectAllCompanies()">全解除</button>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th class="checkbox-cell"><input type="checkbox" id="select-all-cb" onchange="toggleAllCompanies(this)"></th>
+                  <th>企業名</th>
+                  <th>メールアドレス</th>
+                  <th>業種</th>
+                </tr>
+              </thead>
+              <tbody id="send-companies-list"></tbody>
+            </table>
+          </div>
+          <button type="submit" class="btn btn-success" id="send-btn">送信開始</button>
+        </form>
+        <div id="send-result" class="hidden" style="margin-top:16px;"></div>
+      </div>
+    </div>
+
+    <!-- 送信ログ -->
+    <div id="tab-logs" class="hidden">
+      <div class="card">
+        <h2>送信ログ</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>送信日時</th>
+              <th>企業名</th>
+              <th>メールアドレス</th>
+              <th>件名</th>
+              <th>ステータス</th>
+              <th>エラー</th>
+            </tr>
+          </thead>
+          <tbody id="logs-list"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
