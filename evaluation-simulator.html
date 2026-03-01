@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>人事評価 評点シミュレーション</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', 'Hiragino Sans', 'Meiryo', sans-serif; background: #f0f2f5; color: #333; }
+
+    .header {
+      background: linear-gradient(135deg, #2d3748, #4a5568);
+      color: #fff; padding: 16px 24px;
+      display: flex; align-items: center; gap: 16px;
+    }
+    .header h1 { font-size: 20px; font-weight: 600; }
+    .nav { display: flex; gap: 8px; margin-left: auto; }
+    .nav button {
+      background: rgba(255,255,255,0.15); color: #fff; border: none;
+      padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px;
+    }
+    .nav button:hover, .nav button.active { background: rgba(255,255,255,0.3); }
+
+    .container { max-width: 1100px; margin: 24px auto; padding: 0 24px; }
+
+    .card {
+      background: #fff; border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      padding: 24px; margin-bottom: 24px;
+    }
+    .card h2 { font-size: 18px; margin-bottom: 16px; color: #2d3748; }
+    .card h3 { font-size: 15px; margin-bottom: 12px; color: #4a5568; }
+
+    .hidden { display: none; }
+
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 6px; color: #555; }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%; padding: 10px 12px; border: 1px solid #d1d5db;
+      border-radius: 6px; font-size: 14px; font-family: inherit;
+    }
+    .form-group input[type="number"] { width: 100px; }
+    .form-inline { display: flex; gap: 12px; align-items: end; flex-wrap: wrap; }
+    .form-inline .form-group { margin-bottom: 0; }
+
+    .btn {
+      padding: 8px 16px; border: none; border-radius: 6px;
+      font-size: 14px; cursor: pointer; font-weight: 600; transition: background 0.2s;
+    }
+    .btn-primary { background: #3182ce; color: #fff; }
+    .btn-primary:hover { background: #2b6cb0; }
+    .btn-success { background: #38a169; color: #fff; }
+    .btn-success:hover { background: #2f855a; }
+    .btn-danger { background: #e53e3e; color: #fff; }
+    .btn-danger:hover { background: #c53030; }
+    .btn-warning { background: #d69e2e; color: #fff; }
+    .btn-warning:hover { background: #b7791f; }
+    .btn-sm { padding: 5px 10px; font-size: 12px; }
+    .btn-outline {
+      background: transparent; border: 1px solid #d1d5db; color: #555;
+    }
+    .btn-outline:hover { background: #f7fafc; }
+    .btn-group { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #e5e7eb; font-size: 14px; }
+    th { background: #f9fafb; font-weight: 600; color: #555; }
+    tr:hover { background: #f0f7ff; }
+
+    .scale-levels { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+    .scale-level {
+      display: flex; align-items: center; gap: 4px;
+      padding: 4px 8px; background: #edf2f7; border-radius: 4px; font-size: 13px;
+    }
+    .scale-level input { width: 60px; padding: 4px 6px; font-size: 13px; }
+    .scale-level .score-input { width: 40px; }
+
+    .category-section {
+      border: 1px solid #e2e8f0; border-radius: 8px;
+      padding: 16px; margin-bottom: 16px; background: #fafbfc;
+    }
+    .category-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .category-header h3 { margin: 0; }
+    .weight-badge {
+      display: inline-block; padding: 2px 8px; border-radius: 12px;
+      font-size: 12px; font-weight: 600; background: #bee3f8; color: #2a4365;
+    }
+
+    .eval-row {
+      display: grid; grid-template-columns: 1fr auto auto;
+      gap: 12px; align-items: center; padding: 8px 0;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .eval-row:last-child { border-bottom: none; }
+    .eval-item-name { font-size: 14px; font-weight: 500; }
+    .eval-item-weight { font-size: 12px; color: #718096; }
+
+    .radio-group { display: flex; gap: 4px; }
+    .radio-label {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 6px 10px; border: 2px solid #e2e8f0; border-radius: 6px;
+      cursor: pointer; font-size: 12px; transition: all 0.2s; min-width: 44px; text-align: center;
+    }
+    .radio-label:hover { border-color: #90cdf4; background: #ebf8ff; }
+    .radio-label input { display: none; }
+    .radio-label input:checked + span { font-weight: 700; }
+    .radio-label.selected { border-color: #3182ce; background: #ebf8ff; }
+    .radio-label .score-display { font-size: 10px; color: #a0aec0; }
+
+    .result-summary {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px; margin-bottom: 24px;
+    }
+    .result-card {
+      background: #fff; border-radius: 8px; padding: 20px;
+      text-align: center; border: 1px solid #e2e8f0;
+    }
+    .result-card .number { font-size: 36px; font-weight: 700; }
+    .result-card .label { font-size: 13px; color: #718096; margin-top: 4px; }
+    .result-card.total { border-color: #3182ce; }
+    .result-card.total .number { color: #3182ce; }
+    .result-card.grade { border-color: #38a169; }
+    .result-card.grade .number { color: #38a169; font-size: 48px; }
+
+    .bar-chart { margin-top: 16px; }
+    .bar-item { display: flex; align-items: center; margin-bottom: 10px; }
+    .bar-label { width: 120px; font-size: 13px; font-weight: 500; text-align: right; padding-right: 12px; }
+    .bar-track { flex: 1; height: 24px; background: #edf2f7; border-radius: 4px; overflow: hidden; position: relative; }
+    .bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; position: relative; }
+    .bar-value {
+      position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+      font-size: 12px; font-weight: 600; color: #fff;
+    }
+    .bar-value-outside {
+      margin-left: 8px; font-size: 12px; font-weight: 600; color: #4a5568; white-space: nowrap;
+    }
+
+    .grade-table td { text-align: center; }
+    .grade-highlight { background: #ebf8ff !important; font-weight: 700; }
+
+    .toast {
+      position: fixed; top: 20px; right: 20px; background: #333; color: #fff;
+      padding: 12px 20px; border-radius: 8px; font-size: 14px; z-index: 1000;
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .help-text { font-size: 12px; color: #a0aec0; margin-top: 4px; }
+    .divider { border: none; border-top: 1px solid #e2e8f0; margin: 16px 0; }
+
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-right: 4px; }
+    .tag-blue { background: #bee3f8; color: #2a4365; }
+    .tag-green { background: #c6f6d5; color: #22543d; }
+
+    .preset-list { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+    .preset-btn {
+      padding: 6px 14px; border: 1px solid #d1d5db; border-radius: 6px;
+      background: #fff; cursor: pointer; font-size: 13px; transition: all 0.2s;
+    }
+    .preset-btn:hover { border-color: #3182ce; color: #3182ce; }
+
+    .import-export { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+    @media (max-width: 768px) {
+      .header { flex-direction: column; gap: 8px; }
+      .nav { margin-left: 0; flex-wrap: wrap; }
+      .form-inline { flex-direction: column; }
+      .eval-row { grid-template-columns: 1fr; gap: 8px; }
+      .radio-group { flex-wrap: wrap; }
+      .result-summary { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>人事評価 評点シミュレーション</h1>
+    <div class="nav">
+      <button class="active" onclick="showTab('evaluate')">評価入力</button>
+      <button onclick="showTab('settings')">評価設定</button>
+      <button onclick="showTab('results')">結果分析</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- 評価入力タブ -->
+    <div id="tab-evaluate">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <h2>評価入力</h2>
+          <div class="btn-group" style="margin-bottom:0;">
+            <button class="btn btn-outline btn-sm" onclick="resetEvaluation()">リセット</button>
+            <button class="btn btn-success" onclick="calculateResults(); showTab('results');">結果を見る</button>
+          </div>
+        </div>
+        <div id="evaluation-form"></div>
+      </div>
+    </div>
+
+    <!-- 評価設定タブ -->
+    <div id="tab-settings" class="hidden">
+      <!-- プリセット -->
+      <div class="card">
+        <h2>プリセット読み込み</h2>
+        <p class="help-text" style="margin-bottom:12px;">プリセットを選択すると現在の設定が上書きされます。</p>
+        <div class="preset-list">
+          <button class="preset-btn" onclick="loadPreset('general')">一般企業向け</button>
+          <button class="preset-btn" onclick="loadPreset('sales')">営業職向け</button>
+          <button class="preset-btn" onclick="loadPreset('engineer')">エンジニア向け</button>
+          <button class="preset-btn" onclick="loadPreset('manager')">管理職向け</button>
+        </div>
+      </div>
+
+      <!-- スケール設定 -->
+      <div class="card">
+        <h2>評価スケール設定</h2>
+        <div class="form-group">
+          <label>段階数</label>
+          <select id="scale-count" onchange="updateScaleLevels()">
+            <option value="3">3段階</option>
+            <option value="4">4段階</option>
+            <option value="5" selected>5段階</option>
+            <option value="6">6段階</option>
+            <option value="7">7段階</option>
+          </select>
+        </div>
+        <div id="scale-levels-config"></div>
+      </div>
+
+      <!-- 総合評価グレード設定 -->
+      <div class="card">
+        <h2>総合グレード設定</h2>
+        <p class="help-text" style="margin-bottom:12px;">総合点に応じたグレード（ランク）を設定します。下限値以上のスコアでそのグレードが適用されます。</p>
+        <div id="grade-config"></div>
+        <button class="btn btn-sm btn-outline" style="margin-top:8px;" onclick="addGrade()">+ グレード追加</button>
+      </div>
+
+      <!-- カテゴリ・項目設定 -->
+      <div class="card">
+        <h2>評価カテゴリ・項目設定</h2>
+        <p class="help-text" style="margin-bottom:12px;">カテゴリごとにウェイト（重み）を設定し、各項目にもウェイトを設定できます。</p>
+        <div id="categories-config"></div>
+        <button class="btn btn-primary" style="margin-top:8px;" onclick="addCategory()">+ カテゴリ追加</button>
+      </div>
+
+      <!-- データ管理 -->
+      <div class="card">
+        <h2>データ管理</h2>
+        <div class="import-export">
+          <button class="btn btn-outline" onclick="exportConfig()">設定をエクスポート</button>
+          <button class="btn btn-outline" onclick="document.getElementById('import-file').click()">設定をインポート</button>
+          <input type="file" id="import-file" accept=".json" style="display:none;" onchange="importConfig(event)">
+          <button class="btn btn-danger btn-sm" onclick="if(confirm('すべての設定をデフォルトに戻しますか？')){loadPreset('general');toast('デフォルト設定に戻しました');}">初期化</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 結果タブ -->
+    <div id="tab-results" class="hidden">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <h2>評価結果</h2>
+          <button class="btn btn-outline btn-sm" onclick="exportResultsCSV()">CSV出力</button>
+        </div>
+        <div id="results-summary" class="result-summary"></div>
+      </div>
+
+      <div class="card">
+        <h2>カテゴリ別スコア</h2>
+        <div id="results-chart" class="bar-chart"></div>
+      </div>
+
+      <div class="card">
+        <h2>詳細結果</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>カテゴリ</th>
+              <th>項目</th>
+              <th>評価</th>
+              <th>点数</th>
+              <th>ウェイト</th>
+              <th>加重点</th>
+            </tr>
+          </thead>
+          <tbody id="results-detail"></tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h2>グレード判定表</h2>
+        <table class="grade-table">
+          <thead>
+            <tr>
+              <th>グレード</th>
+              <th>下限スコア</th>
+              <th>判定</th>
+            </tr>
+          </thead>
+          <tbody id="grade-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== State =====
+    let state = {
+      scale: [],
+      grades: [],
+      categories: [],
+      evaluations: {},
+    };
+
+    // ===== Presets =====
+    const presets = {
+      general: {
+        scale: [
+          { label: 'S', score: 5 },
+          { label: 'A', score: 4 },
+          { label: 'B', score: 3 },
+          { label: 'C', score: 2 },
+          { label: 'D', score: 1 },
+        ],
+        grades: [
+          { label: 'S', min: 90 },
+          { label: 'A', min: 75 },
+          { label: 'B', min: 60 },
+          { label: 'C', min: 40 },
+          { label: 'D', min: 0 },
+        ],
+        categories: [
+          {
+            name: '業績評価', weight: 40,
+            items: [
+              { name: '目標達成度', weight: 40 },
+              { name: '業務品質', weight: 30 },
+              { name: '業務効率', weight: 30 },
+            ],
+          },
+          {
+            name: '能力評価', weight: 30,
+            items: [
+              { name: '専門知識・スキル', weight: 30 },
+              { name: '問題解決力', weight: 25 },
+              { name: 'コミュニケーション力', weight: 25 },
+              { name: '企画・提案力', weight: 20 },
+            ],
+          },
+          {
+            name: '態度・行動評価', weight: 30,
+            items: [
+              { name: '責任感', weight: 25 },
+              { name: '協調性', weight: 25 },
+              { name: '積極性', weight: 25 },
+              { name: '規律性', weight: 25 },
+            ],
+          },
+        ],
+      },
+      sales: {
+        scale: [
+          { label: 'S', score: 5 },
+          { label: 'A', score: 4 },
+          { label: 'B', score: 3 },
+          { label: 'C', score: 2 },
+          { label: 'D', score: 1 },
+        ],
+        grades: [
+          { label: 'S', min: 90 },
+          { label: 'A', min: 75 },
+          { label: 'B', min: 60 },
+          { label: 'C', min: 40 },
+          { label: 'D', min: 0 },
+        ],
+        categories: [
+          {
+            name: '売上・業績', weight: 50,
+            items: [
+              { name: '売上目標達成率', weight: 40 },
+              { name: '新規顧客獲得数', weight: 25 },
+              { name: '利益率', weight: 20 },
+              { name: 'リピート率', weight: 15 },
+            ],
+          },
+          {
+            name: '営業スキル', weight: 30,
+            items: [
+              { name: 'ヒアリング力', weight: 25 },
+              { name: '提案力', weight: 25 },
+              { name: 'クロージング力', weight: 25 },
+              { name: '顧客関係構築', weight: 25 },
+            ],
+          },
+          {
+            name: '組織貢献', weight: 20,
+            items: [
+              { name: 'ナレッジ共有', weight: 35 },
+              { name: 'チームワーク', weight: 35 },
+              { name: '後輩指導', weight: 30 },
+            ],
+          },
+        ],
+      },
+      engineer: {
+        scale: [
+          { label: 'S', score: 5 },
+          { label: 'A', score: 4 },
+          { label: 'B', score: 3 },
+          { label: 'C', score: 2 },
+          { label: 'D', score: 1 },
+        ],
+        grades: [
+          { label: 'S', min: 90 },
+          { label: 'A', min: 75 },
+          { label: 'B', min: 60 },
+          { label: 'C', min: 40 },
+          { label: 'D', min: 0 },
+        ],
+        categories: [
+          {
+            name: '技術力', weight: 40,
+            items: [
+              { name: 'コード品質', weight: 25 },
+              { name: '設計力', weight: 25 },
+              { name: '技術的課題解決', weight: 25 },
+              { name: '新技術習得', weight: 25 },
+            ],
+          },
+          {
+            name: 'プロジェクト貢献', weight: 35,
+            items: [
+              { name: '納期遵守', weight: 30 },
+              { name: '要件達成度', weight: 30 },
+              { name: 'レビュー・品質担保', weight: 20 },
+              { name: '障害対応', weight: 20 },
+            ],
+          },
+          {
+            name: 'チーム・成長', weight: 25,
+            items: [
+              { name: 'チーム内コミュニケーション', weight: 30 },
+              { name: 'ドキュメント整備', weight: 25 },
+              { name: 'メンタリング', weight: 25 },
+              { name: '自己研鑽', weight: 20 },
+            ],
+          },
+        ],
+      },
+      manager: {
+        scale: [
+          { label: 'S', score: 5 },
+          { label: 'A', score: 4 },
+          { label: 'B', score: 3 },
+          { label: 'C', score: 2 },
+          { label: 'D', score: 1 },
+        ],
+        grades: [
+          { label: 'S', min: 90 },
+          { label: 'A', min: 75 },
+          { label: 'B', min: 60 },
+          { label: 'C', min: 40 },
+          { label: 'D', min: 0 },
+        ],
+        categories: [
+          {
+            name: 'マネジメント', weight: 35,
+            items: [
+              { name: '目標管理', weight: 25 },
+              { name: '部下育成', weight: 25 },
+              { name: '組織運営', weight: 25 },
+              { name: '労務管理', weight: 25 },
+            ],
+          },
+          {
+            name: '業績・戦略', weight: 35,
+            items: [
+              { name: '部門目標達成', weight: 35 },
+              { name: '戦略立案・実行', weight: 35 },
+              { name: 'コスト管理', weight: 30 },
+            ],
+          },
+          {
+            name: 'リーダーシップ', weight: 30,
+            items: [
+              { name: 'ビジョン提示', weight: 25 },
+              { name: '意思決定力', weight: 25 },
+              { name: '対外折衝力', weight: 25 },
+              { name: '変革推進力', weight: 25 },
+            ],
+          },
+        ],
+      },
+    };
+
+    // ===== Init =====
+    function init() {
+      const saved = localStorage.getItem('eval-simulator-state');
+      if (saved) {
+        try {
+          state = JSON.parse(saved);
+        } catch {
+          loadPreset('general');
+        }
+      } else {
+        loadPreset('general');
+      }
+      renderAll();
+    }
+
+    function saveState() {
+      localStorage.setItem('eval-simulator-state', JSON.stringify(state));
+    }
+
+    // ===== Tab =====
+    function showTab(name) {
+      document.querySelectorAll('[id^="tab-"]').forEach(el => el.classList.add('hidden'));
+      document.getElementById('tab-' + name).classList.remove('hidden');
+      document.querySelectorAll('.nav button').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      if (name === 'evaluate') renderEvaluationForm();
+      if (name === 'settings') renderSettings();
+      if (name === 'results') calculateResults();
+    }
+
+    // ===== Render All =====
+    function renderAll() {
+      renderSettings();
+      renderEvaluationForm();
+    }
+
+    // ===== Settings Render =====
+    function renderSettings() {
+      renderScaleLevels();
+      renderGradeConfig();
+      renderCategoriesConfig();
+    }
+
+    function renderScaleLevels() {
+      document.getElementById('scale-count').value = state.scale.length;
+      const container = document.getElementById('scale-levels-config');
+      container.innerHTML = '<label style="font-size:14px;font-weight:600;color:#555;margin-bottom:8px;display:block;">各段階のラベルと点数</label>';
+      const wrapper = document.createElement('div');
+      wrapper.className = 'scale-levels';
+      state.scale.forEach((level, i) => {
+        wrapper.innerHTML += `
+          <div class="scale-level">
+            <input type="text" value="${esc(level.label)}" placeholder="ラベル" onchange="state.scale[${i}].label=this.value;saveState();">
+            <span>=</span>
+            <input type="number" class="score-input" value="${level.score}" min="0" onchange="state.scale[${i}].score=parseInt(this.value)||0;saveState();">
+            <span>点</span>
+          </div>
+        `;
+      });
+      container.appendChild(wrapper);
+    }
+
+    function updateScaleLevels() {
+      const count = parseInt(document.getElementById('scale-count').value);
+      const defaultLabels = ['S', 'A', 'B', 'C', 'D', 'E', 'F'];
+      const newScale = [];
+      for (let i = 0; i < count; i++) {
+        if (i < state.scale.length) {
+          newScale.push(state.scale[i]);
+        } else {
+          newScale.push({ label: defaultLabels[i] || `L${i + 1}`, score: count - i });
+        }
+      }
+      state.scale = newScale;
+      saveState();
+      renderScaleLevels();
+    }
+
+    function renderGradeConfig() {
+      const container = document.getElementById('grade-config');
+      container.innerHTML = state.grades.map((g, i) => `
+        <div class="form-inline" style="margin-bottom:8px;">
+          <div class="form-group">
+            <input type="text" value="${esc(g.label)}" placeholder="グレード名" style="width:80px;"
+              onchange="state.grades[${i}].label=this.value;saveState();">
+          </div>
+          <div class="form-group">
+            <input type="number" value="${g.min}" min="0" max="100" style="width:80px;" placeholder="下限"
+              onchange="state.grades[${i}].min=parseInt(this.value)||0;saveState();">
+            <span class="help-text">点以上</span>
+          </div>
+          <button class="btn btn-danger btn-sm" onclick="state.grades.splice(${i},1);saveState();renderGradeConfig();">削除</button>
+        </div>
+      `).join('');
+    }
+
+    function addGrade() {
+      state.grades.push({ label: '新規', min: 0 });
+      state.grades.sort((a, b) => b.min - a.min);
+      saveState();
+      renderGradeConfig();
+    }
+
+    function renderCategoriesConfig() {
+      const container = document.getElementById('categories-config');
+      container.innerHTML = state.categories.map((cat, ci) => `
+        <div class="category-section">
+          <div class="category-header">
+            <div class="form-inline">
+              <div class="form-group">
+                <label>カテゴリ名</label>
+                <input type="text" value="${esc(cat.name)}" style="width:200px;"
+                  onchange="state.categories[${ci}].name=this.value;saveState();">
+              </div>
+              <div class="form-group">
+                <label>ウェイト(%)</label>
+                <input type="number" value="${cat.weight}" min="0" max="100" style="width:80px;"
+                  onchange="state.categories[${ci}].weight=parseInt(this.value)||0;saveState();">
+              </div>
+            </div>
+            <button class="btn btn-danger btn-sm" onclick="state.categories.splice(${ci},1);saveState();renderCategoriesConfig();">カテゴリ削除</button>
+          </div>
+          <table>
+            <thead><tr><th>項目名</th><th>ウェイト(%)</th><th>操作</th></tr></thead>
+            <tbody>
+              ${cat.items.map((item, ii) => `
+                <tr>
+                  <td><input type="text" value="${esc(item.name)}" style="width:100%;"
+                    onchange="state.categories[${ci}].items[${ii}].name=this.value;saveState();"></td>
+                  <td><input type="number" value="${item.weight}" min="0" max="100" style="width:80px;"
+                    onchange="state.categories[${ci}].items[${ii}].weight=parseInt(this.value)||0;saveState();"></td>
+                  <td><button class="btn btn-danger btn-sm" onclick="state.categories[${ci}].items.splice(${ii},1);saveState();renderCategoriesConfig();">削除</button></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+          <button class="btn btn-sm btn-outline" style="margin-top:8px;"
+            onclick="state.categories[${ci}].items.push({name:'新規項目',weight:0});saveState();renderCategoriesConfig();">+ 項目追加</button>
+        </div>
+      `).join('');
+
+      // ウェイト合計表示
+      const totalWeight = state.categories.reduce((s, c) => s + c.weight, 0);
+      const color = totalWeight === 100 ? '#38a169' : '#e53e3e';
+      container.innerHTML += `<p style="margin-top:8px;font-size:13px;color:${color};">カテゴリウェイト合計: ${totalWeight}%${totalWeight !== 100 ? ' (100%にしてください)' : ' OK'}</p>`;
+    }
+
+    function addCategory() {
+      state.categories.push({
+        name: '新規カテゴリ',
+        weight: 0,
+        items: [{ name: '新規項目', weight: 100 }],
+      });
+      saveState();
+      renderCategoriesConfig();
+    }
+
+    // ===== Evaluation Form =====
+    function renderEvaluationForm() {
+      const container = document.getElementById('evaluation-form');
+      const maxScore = Math.max(...state.scale.map(s => s.score));
+
+      container.innerHTML = state.categories.map((cat, ci) => {
+        const totalItemWeight = cat.items.reduce((s, it) => s + it.weight, 0);
+        return `
+          <div class="category-section">
+            <div class="category-header">
+              <h3>${esc(cat.name)}</h3>
+              <span class="weight-badge">ウェイト: ${cat.weight}%</span>
+            </div>
+            ${cat.items.map((item, ii) => {
+              const key = `${ci}-${ii}`;
+              const selected = state.evaluations[key];
+              return `
+                <div class="eval-row">
+                  <div>
+                    <div class="eval-item-name">${esc(item.name)}</div>
+                    <div class="eval-item-weight">項目ウェイト: ${item.weight}%${totalItemWeight !== 100 ? ` <span style="color:#e53e3e;">(合計${totalItemWeight}%)</span>` : ''}</div>
+                  </div>
+                  <div class="radio-group">
+                    ${state.scale.map(level => `
+                      <label class="radio-label${selected === level.score ? ' selected' : ''}" onclick="selectEval('${key}',${level.score},this)">
+                        <input type="radio" name="eval-${key}" value="${level.score}" ${selected === level.score ? 'checked' : ''}>
+                        <span>${esc(level.label)}</span>
+                        <span class="score-display">${level.score}点</span>
+                      </label>
+                    `).join('')}
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function selectEval(key, score, el) {
+      state.evaluations[key] = score;
+      saveState();
+      // Update UI
+      const group = el.parentElement;
+      group.querySelectorAll('.radio-label').forEach(l => l.classList.remove('selected'));
+      el.classList.add('selected');
+    }
+
+    function resetEvaluation() {
+      if (!confirm('すべての評価をリセットしますか？')) return;
+      state.evaluations = {};
+      saveState();
+      renderEvaluationForm();
+      toast('評価をリセットしました');
+    }
+
+    // ===== Calculation =====
+    function calculateResults() {
+      const maxScore = Math.max(...state.scale.map(s => s.score));
+      const results = { categories: [], totalScore: 0, grade: '-', details: [] };
+
+      state.categories.forEach((cat, ci) => {
+        let catScore = 0;
+        let catItemCount = 0;
+        const totalItemWeight = cat.items.reduce((s, it) => s + it.weight, 0);
+
+        cat.items.forEach((item, ii) => {
+          const key = `${ci}-${ii}`;
+          const rawScore = state.evaluations[key] ?? 0;
+          const normalizedItemWeight = totalItemWeight > 0 ? item.weight / totalItemWeight : 0;
+          const normalizedScore = maxScore > 0 ? (rawScore / maxScore) * 100 : 0;
+          const weightedScore = normalizedScore * normalizedItemWeight;
+
+          const levelLabel = state.scale.find(s => s.score === rawScore)?.label || '-';
+
+          results.details.push({
+            category: cat.name,
+            item: item.name,
+            levelLabel,
+            rawScore,
+            itemWeight: item.weight,
+            weightedScore: weightedScore,
+          });
+
+          catScore += weightedScore;
+          if (rawScore > 0) catItemCount++;
+        });
+
+        results.categories.push({
+          name: cat.name,
+          weight: cat.weight,
+          score: catScore,
+          weightedScore: catScore * (cat.weight / 100),
+          itemCount: cat.items.length,
+          evaluatedCount: catItemCount,
+        });
+
+        results.totalScore += catScore * (cat.weight / 100);
+      });
+
+      // Grade
+      const sortedGrades = [...state.grades].sort((a, b) => b.min - a.min);
+      results.grade = '-';
+      for (const g of sortedGrades) {
+        if (results.totalScore >= g.min) {
+          results.grade = g.label;
+          break;
+        }
+      }
+
+      renderResults(results);
+      return results;
+    }
+
+    // ===== Results Render =====
+    function renderResults(results) {
+      // Summary
+      const evaluatedTotal = results.details.filter(d => d.rawScore > 0).length;
+      const totalItems = results.details.length;
+      document.getElementById('results-summary').innerHTML = `
+        <div class="result-card grade">
+          <div class="number">${esc(results.grade)}</div>
+          <div class="label">総合グレード</div>
+        </div>
+        <div class="result-card total">
+          <div class="number">${results.totalScore.toFixed(1)}</div>
+          <div class="label">総合スコア (100点満点)</div>
+        </div>
+        <div class="result-card">
+          <div class="number">${evaluatedTotal}/${totalItems}</div>
+          <div class="label">評価済み項目</div>
+        </div>
+      `;
+
+      // Bar chart
+      const colors = ['#3182ce', '#38a169', '#d69e2e', '#e53e3e', '#805ad5', '#dd6b20'];
+      document.getElementById('results-chart').innerHTML = results.categories.map((cat, i) => {
+        const pct = Math.min(cat.score, 100);
+        const color = colors[i % colors.length];
+        return `
+          <div class="bar-item">
+            <div class="bar-label">${esc(cat.name)}<br><span style="font-size:11px;color:#a0aec0;">ウェイト${cat.weight}%</span></div>
+            <div class="bar-track">
+              <div class="bar-fill" style="width:${pct}%;background:${color};">
+                ${pct > 15 ? `<span class="bar-value">${cat.score.toFixed(1)}</span>` : ''}
+              </div>
+            </div>
+            ${pct <= 15 ? `<span class="bar-value-outside">${cat.score.toFixed(1)}</span>` : ''}
+          </div>
+        `;
+      }).join('');
+
+      // Detail table
+      document.getElementById('results-detail').innerHTML = results.details.map(d => `
+        <tr>
+          <td>${esc(d.category)}</td>
+          <td>${esc(d.item)}</td>
+          <td>${esc(d.levelLabel)}</td>
+          <td>${d.rawScore}</td>
+          <td>${d.itemWeight}%</td>
+          <td>${d.weightedScore.toFixed(1)}</td>
+        </tr>
+      `).join('');
+
+      // Grade table
+      const sortedGrades = [...state.grades].sort((a, b) => b.min - a.min);
+      document.getElementById('grade-table-body').innerHTML = sortedGrades.map(g => {
+        const isActive = g.label === results.grade;
+        return `
+          <tr class="${isActive ? 'grade-highlight' : ''}">
+            <td style="font-size:18px;font-weight:700;">${esc(g.label)}</td>
+            <td>${g.min}点以上</td>
+            <td>${isActive ? '← 現在' : ''}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // ===== Preset =====
+    function loadPreset(name) {
+      const preset = presets[name];
+      if (!preset) return;
+      state.scale = JSON.parse(JSON.stringify(preset.scale));
+      state.grades = JSON.parse(JSON.stringify(preset.grades));
+      state.categories = JSON.parse(JSON.stringify(preset.categories));
+      state.evaluations = {};
+      saveState();
+      renderAll();
+      toast(`「${name === 'general' ? '一般企業向け' : name === 'sales' ? '営業職向け' : name === 'engineer' ? 'エンジニア向け' : '管理職向け'}」プリセットを読み込みました`);
+    }
+
+    // ===== Export/Import =====
+    function exportConfig() {
+      const data = JSON.stringify(state, null, 2);
+      const blob = new Blob([data], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `evaluation-config-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast('設定をエクスポートしました');
+    }
+
+    function importConfig(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = JSON.parse(e.target.result);
+          if (data.scale && data.categories) {
+            state = data;
+            saveState();
+            renderAll();
+            toast('設定をインポートしました');
+          } else {
+            toast('無効な設定ファイルです');
+          }
+        } catch {
+          toast('ファイルの読み込みに失敗しました');
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    }
+
+    function exportResultsCSV() {
+      const results = calculateResults();
+      let csv = '\uFEFFカテゴリ,項目,評価,点数,ウェイト(%),加重点\n';
+      results.details.forEach(d => {
+        csv += `${d.category},${d.item},${d.levelLabel},${d.rawScore},${d.itemWeight},${d.weightedScore.toFixed(1)}\n`;
+      });
+      csv += `\n総合スコア,${results.totalScore.toFixed(1)}\n`;
+      csv += `総合グレード,${results.grade}\n`;
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `evaluation-result-${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast('CSVをエクスポートしました');
+    }
+
+    // ===== Utilities =====
+    function esc(str) {
+      if (!str) return '';
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    function toast(msg) {
+      const el = document.createElement('div');
+      el.className = 'toast';
+      el.textContent = msg;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 3000);
+    }
+
+    // ===== Start =====
+    init();
+  </script>
+</body>
+</html>
