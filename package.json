@@ -5,14 +5,21 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "node --watch src/index.js"
+    "dev": "node --watch src/index.js",
+    "x-poster": "node src/x-poster/index.js",
+    "x-poster:dev": "node --watch src/x-poster/index.js",
+    "x-poster:test": "X_DRY_RUN=true node src/x-poster/index.js --test",
+    "x-poster:test:live": "node src/x-poster/index.js --test"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.80.0",
     "better-sqlite3": "^11.0.0",
     "csv-parser": "^3.0.0",
     "dotenv": "^16.4.0",
     "express": "^4.21.0",
     "multer": "^1.4.5-lts.1",
-    "nodemailer": "^6.9.0"
+    "node-cron": "^4.2.1",
+    "nodemailer": "^6.9.0",
+    "twitter-api-v2": "^1.29.0"
   }
 }
