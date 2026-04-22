@@ -1,24 +1,23 @@
-import Database from 'better-sqlite3';
+import { DatabaseSync } from 'node:sqlite';
 import path from 'path';
 import fs from 'fs';
 
 const DB_PATH = path.join(process.cwd(), 'data', 'survey.db');
 
-let db: Database.Database | null = null;
+let db: DatabaseSync | null = null;
 
-function getDb(): Database.Database {
+function getDb(): DatabaseSync {
   if (!db) {
     const dir = path.dirname(DB_PATH);
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-    db = new Database(DB_PATH);
-    db.pragma('journal_mode = WAL');
-    db.pragma('foreign_keys = ON');
+    db = new DatabaseSync(DB_PATH);
+    db.exec('PRAGMA journal_mode=WAL; PRAGMA foreign_keys=ON;');
     initSchema(db);
   }
   return db;
 }
 
-function initSchema(database: Database.Database) {
+function initSchema(database: DatabaseSync) {
   database.exec(`
     CREATE TABLE IF NOT EXISTS companies (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
