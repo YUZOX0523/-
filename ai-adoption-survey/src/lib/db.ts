@@ -1,49 +1,39 @@
-import { DatabaseSync } from 'node:sqlite';
-import path from 'path';
-import fs from 'fs';
+import { neon } from '@neondatabase/serverless';
 
-// Vercel本番環境では /tmp のみ書き込み可能
-const DB_PATH = process.env.VERCEL
-  ? '/tmp/survey.db'
-  : path.join(process.cwd(), 'data', 'survey.db');
-
-let db: DatabaseSync | null = null;
-
-function getDb(): DatabaseSync {
-  if (!db) {
-    const dir = path.dirname(DB_PATH);
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-    db = new DatabaseSync(DB_PATH);
-    db.exec('PRAGMA journal_mode=WAL; PRAGMA foreign_keys=ON;');
-    initSchema(db);
+function getSql() {
+  if (!process.env.DATABASE_URL) {
+    throw new Error('DATABASE_URL が設定されていません');
   }
-  return db;
+  return neon(process.env.DATABASE_URL);
 }
 
-function initSchema(database: DatabaseSync) {
-  database.exec(`
+export async function initSchema(): Promise<void> {
+  const sql = getSql();
+  await sql`
     CREATE TABLE IF NOT EXISTS companies (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       name TEXT NOT NULL,
       contact_name TEXT,
       contact_email TEXT,
       survey_token TEXT UNIQUE NOT NULL,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    );
-
+      created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    )
+  `;
+  await sql`
     CREATE TABLE IF NOT EXISTS survey_responses (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      company_id INTEGER NOT NULL,
+      id SERIAL PRIMARY KEY,
+      company_id INTEGER NOT NULL REFERENCES companies(id),
       respondent_name TEXT,
       respondent_department TEXT,
       respondent_role TEXT,
       answers TEXT NOT NULL,
       total_score REAL NOT NULL,
       category_scores TEXT NOT NULL,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (company_id) REFERENCES companies(id)
-    );
-  `);
+      created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    )
+  `;
 }
 
-export default getDb;
+export function getDb() {
+  return getSql();
+}

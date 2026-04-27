@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import dynamic from 'next/dynamic';
-import getDb from '@/lib/db';
+import { getDb, initSchema } from '@/lib/db';
 import { aggregateAnswers, calculateScoring } from '@/lib/scoring';
 import type { ScoringResult } from '@/lib/scoring';
 
@@ -23,20 +23,23 @@ type ResultsData = {
 
 async function fetchResults(token: string): Promise<ResultsData | null> {
   try {
-    const db = getDb();
-    const company = db
-      .prepare('SELECT id, name, contact_name, created_at FROM companies WHERE survey_token = ?')
-      .get(token) as { id: number; name: string; contact_name: string | null; created_at: string } | undefined;
+    await initSchema();
+    const sql = getDb();
+    const companyRows = await sql`
+      SELECT id, name, contact_name, created_at::text as created_at
+      FROM companies WHERE survey_token = ${token}
+    `;
+    if (companyRows.length === 0) return null;
+    const company = companyRows[0] as { id: number; name: string; contact_name: string | null; created_at: string };
 
-    if (!company) return null;
-
-    const rows = db
-      .prepare('SELECT answers, respondent_name, respondent_department, respondent_role, created_at FROM survey_responses WHERE company_id = ? ORDER BY created_at DESC')
-      .all(company.id) as Array<{ answers: string; respondent_name: string | null; respondent_department: string | null; respondent_role: string | null; created_at: string }>;
+    const rows = await sql`
+      SELECT answers, respondent_name, respondent_department, respondent_role, created_at::text as created_at
+      FROM survey_responses WHERE company_id = ${company.id} ORDER BY created_at DESC
+    ` as Array<{ answers: string; respondent_name: string | null; respondent_department: string | null; respondent_role: string | null; created_at: string }>;
 
     const responseCount = rows.length;
     const scoring = responseCount > 0
-      ? calculateScoring(aggregateAnswers(rows.map(r => JSON.parse(r.answers))))
+      ? calculateScoring(aggregateAnswers(rows.map(r => JSON.parse(r.answers) as Record<number, number>)))
       : null;
 
     return {
