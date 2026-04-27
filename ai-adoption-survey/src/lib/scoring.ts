@@ -1,8 +1,9 @@
 import { CATEGORIES, QUESTIONS } from './questions';
 
 // 仮想ベンチマーク（国内平均企業を想定）
-const BENCHMARK_MEAN = 42;
-const BENCHMARK_STD = 14;
+// 20問を平均3点で答えると60点 → AIをほぼ使えていない企業が3を付けやすいため50点を平均とする
+const BENCHMARK_MEAN = 50;
+const BENCHMARK_STD = 12;
 
 export type CategoryScore = {
   categoryId: string;
