@@ -2,7 +2,10 @@ import { DatabaseSync } from 'node:sqlite';
 import path from 'path';
 import fs from 'fs';
 
-const DB_PATH = path.join(process.cwd(), 'data', 'survey.db');
+// Vercel本番環境では /tmp のみ書き込み可能
+const DB_PATH = process.env.VERCEL
+  ? '/tmp/survey.db'
+  : path.join(process.cwd(), 'data', 'survey.db');
 
 let db: DatabaseSync | null = null;
 
