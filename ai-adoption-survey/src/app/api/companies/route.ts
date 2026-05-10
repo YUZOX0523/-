@@ -18,7 +18,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ token });
   } catch (e) {
     console.error(e);
-    return NextResponse.json({ error: 'サーバーエラーが発生しました' }, { status: 500 });
+    const msg = e instanceof Error && e.message === 'DB_NOT_CONFIGURED'
+      ? 'データベースが未設定です。Vercelの環境変数にDATABASE_URLを追加してください。'
+      : 'サーバーエラーが発生しました';
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
 
