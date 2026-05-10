@@ -10,12 +10,13 @@ export async function POST(req: NextRequest) {
     if (!name?.trim()) {
       return NextResponse.json({ error: '企業名は必須です' }, { status: 400 });
     }
-    const token = uuidv4();
+    const surveyToken = uuidv4();
+    const resultsToken = uuidv4();
     await sql`
-      INSERT INTO companies (name, contact_name, contact_email, survey_token)
-      VALUES (${name.trim()}, ${contactName?.trim() || null}, ${contactEmail?.trim() || null}, ${token})
+      INSERT INTO companies (name, contact_name, contact_email, survey_token, results_token)
+      VALUES (${name.trim()}, ${contactName?.trim() || null}, ${contactEmail?.trim() || null}, ${surveyToken}, ${resultsToken})
     `;
-    return NextResponse.json({ token });
+    return NextResponse.json({ token: surveyToken, resultsToken });
   } catch (e) {
     console.error(e);
     const msg = e instanceof Error && e.message === 'DB_NOT_CONFIGURED'
@@ -30,7 +31,7 @@ export async function GET() {
     await initSchema();
     const sql = getDb();
     const companies = await sql`
-      SELECT c.id, c.name, c.contact_name, c.survey_token,
+      SELECT c.id, c.name, c.contact_name, c.survey_token, c.results_token,
              c.created_at::text as created_at,
              COUNT(r.id)::int as response_count
       FROM companies c

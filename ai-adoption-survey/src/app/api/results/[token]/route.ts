@@ -8,7 +8,7 @@ export async function GET(req: NextRequest, { params }: { params: { token: strin
     const sql = getDb();
     const companyRows = await sql`
       SELECT id, name, contact_name, created_at::text as created_at
-      FROM companies WHERE survey_token = ${params.token}
+      FROM companies WHERE results_token = ${params.token}
     `;
     if (companyRows.length === 0) {
       return NextResponse.json({ error: '無効なURLです' }, { status: 404 });
