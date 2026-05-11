@@ -7,6 +7,7 @@ type Company = {
   name: string;
   contact_name: string | null;
   survey_token: string;
+  results_token: string | null;
   created_at: string;
   response_count: number;
 };
@@ -16,7 +17,7 @@ export default function AdminPage() {
   const [contactName, setContactName] = useState('');
   const [contactEmail, setContactEmail] = useState('');
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<{ token: string } | null>(null);
+  const [result, setResult] = useState<{ token: string; resultsToken: string } | null>(null);
   const [error, setError] = useState('');
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loadingList, setLoadingList] = useState(true);
@@ -76,8 +77,17 @@ export default function AdminPage() {
           <p className="text-white font-bold text-lg leading-none">AI活用組織診断</p>
           <p className="text-blue-200 text-xs">by デジライズ</p>
         </div>
-        <div className="ml-auto">
+        <div className="ml-auto flex items-center gap-3">
           <span className="bg-blue-700 text-blue-100 text-xs px-3 py-1 rounded-full">管理者画面</span>
+          <button
+            onClick={async () => {
+              await fetch('/api/admin/logout', { method: 'POST' });
+              window.location.href = '/admin/login';
+            }}
+            className="text-blue-200 hover:text-white text-xs underline"
+          >
+            ログアウト
+          </button>
         </div>
       </header>
 
@@ -142,7 +152,9 @@ export default function AdminPage() {
               <p className="text-blue-800 font-semibold mb-3">発行が完了しました！</p>
               <div className="space-y-3">
                 <div>
-                  <p className="text-xs text-gray-500 mb-1">回答URL（社員に共有）</p>
+                  <p className="text-xs text-gray-500 mb-1">
+                    📋 回答URL <span className="text-gray-400">— 社員全員に共有するURL</span>
+                  </p>
                   <div className="flex gap-2">
                     <code className="flex-1 bg-white border border-blue-200 rounded px-3 py-2 text-sm text-blue-800 break-all">
                       {origin}/survey/{result.token}
@@ -156,13 +168,15 @@ export default function AdminPage() {
                   </div>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500 mb-1">結果URL（管理者・企業担当者に共有）</p>
+                  <p className="text-xs text-gray-500 mb-1">
+                    🔒 結果URL <span className="text-gray-400">— 企業担当者のみに共有するURL（回答URLとは別）</span>
+                  </p>
                   <div className="flex gap-2">
                     <code className="flex-1 bg-white border border-blue-200 rounded px-3 py-2 text-sm text-blue-800 break-all">
-                      {origin}/results/{result.token}
+                      {origin}/results/{result.resultsToken}
                     </code>
                     <button
-                      onClick={() => copyToClipboard(`${origin}/results/${result.token}`)}
+                      onClick={() => copyToClipboard(`${origin}/results/${result.resultsToken}`)}
                       className="shrink-0 bg-blue-700 text-white text-xs px-3 rounded hover:bg-blue-800"
                     >
                       コピー
@@ -226,15 +240,17 @@ export default function AdminPage() {
                             target="_blank"
                             className="text-blue-600 hover:text-blue-800 text-xs underline"
                           >
-                            回答
+                            回答URL
                           </a>
-                          <a
-                            href={`/results/${c.survey_token}`}
-                            target="_blank"
-                            className="text-violet-600 hover:text-violet-800 text-xs underline"
-                          >
-                            結果
-                          </a>
+                          {c.results_token && (
+                            <a
+                              href={`/results/${c.results_token}`}
+                              target="_blank"
+                              className="text-violet-600 hover:text-violet-800 text-xs underline"
+                            >
+                              結果URL
+                            </a>
+                          )}
                         </div>
                       </td>
                     </tr>

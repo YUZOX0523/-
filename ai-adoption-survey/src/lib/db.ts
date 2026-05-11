@@ -16,8 +16,13 @@ export async function initSchema(): Promise<void> {
       contact_name TEXT,
       contact_email TEXT,
       survey_token TEXT UNIQUE NOT NULL,
+      results_token TEXT UNIQUE,
       created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
     )
+  `;
+  // Migrate existing tables: add results_token if not present
+  await sql`
+    ALTER TABLE companies ADD COLUMN IF NOT EXISTS results_token TEXT UNIQUE
   `;
   await sql`
     CREATE TABLE IF NOT EXISTS survey_responses (

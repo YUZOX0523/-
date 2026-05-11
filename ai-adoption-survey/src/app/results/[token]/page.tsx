@@ -27,7 +27,7 @@ async function fetchResults(token: string): Promise<ResultsData | null> {
     const sql = getDb();
     const companyRows = await sql`
       SELECT id, name, contact_name, created_at::text as created_at
-      FROM companies WHERE survey_token = ${token}
+      FROM companies WHERE results_token = ${token}
     `;
     if (companyRows.length === 0) return null;
     const company = companyRows[0] as { id: number; name: string; contact_name: string | null; created_at: string };
