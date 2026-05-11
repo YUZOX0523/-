@@ -8,15 +8,16 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        brand: {
-          50: '#eff6ff',
-          100: '#dbeafe',
-          500: '#3b82f6',
-          600: '#2563eb',
-          700: '#1d4ed8',
-          800: '#1e40af',
-          900: '#1e3a8a',
+        digi: {
+          cyan: '#00D4FF',
+          purple: '#7B3FFF',
+          orange: '#FF4800',
+          dark: '#0A0520',
+          mid: '#160835',
         },
+      },
+      fontFamily: {
+        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
     },
   },

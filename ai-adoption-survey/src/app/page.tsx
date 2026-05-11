@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { DigiRiseLogoMark } from '@/components/DigiRiseLogo';
 
 type Company = {
   id: number;
@@ -67,15 +68,13 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-violet-900">
+    <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #0A0520 0%, #160835 40%, #0A1A40 100%)' }}>
       {/* Header */}
       <header className="px-6 py-5 flex items-center gap-3">
-        <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-          <span className="text-blue-800 font-black text-sm">AI</span>
-        </div>
+        <DigiRiseLogoMark size={36} />
         <div>
           <p className="text-white font-bold text-lg leading-none">AI活用組織診断</p>
-          <p className="text-blue-200 text-xs">by デジライズ</p>
+          <p className="text-xs mt-0.5" style={{ color: '#00D4FF' }}>by DigiRise</p>
         </div>
         <div className="ml-auto flex items-center gap-3">
           <span className="bg-blue-700 text-blue-100 text-xs px-3 py-1 rounded-full">管理者画面</span>
@@ -141,7 +140,8 @@ export default function AdminPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-700 hover:bg-blue-800 disabled:opacity-50 text-white font-semibold py-3 rounded-lg transition-colors"
+              className="w-full disabled:opacity-50 text-white font-semibold py-3 rounded-lg transition-all"
+              style={{ background: 'linear-gradient(135deg, #7B3FFF, #5B2FDF)' }}
             >
               {loading ? '発行中...' : '診断リンクを発行する'}
             </button>
