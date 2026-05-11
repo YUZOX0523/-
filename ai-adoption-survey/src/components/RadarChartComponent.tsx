@@ -25,38 +25,44 @@ export default function RadarChartComponent({ categoryScores }: Props) {
   }));
 
   return (
-    <ResponsiveContainer width="100%" height={340}>
+    <ResponsiveContainer width="100%" height={320}>
       <RadarChart data={data} margin={{ top: 10, right: 30, bottom: 10, left: 30 }}>
-        <PolarGrid stroke="#e5e7eb" />
+        <defs>
+          <linearGradient id="radarGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#7B3FFF" stopOpacity={0.8} />
+            <stop offset="100%" stopColor="#00D4FF" stopOpacity={0.8} />
+          </linearGradient>
+        </defs>
+        <PolarGrid stroke="#F3F4F6" />
         <PolarAngleAxis
           dataKey="subject"
-          tick={{ fontSize: 11, fill: '#374151', fontWeight: 500 }}
+          tick={{ fontSize: 11, fill: '#374151', fontWeight: 600 }}
         />
         <PolarRadiusAxis
           angle={90}
           domain={[0, 100]}
-          tick={{ fontSize: 10, fill: '#9ca3af' }}
+          tick={{ fontSize: 10, fill: '#D1D5DB' }}
           tickCount={5}
         />
         <Tooltip
           formatter={(value: number, name: string) => [`${value}点`, name]}
-          contentStyle={{ fontSize: 12, borderRadius: 8 }}
+          contentStyle={{ fontSize: 12, borderRadius: 12, border: '1px solid #E5E7EB' }}
         />
         <Radar
           name="国内平均"
           dataKey="平均"
-          stroke="#d1d5db"
-          fill="#d1d5db"
-          fillOpacity={0.3}
+          stroke="#D1D5DB"
+          fill="#D1D5DB"
+          fillOpacity={0.25}
           strokeWidth={1.5}
           strokeDasharray="4 4"
         />
         <Radar
           name="貴社スコア"
           dataKey="貴社"
-          stroke="#3b82f6"
-          fill="#3b82f6"
-          fillOpacity={0.35}
+          stroke="#7B3FFF"
+          fill="url(#radarGrad)"
+          fillOpacity={0.4}
           strokeWidth={2.5}
         />
         <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 12 }} />
