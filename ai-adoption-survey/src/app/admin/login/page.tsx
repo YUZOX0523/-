@@ -32,24 +32,16 @@ export default function AdminLoginPage() {
   return (
     <div
       className="min-h-screen flex items-center justify-center px-4"
-      style={{
-        background: 'linear-gradient(135deg, #0A0520 0%, #160835 40%, #0A1A40 100%)',
-      }}
+      style={{ background: 'linear-gradient(135deg, #0A0520 0%, #160835 40%, #0A1A40 100%)' }}
     >
-      {/* Background decoration */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div
-          className="absolute -top-32 -left-32 w-96 h-96 rounded-full opacity-20"
-          style={{ background: 'radial-gradient(circle, #7B3FFF, transparent)' }}
-        />
-        <div
-          className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full opacity-15"
-          style={{ background: 'radial-gradient(circle, #00D4FF, transparent)' }}
-        />
+        <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full opacity-20"
+          style={{ background: 'radial-gradient(circle, #7B3FFF, transparent)' }} />
+        <div className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full opacity-15"
+          style={{ background: 'radial-gradient(circle, #00D4FF, transparent)' }} />
       </div>
 
       <div className="relative bg-white rounded-3xl shadow-2xl p-10 max-w-md w-full">
-        {/* Logo */}
         <div className="flex items-center gap-3 mb-8">
           <DigiRiseLogoMark size={44} />
           <div>
@@ -63,9 +55,7 @@ export default function AdminLoginPage() {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-              パスワード
-            </label>
+            <label className="block text-sm font-semibold text-gray-700 mb-1.5">パスワード</label>
             <input
               type="password"
               value={password}
@@ -96,9 +86,7 @@ export default function AdminLoginPage() {
           </button>
         </form>
 
-        <p className="mt-8 text-center text-xs text-gray-400">
-          Powered by DigiRise株式会社
-        </p>
+        <p className="mt-8 text-center text-xs text-gray-400">Powered by DigiRise株式会社</p>
       </div>
     </div>
   );
