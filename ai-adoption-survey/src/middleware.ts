@@ -1,39 +1,48 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import { NextResponse, type NextRequest } from "next/server";
 
-async function computeSessionToken(password: string): Promise<string> {
-  const data = new TextEncoder().encode(password + '-degirise-ai-survey-2024');
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  return Array.from(new Uint8Array(hashBuffer))
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('');
-}
+type CookieToSet = { name: string; value: string; options?: CookieOptions };
 
-export async function middleware(req: NextRequest) {
-  const { pathname } = req.nextUrl;
+export async function middleware(request: NextRequest) {
+  let response = NextResponse.next({ request });
 
-  const isAdminRoute =
-    pathname === '/' ||
-    pathname.startsWith('/api/companies');
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet: CookieToSet[]) {
+          cookiesToSet.forEach(({ name, value }) =>
+            request.cookies.set(name, value)
+          );
+          response = NextResponse.next({ request });
+          cookiesToSet.forEach(({ name, value, options }) =>
+            response.cookies.set(name, value, options)
+          );
+        },
+      },
+    }
+  );
 
-  if (!isAdminRoute) return NextResponse.next();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  const adminPassword = process.env.ADMIN_PASSWORD;
-  if (!adminPassword) return NextResponse.next(); // No password set = open (for local dev)
-
-  const sessionCookie = req.cookies.get('admin_session')?.value;
-  const expectedToken = await computeSessionToken(adminPassword);
-
-  if (sessionCookie === expectedToken) {
-    return NextResponse.next();
+  const path = request.nextUrl.pathname;
+  const requiresAuth = path.startsWith("/dashboard") || path.startsWith("/admin");
+  if (requiresAuth && !user) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    url.searchParams.set("next", path);
+    return NextResponse.redirect(url);
   }
 
-  if (pathname.startsWith('/api/')) {
-    return NextResponse.json({ error: '認証が必要です' }, { status: 401 });
-  }
-
-  return NextResponse.redirect(new URL('/admin/login', req.url));
+  return response;
 }
 
 export const config = {
-  matcher: ['/', '/api/companies', '/api/companies/:path*'],
+  matcher: ["/dashboard/:path*", "/admin/:path*"],
 };
