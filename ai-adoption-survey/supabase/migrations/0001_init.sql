@@ -185,7 +185,8 @@ declare
   v_departments jsonb;
   v_free_texts jsonb;
 begin
-  if not (is_admin() or my_company_id() = p_company_id) then
+  -- 注意: my_company_id()がNULL(部外者)の場合に判定がNULLにならないようcoalesceで明示的にfalse化する
+  if not (is_admin() or coalesce(my_company_id() = p_company_id, false)) then
     raise exception 'permission denied';
   end if;
 
@@ -204,7 +205,7 @@ begin
       group by key
     ) s;
 
-  select coalesce(jsonb_agg(d order by d->>'sort_order', d->>'name'), '[]') into v_departments
+  select coalesce(jsonb_agg(d order by (d->>'sort_order')::int, d->>'name'), '[]') into v_departments
     from (
       select jsonb_build_object(
         'id', dep.id,
