@@ -179,7 +179,16 @@ export default async function PersonalResultPage({ params }: Props) {
         </div>
       </section>
 
-      <p className="mt-8 text-center text-xs text-gray-400">
+      <p className="mt-6 rounded-xl border border-dashed border-brand-200 bg-brand-50/50 px-4 py-3 text-center text-xs text-gray-500">
+        💼 <strong className="text-gray-700">人事・推進ご担当者の方へ:</strong>{" "}
+        ここに表示されているのは個人の結果のみです。会社全体・部署別の診断(偏差値・ヒートマップ・改善提案)は{" "}
+        <Link href="/login" className="font-bold text-brand-600 underline">
+          担当者ダッシュボード
+        </Link>
+        でご覧いただけます。
+      </p>
+
+      <p className="mt-4 text-center text-xs text-gray-400">
         <Link href="/privacy" className="underline">
           プライバシーポリシー
         </Link>

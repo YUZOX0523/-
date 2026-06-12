@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { INDUSTRIES, SIZE_BANDS } from "@/lib/constants";
+import { NextSteps } from "@/components/NextSteps";
 
 const inputClass =
   "w-full rounded-lg border border-gray-300 px-3 py-2.5 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100";
@@ -64,34 +65,50 @@ export default function RegisterPage() {
 
   if (surveyUrl) {
     return (
-      <main className="mx-auto max-w-xl px-4 py-16 text-center">
-        <div className="text-5xl">🎉</div>
-        <h1 className="mt-4 text-2xl font-bold">サーベイURLが発行されました</h1>
-        <p className="mt-2 text-sm text-gray-600">
-          以下のURLを社内チャットやメールで社員の皆さまへ展開してください。
-          URLはログイン後の「部署・URL設定」ページでいつでも確認できます。
-        </p>
-        <div className="mt-6 break-all rounded-xl border border-brand-200 bg-brand-50 p-4 text-sm font-medium text-brand-800">
-          {surveyUrl}
+      <main className="mx-auto max-w-2xl px-4 py-12">
+        <div className="text-center">
+          <div className="text-5xl">🎉</div>
+          <h1 className="mt-4 text-2xl font-bold tracking-tight">
+            サーベイURLが発行されました
+          </h1>
+          <div className="mt-5 break-all rounded-xl border border-brand-200 bg-brand-50 p-4 text-sm font-medium text-brand-800">
+            {surveyUrl}
+          </div>
+          <button
+            onClick={() => {
+              navigator.clipboard.writeText(surveyUrl);
+              setCopied(true);
+            }}
+            className="mt-3 rounded-lg bg-brand-600 px-6 py-3 font-bold text-white hover:bg-brand-700"
+          >
+            {copied ? "コピーしました ✓" : "URLをコピー"}
+          </button>
+          <p className="mt-2 text-xs text-gray-400">
+            このURLはログイン後の「部署・URL設定」ページでいつでも確認できます
+          </p>
         </div>
-        <button
-          onClick={() => {
-            navigator.clipboard.writeText(surveyUrl);
-            setCopied(true);
-          }}
-          className="mt-4 rounded-lg bg-brand-600 px-6 py-3 font-bold text-white hover:bg-brand-700"
-        >
-          {copied ? "コピーしました ✓" : "URLをコピー"}
-        </button>
-        <p className="mt-8 text-sm text-gray-600">
-          回答状況・診断結果はダッシュボードで確認できます。
-        </p>
-        <Link
-          href="/login"
-          className="mt-2 inline-block font-medium text-brand-600 hover:underline"
-        >
-          ダッシュボードへログイン →
-        </Link>
+
+        <h2 className="mt-10 text-center text-lg font-bold tracking-tight">
+          次にやることは、この3つだけ
+        </h2>
+        <div className="mt-4">
+          <NextSteps surveyUrl={surveyUrl} />
+        </div>
+
+        <div className="mt-8 rounded-2xl bg-gradient-to-br from-navy-950 to-brand-800 p-6 text-center text-white">
+          <p className="text-sm font-bold">
+            会社全体の診断結果は、ダッシュボードで
+          </p>
+          <p className="mt-1 text-xs text-white/60">
+            登録したメールアドレスとパスワードでログインできます
+          </p>
+          <Link
+            href="/login"
+            className="mt-4 inline-block rounded-xl bg-white px-8 py-3 font-bold text-brand-700 hover:bg-brand-50"
+          >
+            ダッシュボードへログイン →
+          </Link>
+        </div>
       </main>
     );
   }

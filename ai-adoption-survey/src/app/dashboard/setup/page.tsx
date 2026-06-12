@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import CopyText from "@/components/CopyText";
+import { distributionTemplate } from "@/components/NextSteps";
 
 type Department = { id: string; name: string; sort_order: number };
 
@@ -128,6 +130,21 @@ export default function SetupPage() {
           <p className="mt-3 text-sm text-gray-400">読み込み中...</p>
         )}
       </section>
+
+      {surveyUrl && (
+        <section className="rounded-2xl border border-gray-200 bg-white p-6">
+          <h2 className="font-bold">📋 社内展開用の文面テンプレ</h2>
+          <p className="mt-1 text-sm text-gray-500">
+            コピーして、社内チャットやメールにそのまま貼り付けて使えます。
+          </p>
+          <pre className="mt-3 max-h-56 overflow-auto whitespace-pre-wrap rounded-xl border border-gray-200 bg-gray-50 p-3 text-xs leading-relaxed text-gray-600">
+            {distributionTemplate(surveyUrl)}
+          </pre>
+          <div className="mt-3">
+            <CopyText text={distributionTemplate(surveyUrl)} label="案内文をまるごとコピー" />
+          </div>
+        </section>
+      )}
 
       <section className="rounded-2xl border border-gray-200 bg-white p-6">
         <h2 className="font-bold">部署リスト</h2>
