@@ -50,16 +50,18 @@ export default function LandingPage() {
             <p className="inline-block rounded-full border border-cyan-300/40 bg-cyan-400/10 px-4 py-1.5 text-xs font-bold text-cyan-200">
               法人向けAIリスキリング 導入社数No.1 のデジライズが提供 ※
             </p>
-            <h1 className="mt-6 text-3xl font-extrabold leading-[1.25] tracking-tight sm:text-5xl">
-              自社のAI活用レベル、
+            <h1 className="mt-6 text-3xl font-extrabold leading-[1.3] tracking-tight sm:text-5xl">
+              そのAI活用、
               <br />
               <span className="bg-gradient-to-r from-cyan-300 to-violet-300 bg-clip-text text-transparent">
-                全国偏差値
+                “一部の社員だけ”
               </span>
-              で見えていますか?
+              に
+              <br className="sm:hidden" />
+              なっていませんか?
             </h1>
             <p className="mx-auto mt-6 max-w-xl text-sm leading-relaxed text-white/70 sm:text-base lg:mx-0">
-              社員が5〜10分の匿名サーベイに答えるだけ。企業全体・部署ごとのAI活用レベルをスコアリングし、全国ベンチマークに対する偏差値とともに、一目瞭然のダッシュボードで可視化します。
+              ツールを導入済みの企業も、これからの企業も。社員5〜10分の匿名サーベイで、組織のAI活用の実態と「次の一手」が見える無料診断です。企業全体・部署ごとのレベルを、全国ベンチマークと比較できるダッシュボードでお届けします。
             </p>
             <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row lg:justify-start sm:justify-center">
               <Link
