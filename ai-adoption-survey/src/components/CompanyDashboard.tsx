@@ -13,6 +13,7 @@ import Heatmap from "./Heatmap";
 import DeptResponseChart from "./DeptResponseChart";
 import LevelLadder from "./LevelLadder";
 import PositionGauge from "./PositionGauge";
+import { NextSteps } from "./NextSteps";
 import { rankLabel } from "@/lib/scoring";
 
 function Card({
@@ -45,23 +46,34 @@ export default function CompanyDashboard({
   data,
   consultationUrl,
   forPrint = false,
+  surveyUrl = null,
 }: {
   data: DashboardData;
   consultationUrl: string;
   forPrint?: boolean;
+  surveyUrl?: string | null;
 }) {
   const hasData = data.n > 0 && data.totalScore != null;
 
   if (!hasData) {
     return (
       <Card>
-        <div className="flex flex-col items-center py-10 text-center">
-          <Image src="/char-squirrel.png" alt="" width={120} height={172} />
-          <p className="mt-4 font-bold text-gray-700">まだ回答がありません</p>
+        <div className="flex flex-col items-center py-6 text-center">
+          <Image src="/char-squirrel.png" alt="" width={100} height={143} />
+          <p className="mt-4 text-lg font-bold text-gray-800">
+            まだ回答がありません — まずはURLの社内展開から!
+          </p>
           <p className="mt-1 text-sm text-gray-500">
-            サーベイURLを社内チャットやメールで展開しましょう。回答はリアルタイムに反映されます。
+            回答が1件入った瞬間から、ここに全社の診断結果が表示され始めます。
           </p>
         </div>
+        {surveyUrl && (
+          <div className="mb-5 rounded-xl border border-brand-200 bg-brand-50 p-4 text-center">
+            <p className="text-xs font-bold text-brand-700">貴社のサーベイURL</p>
+            <p className="mt-1 break-all text-sm font-medium text-brand-800">{surveyUrl}</p>
+          </div>
+        )}
+        <NextSteps surveyUrl={surveyUrl} />
       </Card>
     );
   }

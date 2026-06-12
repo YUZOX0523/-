@@ -30,6 +30,17 @@ export default async function DashboardPage() {
   const consultationUrl =
     process.env.NEXT_PUBLIC_CONSULTATION_URL ?? "https://digirise.ai/contact/";
 
+  // 回答0件のときの案内用にサーベイURLを取得
+  const { data: link } = await supabase
+    .from("survey_links")
+    .select("token")
+    .eq("company_id", company.id)
+    .eq("is_active", true)
+    .limit(1)
+    .maybeSingle();
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const surveyUrl = link ? `${appUrl}/s/${link.token}` : null;
+
   return (
     <div>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
@@ -46,7 +57,11 @@ export default async function DashboardPage() {
           PDFレポートを出力
         </Link>
       </div>
-      <CompanyDashboard data={data} consultationUrl={consultationUrl} />
+      <CompanyDashboard
+        data={data}
+        consultationUrl={consultationUrl}
+        surveyUrl={surveyUrl}
+      />
     </div>
   );
 }
