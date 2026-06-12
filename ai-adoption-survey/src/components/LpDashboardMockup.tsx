@@ -79,7 +79,7 @@ export default function LpDashboardMockup() {
             <div className="rounded-lg border border-white/15 bg-white/10 px-3 py-2 text-center">
               <p className="text-[7px] text-white/60">AI活用レベル</p>
               <p className="text-sm font-black">Lv.4</p>
-              <p className="text-[8px] font-bold text-cyan-200">組織展開</p>
+              <p className="text-[8px] font-bold text-cyan-200">ワークフロー自動化</p>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-2.5">

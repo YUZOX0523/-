@@ -35,6 +35,7 @@ export type DashboardData = {
   departments: DepartmentResult[];
   freeTexts: { department: string; text: string; created_at: string }[];
   minResponsesPerDept: number;
+  levelThresholds: number[];
   level: { level: number; name: string; description: string } | null;
   totalDeviation: number | null;
   totalTopPercent: number | null;
@@ -121,6 +122,7 @@ export async function buildDashboardData(
     departments: (agg?.departments ?? []) as DepartmentResult[],
     freeTexts: agg?.free_texts ?? [],
     minResponsesPerDept: agg?.min_responses_per_dept ?? 3,
+    levelThresholds: thresholds ?? [30, 55, 75, 90],
     level: totalScore != null ? levelForScore(totalScore, thresholds) : null,
     totalDeviation,
     totalTopPercent: totalDeviation != null ? topPercent(totalDeviation) : null,

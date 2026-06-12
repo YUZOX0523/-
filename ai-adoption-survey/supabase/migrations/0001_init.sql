@@ -92,7 +92,7 @@ create table public.scoring_config (
   id int primary key default 1 check (id = 1),
   weights jsonb not null default
     '{"literacy":1,"usage":1,"org_drive":1,"culture":1,"mindset":1,"governance":1}',
-  level_thresholds jsonb not null default '[20,40,60,80]',
+  level_thresholds jsonb not null default '[30,55,75,90]',
   min_responses_per_dept int not null default 3,
   benchmark_switch_threshold int not null default 30,
   updated_at timestamptz not null default now()

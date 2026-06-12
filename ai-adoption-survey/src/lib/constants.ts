@@ -62,34 +62,42 @@ export const SCALE_LABELS: Record<string, string[]> = {
   frequency: ["全く使わない", "月に数回", "週に1回程度", "週に数回", "ほぼ毎日"],
 };
 
+// デジライズ「企業での生成AI導入必勝法」の5段階と組織成熟度を融合したレベル定義
 export const LEVELS = [
   {
     level: 1,
-    name: "未着手",
-    description: "AI活用はこれから。まずは触れる機会づくりが第一歩です。",
+    name: "個人利用",
+    tools: "ChatGPT / Gemini / Copilot",
+    description:
+      "一部の社員が汎用AIを個人的に使い始めた段階。組織としての活用はこれからで、多くの企業がレベル1・2の停滞圏にいます。",
   },
   {
     level: 2,
-    name: "個人利用",
+    name: "ルーティン効率化",
+    tools: "GPTs / Gems / チャットボット",
     description:
-      "一部の社員が個人的に使い始めた段階。組織的な後押しで一気に伸びます。",
+      "GPTsやチャットボットで定型業務の仕組み化が始まった段階。ただし多くの企業がここで停滞します。レベル3へ抜け出せるかが最初の分かれ道です。",
   },
   {
     level: 3,
-    name: "業務活用",
+    name: "組織活用・ツール連携",
+    tools: "Word / Excel / Google Workspace 連携",
     description:
-      "日常業務での活用が定着しつつあります。部署間の差を埋めることが次の課題です。",
+      "全社の日常業務にAIが定着し、OfficeやGoogle Workspaceなど業務ツールとの連携まで進んだ段階。停滞圏を抜けた少数派の組織です。",
   },
   {
     level: 4,
-    name: "組織展開",
+    name: "ワークフロー自動化",
+    tools: "Claude Code / GAS / VBA / マクロ",
     description:
-      "組織として推進が機能し、活用が広がっています。業務変革への接続がテーマです。",
+      "Claude Code等の簡易コーディングで、複数アプリをまたぐ業務を自動処理できる段階。全国でも先進企業の領域です。",
   },
   {
     level: 5,
-    name: "変革ドライバー",
-    description: "AIが業務と事業の変革を牽引する先進企業です。",
+    name: "本格開発",
+    tools: "Claude Code / Codex 等でのAI開発",
+    description:
+      "AI開発で新しい価値を創出する最先端の段階。AIが業務効率化を超えて、事業そのものの変革を牽引しています。",
   },
 ] as const;
 

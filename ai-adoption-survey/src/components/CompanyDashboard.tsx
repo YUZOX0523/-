@@ -11,6 +11,7 @@ import RadarCompare from "./RadarCompare";
 import { SERIES_COLORS } from "@/lib/colors";
 import Heatmap from "./Heatmap";
 import DeptResponseChart from "./DeptResponseChart";
+import LevelLadder from "./LevelLadder";
 
 function Card({
   title,
@@ -79,14 +80,14 @@ export default function CompanyDashboard({
   const overall = overallInsight({
     totalDeviation: data.totalDeviation ?? 50,
     industryLabel: data.industryLabel,
-    level: data.level ?? { level: 3, name: "業務活用" },
+    level: data.level ?? { level: 2, name: "ルーティン効率化" },
   });
   const overallCharacter =
     overall.tone === "lead" ? "/char-giraffe.png" : "/char-squirrel-pointer.png";
 
   const recommendations = recommendServices({
+    level: data.level?.level ?? 1,
     categories: data.categories,
-    totalDeviation: data.totalDeviation,
   });
 
   const expected = data.company.expected_respondents;
@@ -188,6 +189,14 @@ export default function CompanyDashboard({
         </div>
       </section>
 
+      {/* 2.5 5段階レベルマップ(現在地の可視化) */}
+      <Card
+        title="AI活用 5段階レベルマップ"
+        subtitle="貴社の現在地と次のステージ — レベル3以上に到達できるのは少数派です"
+      >
+        <LevelLadder current={data.level?.level ?? 1} />
+      </Card>
+
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* 3. レーダーチャート */}
         <Card
@@ -273,6 +282,7 @@ export default function CompanyDashboard({
           minResponses={data.minResponsesPerDept}
           companyScores={data.categoryScores}
           companyTotal={data.totalScore}
+          thresholds={data.levelThresholds}
         />
       </Card>
 

@@ -35,7 +35,7 @@ function MockDeviation() {
           </p>
           <div className="rounded-lg border border-white/15 bg-white/10 px-3 py-1.5 text-center">
             <p className="text-[9px] text-white/60">AI活用レベル</p>
-            <p className="text-sm font-black">Lv.2 <span className="text-cyan-200">個人利用</span></p>
+            <p className="text-sm font-black">Lv.2 <span className="text-cyan-200">ルーティン効率化</span></p>
           </div>
         </div>
         <p className="mt-2 text-[10px] text-white/70">
@@ -119,7 +119,7 @@ function MockPersonal() {
             58<span className="text-xs text-white/40">/100</span>
           </p>
           <p className="mt-1 inline-block rounded-full bg-white/10 px-2 py-0.5 text-[8px] font-bold">
-            Lv.3 業務活用
+            Lv.3 組織活用・ツール連携
           </p>
         </div>
         <svg viewBox="0 0 100 88" className="mx-auto mt-2 w-24" aria-hidden>

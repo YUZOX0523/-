@@ -1,4 +1,5 @@
 import { CATEGORIES } from "@/lib/constants";
+import { levelForScore } from "@/lib/scoring";
 import type { DepartmentResult } from "@/lib/dashboard-data";
 
 /** スコア(0-100)を青の濃淡にマッピング(色覚多様性に配慮し単色グラデーション) */
@@ -22,16 +23,27 @@ function ScoreCell({ score, bold = false }: { score: number; bold?: boolean }) {
   );
 }
 
+function LevelBadge({ score, thresholds }: { score: number; thresholds?: number[] }) {
+  const l = levelForScore(score, thresholds);
+  return (
+    <td className="whitespace-nowrap rounded bg-navy-950 px-2 py-2.5 text-center">
+      <span className="text-[11px] font-black text-cyan-200">Lv.{l.level}</span>
+    </td>
+  );
+}
+
 export default function Heatmap({
   departments,
   minResponses,
   companyScores,
   companyTotal,
+  thresholds,
 }: {
   departments: DepartmentResult[];
   minResponses: number;
   companyScores?: Record<string, number>;
   companyTotal?: number | null;
+  thresholds?: number[];
 }) {
   // 表示できる部署の中で総合スコアの最高・最低を特定
   const scored = departments.filter((d) => d.sufficient && d.total_score != null);
@@ -81,6 +93,9 @@ export default function Heatmap({
               <th scope="col" className="px-2 py-1 text-center font-bold text-gray-700">
                 総合
               </th>
+              <th scope="col" className="px-2 py-1 text-center font-bold text-gray-700">
+                Lv
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -95,6 +110,7 @@ export default function Heatmap({
                   <ScoreCell key={c.key} score={companyScores[c.key] ?? 0} bold />
                 ))}
                 <ScoreCell score={companyTotal} bold />
+                <LevelBadge score={companyTotal} thresholds={thresholds} />
               </tr>
             )}
             {departments.map((d) => (
@@ -121,10 +137,11 @@ export default function Heatmap({
                       <ScoreCell key={c.key} score={d.category_scores?.[c.key] ?? 0} />
                     ))}
                     <ScoreCell score={d.total_score ?? 0} bold />
+                    <LevelBadge score={d.total_score ?? 0} thresholds={thresholds} />
                   </>
                 ) : (
                   <td
-                    colSpan={CATEGORIES.length + 1}
+                    colSpan={CATEGORIES.length + 2}
                     className="rounded bg-gray-50 px-2 py-2.5 text-center text-xs text-gray-400"
                   >
                     回答数不足({minResponses}名以上で表示されます)

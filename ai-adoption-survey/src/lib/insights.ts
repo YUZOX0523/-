@@ -114,65 +114,61 @@ export function overallInsight(params: {
   };
 }
 
-/** スコア状況に応じて推奨サービスを優先度順に返す(最大3件) */
+/**
+ * レベル駆動のサービス推奨。
+ * Lv.1-2(顧客層の大多数) → 法人リスキリングが主軸
+ * Lv.3(停滞圏を抜けた少数派) → Claude Code導入支援が主軸
+ * Lv.4-5(先進企業) → エージェント構築・AI開発実装支援が主軸
+ */
 export function recommendServices(params: {
+  level: number;
   categories: { key: string; deviation: number | null }[];
-  totalDeviation: number | null;
 }): { service: ServiceDef; reason: string }[] {
-  const { categories, totalDeviation } = params;
+  const { level, categories } = params;
   const dev = (k: string) =>
     categories.find((c) => c.key === k)?.deviation ?? 50;
-  const result: { service: ServiceDef; reason: string }[] = [];
-
-  const skillWeak = Math.min(dev("literacy"), dev("usage"), dev("mindset"));
   const orgWeak = Math.min(dev("org_drive"), dev("culture"), dev("governance"));
-  const usageStrong = (dev("usage") + dev("literacy")) / 2;
 
-  if (skillWeak < 50) {
-    result.push({
-      service: SERVICES.reskilling,
-      reason:
-        "リテラシー・活用度・マインドのいずれかが全国水準を下回っています。土台となる「全員が使える状態」づくりが最優先です。",
-    });
-  }
-  if (orgWeak < 50) {
-    result.push({
-      service: SERVICES.consulting,
-      reason:
-        "推進体制・浸透・ガバナンスに改善余地があります。仕組みとルールの整備で、個人の力を組織の力に変える段階です。",
-    });
-  }
-  if ((totalDeviation ?? 50) >= 52 || usageStrong >= 55) {
-    result.push({
-      service: SERVICES.claudecode,
-      reason:
-        "活用の土台が育っています。次の投資対効果は「内製開発・業務自動化」が最大。先行企業はすでにこの段階に進んでいます。",
-    });
-  }
-  // 該当が少ない場合も導線は最低2つ確保する
-  if (result.length === 0) {
-    result.push(
+  if (level <= 2) {
+    return [
       {
-        service: SERVICES.claudecode,
+        service: SERVICES.reskilling,
         reason:
-          "全カテゴリーがバランス良く高水準です。AI内製開発へ進み、競合との差をさらに広げる段階です。",
+          "貴社は多くの企業が停滞するレベル1・2の圏内です。ここからの脱出には、一部の得意な社員に頼るのではなく「全社員が使える状態」をつくる底上げが最優先。業務棚卸し×研修×6ヶ月伴走が最短ルートです。",
       },
       {
         service: SERVICES.consulting,
-        reason: "高い活用水準を全社の業務フロー変革につなげる伴走支援です。",
-      }
-    );
-  } else if (result.length === 1) {
-    result.push({
-      service:
-        result[0].service.id === "reskilling"
-          ? SERVICES.consulting
-          : SERVICES.reskilling,
-      reason:
-        result[0].service.id === "reskilling"
-          ? "研修と並行して推進体制・ガイドラインを整えると、定着速度が大きく変わります。"
-          : "現場のスキル底上げを並走させると、施策の効果が全社に波及します。",
-    });
+        reason:
+          orgWeak < 50
+            ? "推進体制・利用ルールが未整備のまま研修だけ行っても定着しません。ガイドライン整備と推進の仕組みづくりを並走させることで、研修効果が全社に波及します。"
+            : "研修と並行して活用ガイドラインと推進体制を磨き込むと、レベル3(組織活用)への到達速度が大きく変わります。",
+      },
+    ];
   }
-  return result.slice(0, 3);
+  if (level === 3) {
+    return [
+      {
+        service: SERVICES.claudecode,
+        reason:
+          "業務ツール連携(レベル3)まで到達した貴社の次の一手は、Claude Codeによるワークフロー自動化(レベル4)。この段階の企業が最も投資対効果を出しやすい領域で、先行企業はすでに踏み出しています。",
+      },
+      {
+        service: SERVICES.consulting,
+        reason:
+          "「どの業務から自動化するか」の棚卸しと優先度設計を専任チームが伴走。自動化テーマを確実に成果へつなげます。",
+      },
+    ];
+  }
+  return [
+    {
+      service: SERVICES.consulting,
+      reason:
+        "レベル4以上の貴社は、AIエージェント構築・AI開発実装で事業価値を創る段階です。実装から定着まで専任チームが伴走し、本格開発(レベル5)への移行を支援します。",
+    },
+    {
+      service: SERVICES.claudecode,
+      reason:
+        "全社のClaude Code活用力をさらに底上げし、内製開発体制を確立。研修からミニアプリ納品まで、フェーズに合わせて加速させます。",
+    },
+  ];
 }

@@ -15,7 +15,8 @@ export type CategoryScores = Record<string, number>;
 const DEFAULT_WEIGHTS: Record<string, number> = Object.fromEntries(
   CATEGORIES.map((c) => [c.key, 1])
 );
-const DEFAULT_THRESHOLDS = [20, 40, 60, 80];
+// レベル換算は厳格運用: スコア50(平均的回答)でもLv.2止まり。Lv.3以上は優秀組織のみ
+const DEFAULT_THRESHOLDS = [30, 55, 75, 90];
 
 /** 回答(1〜5)からカテゴリースコア(0〜100)と総合スコアを計算する */
 export function computeScores(
