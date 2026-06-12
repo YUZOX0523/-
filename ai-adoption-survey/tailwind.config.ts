@@ -31,7 +31,11 @@ const config: Config = {
         flame: "#ea4a1f",
       },
       fontFamily: {
-        sans: ["var(--font-noto-sans-jp)", "sans-serif"],
+        sans: [
+          "var(--font-inter)",
+          "var(--font-noto-sans-jp)",
+          "sans-serif",
+        ],
       },
       boxShadow: {
         card: "0 1px 3px rgba(16,24,64,0.06), 0 8px 24px rgba(16,24,64,0.08)",

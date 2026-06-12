@@ -105,6 +105,7 @@ export type ServiceDef = {
   id: "reskilling" | "consulting" | "claudecode";
   name: string;
   tagline: string;
+  description: string;
   bullets: string[];
   url: string;
   image: string;
@@ -117,6 +118,8 @@ export const SERVICES: Record<ServiceDef["id"], ServiceDef> = {
     id: "reskilling",
     name: "法人リスキリング",
     tagline: "業務棚卸し×学習×実践の6ヶ月伴走で、全社のAI活用を底上げ",
+    description:
+      "「ツールは入れたが、使われない」を業務棚卸しから解決。全社員の業務を分解して“AIに任せる業務”を特定し、動画学習10時間×活用ワークショップ×個別MTG計7回の6ヶ月伴走で定着まで担保します。GMOインターネットグループでは生成AI活用率94%・1人あたり月38.4時間の削減を実現。人材開発支援助成金の活用で、中小企業は実質月5,000円/人から始められます。",
     badge: "法人向けAIリスキリングサービス 導入社数No.1 ※",
     bullets: [
       "業務棚卸しを起点に、動画学習・活用ワークショップ・セキュリティ整備までワンストップ",
@@ -131,6 +134,8 @@ export const SERVICES: Record<ServiceDef["id"], ServiceDef> = {
     id: "consulting",
     name: "AIエージェント導入活用支援・AI開発実装支援",
     tagline: "推進体制づくりから業務自動化の実装・定着まで、専任で伴走",
+    description:
+      "推進担当の“孤軍奮闘”を終わらせます。課題の棚卸しから優先度設計、自動化フローの実装・定着までを専任チームが伴走。AI利用ガイドラインのひな形提供と理解度テスト付きセキュリティ教育で「安心して全社で使える」土台を固めます。稼働時間ではなく“即動く成果物”で受け取れる業務ミニアプリ納品にも対応します。",
     bullets: [
       "課題の棚卸し→優先度設計→自動化フローの実装・定着まで一気通貫",
       "AI利用ガイドライン策定・セキュリティ教育で「安心して使える環境」を整備",
@@ -144,6 +149,8 @@ export const SERVICES: Record<ServiceDef["id"], ServiceDef> = {
     id: "claudecode",
     name: "Claude Code 法人導入支援",
     tagline: "「使う」から「創る」へ。AI内製開発・業務自動化の次の一手",
+    description:
+      "AI活用の最終到達点は、現場が自分の業務アプリを“自分で創れる”こと。導入500社・延べ40,000名の実績をもとに、経営層向けマンツーマンコーチ(月20万円〜)から全社研修(WS4回+動画60本、助成金活用で実質9万円/人〜)、業務ミニアプリの1本単位納品まで、貴社のフェーズに合わせて内製化を支援します。",
     badge: "導入500社・延べ40,000名の実績",
     bullets: [
       "経営層向けマンツーマンコーチから全社研修まで、フェーズに合わせて選べる",
@@ -154,6 +161,16 @@ export const SERVICES: Record<ServiceDef["id"], ServiceDef> = {
     image: "/char-giraffe.png",
     imageAlt: "デジライズ公式キャラクター(キリン)",
   },
+};
+
+// カテゴリーの説明(LP・回答画面で使用)
+export const CATEGORY_DESCRIPTIONS: Record<string, string> = {
+  literacy: "生成AIの基本理解・プロンプト力・ツールの使い分け",
+  usage: "業務での使用頻度・適用範囲・成果実感",
+  org_drive: "経営のコミット・投資・推進体制",
+  culture: "部署内の広がり・ナレッジ共有・事例の流通",
+  mindset: "抵抗感の低さ・学習意欲・変化への前向きさ",
+  governance: "利用ルールの整備・周知・安心して使える環境",
 };
 
 export const NO1_ATTRIBUTION =

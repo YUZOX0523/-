@@ -1,15 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
-import { CATEGORIES, NO1_ATTRIBUTION, SERVICES } from "@/lib/constants";
-
-const CATEGORY_DESCRIPTIONS: Record<string, string> = {
-  literacy: "生成AIの基本理解・プロンプト力・ツールの使い分け",
-  usage: "業務での使用頻度・適用範囲・成果実感",
-  org_drive: "経営のコミット・投資・推進体制",
-  culture: "部署内の広がり・ナレッジ共有・事例の流通",
-  mindset: "抵抗感の低さ・学習意欲・変化への前向きさ",
-  governance: "利用ルールの整備・周知・安心して使える環境",
-};
+import {
+  CATEGORIES,
+  CATEGORY_DESCRIPTIONS,
+  NO1_ATTRIBUTION,
+  SERVICES,
+} from "@/lib/constants";
 
 export default function LandingPage() {
   return (
@@ -53,7 +49,7 @@ export default function LandingPage() {
             <p className="inline-block rounded-full border border-cyan-300/40 bg-cyan-400/10 px-4 py-1.5 text-xs font-bold text-cyan-200">
               法人向けAIリスキリング 導入社数No.1 のデジライズが提供 ※
             </p>
-            <h1 className="mt-6 text-3xl font-black leading-tight sm:text-5xl">
+            <h1 className="mt-6 text-3xl font-extrabold leading-[1.25] tracking-tight sm:text-5xl">
               自社のAI活用レベル、
               <br />
               <span className="bg-gradient-to-r from-cyan-300 to-violet-300 bg-clip-text text-transparent">
@@ -67,7 +63,7 @@ export default function LandingPage() {
             <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row lg:justify-start sm:justify-center">
               <Link
                 href="/register"
-                className="w-full rounded-xl bg-gradient-to-r from-brand-500 to-violet2 px-8 py-4 text-center text-lg font-black text-white shadow-hero hover:opacity-90 sm:w-auto"
+                className="w-full rounded-xl bg-gradient-to-r from-brand-500 to-violet2 px-8 py-4 text-center text-lg font-bold tracking-wide text-white shadow-hero hover:opacity-90 sm:w-auto"
               >
                 無料で診断を始める
               </Link>
@@ -105,7 +101,7 @@ export default function LandingPage() {
         <p className="text-center text-xs font-bold tracking-widest text-brand-600">
           WHAT YOU GET
         </p>
-        <h2 className="mt-2 text-center text-2xl font-black sm:text-3xl">
+        <h2 className="mt-2 text-center text-2xl font-bold tracking-tight sm:text-3xl">
           6つの視点 × 全国ベンチマークで組織を診断
         </h2>
         <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -115,10 +111,10 @@ export default function LandingPage() {
               className="group rounded-2xl border border-gray-100 bg-white p-6 shadow-card transition hover:-translate-y-0.5"
             >
               <div className="flex items-center gap-3">
-                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-violet2 text-sm font-black text-white">
+                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-violet2 text-sm font-bold text-white">
                   {i + 1}
                 </span>
-                <p className="font-black">{c.label}</p>
+                <p className="font-bold tracking-tight">{c.label}</p>
               </div>
               <p className="mt-3 text-sm text-gray-500">
                 {CATEGORY_DESCRIPTIONS[c.key]}
@@ -133,7 +129,7 @@ export default function LandingPage() {
             ["推奨アクション", "スコアに応じた具体的な次の一手を自動提案"],
           ].map(([t, d]) => (
             <div key={t}>
-              <p className="font-black text-brand-800">{t}</p>
+              <p className="font-bold text-brand-800">{t}</p>
               <p className="mt-1 text-xs text-gray-600">{d}</p>
             </div>
           ))}
@@ -146,7 +142,7 @@ export default function LandingPage() {
           <p className="text-center text-xs font-bold tracking-widest text-brand-600">
             HOW IT WORKS
           </p>
-          <h2 className="mt-2 text-center text-2xl font-black sm:text-3xl">
+          <h2 className="mt-2 text-center text-2xl font-bold tracking-tight sm:text-3xl">
             導入はかんたん3ステップ
           </h2>
           <ol className="mx-auto mt-10 grid max-w-4xl grid-cols-1 gap-6 sm:grid-cols-3">
@@ -156,10 +152,10 @@ export default function LandingPage() {
               ["診断", "回答はリアルタイムに集計。偏差値・部署別ヒートマップをダッシュボードで確認。"],
             ].map(([title, desc], i) => (
               <li key={title} className="relative rounded-2xl bg-white p-6 shadow-card">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-violet2 text-lg font-black text-white">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-violet2 text-lg font-bold text-white">
                   {i + 1}
                 </div>
-                <div className="mt-3 text-lg font-black">{title}</div>
+                <div className="mt-3 text-lg font-bold tracking-tight">{title}</div>
                 <p className="mt-1 text-sm text-gray-600">{desc}</p>
               </li>
             ))}
@@ -172,32 +168,39 @@ export default function LandingPage() {
         <p className="text-center text-xs font-bold tracking-widest text-brand-600">
           AFTER THE CHECK-UP
         </p>
-        <h2 className="mt-2 text-center text-2xl font-black sm:text-3xl">
+        <h2 className="mt-2 text-center text-2xl font-bold tracking-tight sm:text-3xl">
           診断のその先まで、デジライズが伴走します
         </h2>
         <p className="mx-auto mt-3 max-w-2xl text-center text-sm text-gray-500">
           診断結果の弱点カテゴリーに応じて、最適な打ち手をご提案。学ぶ(リスキリング)から創る(AI開発・内製化)まで一気通貫で支援します。
         </p>
-        <div className="mt-10 grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <div className="mt-10 grid grid-cols-1 gap-5 lg:grid-cols-3">
           {Object.values(SERVICES).map((s) => (
             <a
               key={s.id}
               href={s.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="group flex flex-col rounded-2xl border border-gray-100 bg-white p-6 shadow-card transition hover:-translate-y-0.5 hover:border-brand-200"
+              className="group flex flex-col rounded-2xl border border-gray-100 bg-white p-7 shadow-card transition hover:-translate-y-0.5 hover:border-brand-200"
             >
               <div className="flex items-start justify-between gap-3">
                 <div>
                   {s.badge && (
-                    <p className="text-[10px] font-bold text-flame">{s.badge.replace(" ※", "")}</p>
+                    <p className="text-[11px] font-bold tracking-wide text-flame">
+                      {s.badge.replace(" ※", "")}
+                    </p>
                   )}
-                  <p className="mt-1 font-black leading-snug">{s.name}</p>
+                  <p className="mt-1.5 text-lg font-bold leading-snug tracking-tight">
+                    {s.name}
+                  </p>
+                  <p className="mt-1 text-xs font-semibold text-brand-700">{s.tagline}</p>
                 </div>
-                <Image src={s.image} alt={s.imageAlt} width={48} height={84} className="h-auto w-12 flex-none" />
+                <Image src={s.image} alt={s.imageAlt} width={52} height={91} className="h-auto w-12 flex-none sm:w-13" />
               </div>
-              <p className="mt-2 flex-1 text-xs leading-relaxed text-gray-500">{s.tagline}</p>
-              <p className="mt-3 text-sm font-bold text-brand-600 group-hover:underline">
+              <p className="mt-4 flex-1 border-t border-gray-100 pt-4 text-[13px] leading-[1.9] text-gray-600">
+                {s.description}
+              </p>
+              <p className="mt-4 text-sm font-bold text-brand-600 group-hover:underline">
                 詳しく見る →
               </p>
             </a>
@@ -207,7 +210,7 @@ export default function LandingPage() {
         <div className="mt-12 text-center">
           <Link
             href="/register"
-            className="inline-block rounded-xl bg-gradient-to-r from-brand-500 to-violet2 px-10 py-4 text-lg font-black text-white shadow-hero hover:opacity-90"
+            className="inline-block rounded-xl bg-gradient-to-r from-brand-500 to-violet2 px-10 py-4 text-lg font-bold tracking-wide text-white shadow-hero hover:opacity-90"
           >
             まずは無料で現在地を知る
           </Link>
