@@ -50,17 +50,25 @@ export default function LandingPage() {
             <p className="inline-block rounded-full border border-cyan-300/40 bg-cyan-400/10 px-4 py-1.5 text-xs font-bold text-cyan-200">
               法人向けAIリスキリング 導入社数No.1 のデジライズが提供 ※
             </p>
-            <h1 className="mt-6 text-3xl font-extrabold leading-[1.3] tracking-tight sm:text-5xl">
-              そのAI活用、
-              <br />
-              <span className="bg-gradient-to-r from-cyan-300 to-violet-300 bg-clip-text text-transparent">
-                “一部の社員だけ”
+            <h1 className="mt-6">
+              <span className="block bg-gradient-to-r from-cyan-300 via-white to-violet-300 bg-clip-text text-5xl font-black leading-[1.15] tracking-tight text-transparent sm:text-[4.2rem]">
+                AI活用レベル診断
               </span>
-              に
-              <br className="sm:hidden" />
-              なっていませんか?
+              <span className="mt-2 inline-flex items-center gap-2">
+                <span className="rounded-md bg-flame px-2 py-0.5 text-xs font-bold text-white sm:text-sm">
+                  無料
+                </span>
+                <span className="text-sm font-semibold tracking-wide text-white/60 sm:text-base">
+                  組織のAI活用力を、5〜10分で見える化
+                </span>
+              </span>
             </h1>
-            <p className="mx-auto mt-6 max-w-xl text-sm leading-relaxed text-white/70 sm:text-base lg:mx-0">
+            <p className="mt-6 text-xl font-bold leading-snug tracking-tight text-white sm:text-2xl">
+              そのAI活用、
+              <span className="text-cyan-300">“一部の社員だけ”</span>
+              になっていませんか?
+            </p>
+            <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-white/70 sm:text-base lg:mx-0">
               ツールを導入済みの企業も、これからの企業も。社員5〜10分の匿名サーベイで、組織のAI活用の実態と「次の一手」が見える無料診断です。企業全体・部署ごとのレベルを、全国ベンチマークと比較できるダッシュボードでお届けします。
             </p>
             <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row lg:justify-start sm:justify-center">
