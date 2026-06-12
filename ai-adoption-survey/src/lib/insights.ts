@@ -1,5 +1,5 @@
 import { SERVICES, type ServiceDef, type CategoryKey } from "./constants";
-import { topPercent } from "./scoring";
+import { rankLabel, topPercent } from "./scoring";
 
 /**
  * 診断コメント生成エンジン。
@@ -99,7 +99,7 @@ export function overallInsight(params: {
       tone,
       headline: `全国平均圏 — ここからの1年が「上位組」との分水嶺です`,
       body:
-        `総合偏差値${totalDeviation.toFixed(1)}で、全国の${industryLabel}のほぼ平均圏(上位${pct}%)にいます。` +
+        `総合偏差値${totalDeviation.toFixed(1)}で、全国の${industryLabel}のほぼ平均圏(${rankLabel(totalDeviation).text})にいます。` +
         `ただし注意が必要なのは、上位2割の企業はすでに「全員が使う」を超えて業務自動化・AI内製開発へ駒を進めていることです。` +
         `平均圏は安全圏ではなく、最も差がつきやすいポジションです。強みのカテゴリーを推進エンジンに、弱みのカテゴリーへ計画的に投資すれば、1年で上位群への到達は十分可能です。`,
     };

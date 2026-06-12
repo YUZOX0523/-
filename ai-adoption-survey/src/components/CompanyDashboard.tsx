@@ -12,6 +12,8 @@ import { SERIES_COLORS } from "@/lib/colors";
 import Heatmap from "./Heatmap";
 import DeptResponseChart from "./DeptResponseChart";
 import LevelLadder from "./LevelLadder";
+import PositionGauge from "./PositionGauge";
+import { rankLabel } from "@/lib/scoring";
 
 function Card({
   title,
@@ -119,9 +121,18 @@ export default function CompanyDashboard({
             </div>
             <p className="mt-4 text-sm text-white/80">
               全国の{data.industryLabel}・{data.sizeBandLabel}規模の企業の中で{" "}
-              <strong className="text-lg text-white">
-                上位{data.totalTopPercent ?? "—"}%
-              </strong>
+              {(() => {
+                if (data.totalDeviation == null)
+                  return <strong className="text-lg text-white">—</strong>;
+                const rank = rankLabel(data.totalDeviation);
+                return (
+                  <strong
+                    className={`text-lg ${rank.positive ? "text-white" : "text-orange-300"}`}
+                  >
+                    {rank.text}
+                  </strong>
+                );
+              })()}
               {data.benchmarkN != null && (
                 <span className="ml-2 text-xs text-white/50">
                   (ベンチマーク母数 n={data.benchmarkN}社
@@ -129,6 +140,9 @@ export default function CompanyDashboard({
                 </span>
               )}
             </p>
+            {data.totalDeviation != null && (
+              <PositionGauge deviation={data.totalDeviation} />
+            )}
           </div>
           <div className="text-center">
             <div className="rounded-2xl border border-white/15 bg-white/10 px-10 py-6 backdrop-blur">

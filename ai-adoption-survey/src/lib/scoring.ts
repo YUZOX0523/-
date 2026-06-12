@@ -66,6 +66,20 @@ export function topPercent(deviation: number): number {
   return Math.max(1, Math.min(99, Math.round(p * 100)));
 }
 
+/**
+ * 順位の表示ラベル。「上位59%」のような分かりにくい表現を避け、
+ * 中央値より上は「上位◯%」、下は「下位◯%」で表す。
+ */
+export function rankLabel(deviation: number): {
+  text: string;
+  positive: boolean;
+} {
+  const pct = topPercent(deviation);
+  return pct <= 50
+    ? { text: `上位${pct}%`, positive: true }
+    : { text: `下位${100 - pct}%`, positive: false };
+}
+
 function normalCdf(z: number): number {
   // Abramowitz & Stegun 近似
   const t = 1 / (1 + 0.2316419 * Math.abs(z));
