@@ -69,7 +69,7 @@ export default function RegisterPage() {
         <h1 className="mt-4 text-2xl font-bold">サーベイURLが発行されました</h1>
         <p className="mt-2 text-sm text-gray-600">
           以下のURLを社内チャットやメールで社員の皆さまへ展開してください。
-          同じ内容をメールでもお送りしています。
+          URLはログイン後の「部署・URL設定」ページでいつでも確認できます。
         </p>
         <div className="mt-6 break-all rounded-xl border border-brand-200 bg-brand-50 p-4 text-sm font-medium text-brand-800">
           {surveyUrl}
