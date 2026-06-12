@@ -40,7 +40,11 @@ export default async function ReportPage() {
       </div>
 
       <header className="border-b-4 border-brand-600 pb-4">
-        <p className="text-sm font-bold text-brand-600">AI活用レベル診断レポート</p>
+        <div className="flex items-center justify-between">
+          <p className="text-sm font-bold text-brand-600">AI活用レベル診断レポート</p>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/digirise-logo.png" alt="DigiRise" width={110} />
+        </div>
         <h1 className="mt-1 text-3xl font-black">{company.name}</h1>
         <p className="mt-1 text-sm text-gray-500">
           {data.industryLabel} / {data.sizeBandLabel} / 回答 {data.n} 名 /{" "}

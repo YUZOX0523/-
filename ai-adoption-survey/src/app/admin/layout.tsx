@@ -23,10 +23,12 @@ export default async function AdminLayout({
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="border-b border-gray-200 bg-gray-900 text-white">
+      <header className="border-b border-gray-200 bg-navy-950 text-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-          <Link href="/admin" className="font-bold">
-            AI活用レベル診断 <span className="text-xs text-gray-400">管理画面</span>
+          <Link href="/admin" className="flex items-center gap-3">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/digirise-logo-white.png" alt="DigiRise" width={100} />
+            <span className="text-xs text-gray-400">管理画面</span>
           </Link>
           <nav className="flex items-center gap-5 text-sm">
             <Link href="/admin" className="text-gray-300 hover:text-white">

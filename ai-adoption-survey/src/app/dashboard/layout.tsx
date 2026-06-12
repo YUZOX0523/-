@@ -34,8 +34,12 @@ export default async function DashboardLayout({
     <div className="min-h-screen bg-gray-50">
       <header className="no-print border-b border-gray-200 bg-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-          <Link href="/dashboard" className="font-bold text-brand-700">
-            AI活用レベル診断
+          <Link href="/dashboard" className="flex items-center gap-3">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/digirise-logo.png" alt="DigiRise" width={100} />
+            <span className="hidden border-l border-gray-200 pl-3 text-sm font-bold text-navy-900 sm:inline">
+              AI活用レベル診断
+            </span>
           </Link>
           <nav className="flex items-center gap-5 text-sm">
             <Link href="/dashboard" className="text-gray-600 hover:text-brand-700">

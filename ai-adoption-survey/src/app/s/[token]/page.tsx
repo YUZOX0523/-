@@ -197,6 +197,20 @@ export default function SurveyPage() {
       {/* Step 0: 同意 */}
       {step === 0 && (
         <section className="py-10 text-center">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/digirise-logo.png"
+            alt="DigiRise"
+            width={110}
+            className="mx-auto mb-5"
+          />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/char-duo.png"
+            alt="デジライズ公式キャラクター"
+            width={150}
+            className="mx-auto mb-2 rounded-2xl"
+          />
           <p className="text-sm font-bold text-brand-600">{meta.company_name}</p>
           <h1 className="mt-2 text-2xl font-black">AI活用レベル診断</h1>
           <p className="mt-4 text-sm leading-relaxed text-gray-600">

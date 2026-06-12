@@ -100,6 +100,65 @@ export const SIZE_BAND_LABELS: Record<string, string> = Object.fromEntries(
   SIZE_BANDS.map((s) => [s.code, s.label])
 );
 
+// デジライズの看板サービス(診断結果からの導線先)
+export type ServiceDef = {
+  id: "reskilling" | "consulting" | "claudecode";
+  name: string;
+  tagline: string;
+  bullets: string[];
+  url: string;
+  image: string;
+  imageAlt: string;
+  badge?: string;
+};
+
+export const SERVICES: Record<ServiceDef["id"], ServiceDef> = {
+  reskilling: {
+    id: "reskilling",
+    name: "法人リスキリング",
+    tagline: "業務棚卸し×学習×実践の6ヶ月伴走で、全社のAI活用を底上げ",
+    badge: "法人向けAIリスキリングサービス 導入社数No.1 ※",
+    bullets: [
+      "業務棚卸しを起点に、動画学習・活用ワークショップ・セキュリティ整備までワンストップ",
+      "導入企業実績: 生成AI活用率94%・1人あたり月38.4時間削減(GMOインターネットグループ)",
+      "人材開発支援助成金の活用で、実質負担を大幅に軽減(中小企業は最大75%助成)",
+    ],
+    url: "https://digirise.ai/business/reskilling/",
+    image: "/char-squirrel-pointer.png",
+    imageAlt: "デジライズ公式キャラクター(リス)",
+  },
+  consulting: {
+    id: "consulting",
+    name: "AIエージェント導入活用支援・AI開発実装支援",
+    tagline: "推進体制づくりから業務自動化の実装・定着まで、専任で伴走",
+    bullets: [
+      "課題の棚卸し→優先度設計→自動化フローの実装・定着まで一気通貫",
+      "AI利用ガイドライン策定・セキュリティ教育で「安心して使える環境」を整備",
+      "『即動くもの』を成果物として納品するミニアプリ開発にも対応",
+    ],
+    url: "https://digirise.ai/business/aiconsulting/",
+    image: "/char-giraffe-arms.png",
+    imageAlt: "デジライズ公式キャラクター(キリン)",
+  },
+  claudecode: {
+    id: "claudecode",
+    name: "Claude Code 法人導入支援",
+    tagline: "「使う」から「創る」へ。AI内製開発・業務自動化の次の一手",
+    badge: "導入500社・延べ40,000名の実績",
+    bullets: [
+      "経営層向けマンツーマンコーチから全社研修まで、フェーズに合わせて選べる",
+      "ワークショップ4回+動画60本で「自走するAI内製組織」を育成(助成金活用で実質9万円/人〜)",
+      "業務ミニアプリを1本単位で納品。Day1から動く成果物で投資対効果を最大化",
+    ],
+    url: "https://claudecode.digirise.ai/?utm_source=digirise&utm_medium=internal&utm_campaign=cta",
+    image: "/char-giraffe.png",
+    imageAlt: "デジライズ公式キャラクター(キリン)",
+  },
+};
+
+export const NO1_ATTRIBUTION =
+  "※ 東京商工リサーチ調べ / 2026年3月末時点 法人向けAIリスキリングサービス";
+
 // 弱点カテゴリー → デジライズのサービス推奨マッピング
 export const SERVICE_RECOMMENDATIONS: Record<
   CategoryKey,

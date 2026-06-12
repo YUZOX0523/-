@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import type { Metadata } from "next";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { CATEGORIES } from "@/lib/constants";
@@ -80,7 +81,7 @@ export default async function PersonalResultPage({ params }: Props) {
     };
   });
 
-  // カテゴリーごとの全国平均比較コメント(最大の強み1つ)
+  // カテゴリーごとの全国平均比較
   const withDiff = CATEGORIES.map((c) => {
     const bm = pickBenchmark(data.benchmarks, c.key, "all", "all");
     const mean = bm ? Number(bm.mean) : 55;
@@ -93,29 +94,50 @@ export default async function PersonalResultPage({ params }: Props) {
     };
   }).sort((a, b) => b.diff - a.diff);
   const best = withDiff[0];
+  const worst = withDiff[withDiff.length - 1];
+
+  // 総合の立ち位置に応じてトーンを変える(甘やかさない)
+  const totalBm = pickBenchmark(data.benchmarks, "total", "all", "all");
+  const totalDev = deviationValue(
+    totalScore,
+    totalBm ? Number(totalBm.mean) : 55,
+    totalBm ? Number(totalBm.sd) : 15
+  );
   const comment =
-    best.diff >= 0
-      ? `あなたの「${best.label}」は全国平均を上回っています。`
-      : `全体的に伸びしろがあります。まずは「${withDiff[withDiff.length - 1].label}」から取り組んでみましょう。`;
+    totalDev < 45
+      ? `総合スコアは全国平均を下回っています。生成AIを使いこなす人との生産性差は毎月開いていきます — まずは「${worst.label}」から、週1回の業務活用を始めてみましょう。`
+      : totalDev < 55
+        ? `全国平均圏です。「${best.label}」は健闘していますが、上位層は既に日常業務の自動化まで進んでいます。「${worst.label}」を伸ばせば一段上が見えてきます。`
+        : `全国上位圏です。「${best.label}」はあなたの強力な武器 — 次は周囲への共有や、より高度な活用(自動化・開発)に挑戦するステージです。`;
 
   return (
     <main className="mx-auto max-w-xl px-4 py-10">
-      <p className="text-center text-sm font-bold text-brand-600">
+      <div className="flex justify-center">
+        <Image src="/digirise-logo.png" alt="DigiRise" width={110} height={37} />
+      </div>
+      <p className="mt-4 text-center text-sm font-bold text-brand-600">
         診断が完了しました
       </p>
       <h1 className="mt-1 text-center text-2xl font-black">
         あなたのAI活用レベル
       </h1>
 
-      <div className="mt-8 rounded-2xl border border-gray-200 bg-gradient-to-b from-brand-50 to-white p-8 text-center">
-        <div className="text-6xl font-black text-brand-700">
-          {Math.round(totalScore)}
-          <span className="ml-1 text-2xl font-bold text-gray-400">/100</span>
+      <div className="relative mt-8 overflow-hidden rounded-3xl bg-gradient-to-br from-navy-950 via-navy-800 to-brand-800 p-8 text-center text-white shadow-hero">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full opacity-25 blur-3xl"
+          style={{ background: "radial-gradient(circle, #06b6d4, #6d28d9 70%, transparent)" }}
+        />
+        <div className="relative">
+          <div className="bg-gradient-to-r from-cyan-300 via-white to-violet-300 bg-clip-text text-7xl font-black text-transparent">
+            {Math.round(totalScore)}
+            <span className="ml-1 text-2xl font-bold text-white/40">/100</span>
+          </div>
+          <div className="mt-3 inline-block rounded-full border border-white/20 bg-white/10 px-5 py-1.5 text-sm font-bold backdrop-blur">
+            Lv.{level.level} {level.name}
+          </div>
+          <p className="mt-3 text-sm text-white/70">{level.description}</p>
         </div>
-        <div className="mt-3 inline-block rounded-full bg-brand-600 px-4 py-1.5 text-sm font-bold text-white">
-          Lv.{level.level} {level.name}
-        </div>
-        <p className="mt-3 text-sm text-gray-600">{level.description}</p>
       </div>
 
       <section className="mt-8">
@@ -134,18 +156,27 @@ export default async function PersonalResultPage({ params }: Props) {
         </p>
       </section>
 
-      <section className="mt-10 rounded-2xl border border-gray-200 bg-gray-50 p-6 text-center text-sm text-gray-600">
-        <p>
-          会社全体・部署ごとの詳細な診断結果は、人事・推進ご担当者に共有されています。
-        </p>
-        <a
-          href={process.env.NEXT_PUBLIC_CONSULTATION_URL ?? "https://digirise.ai/contact/"}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-3 inline-block text-brand-600 underline"
-        >
-          株式会社デジライズのAI研修・支援サービスを見る →
-        </a>
+      <section className="mt-10 flex items-center gap-4 rounded-2xl border border-gray-100 bg-gray-50 p-6 text-sm text-gray-600">
+        <Image
+          src="/char-squirrel.png"
+          alt="デジライズ公式キャラクター(リス)"
+          width={72}
+          height={103}
+          className="h-auto w-16 flex-none"
+        />
+        <div>
+          <p>
+            会社全体・部署ごとの詳細な診断結果は、人事・推進ご担当者に共有されています。
+          </p>
+          <a
+            href={process.env.NEXT_PUBLIC_CONSULTATION_URL ?? "https://digirise.ai/contact/"}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-2 inline-block font-bold text-brand-600 underline"
+          >
+            株式会社デジライズのAI研修・支援サービスを見る →
+          </a>
+        </div>
       </section>
 
       <p className="mt-8 text-center text-xs text-gray-400">
