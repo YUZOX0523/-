@@ -1,11 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import LpDashboardMockup from "@/components/LpDashboardMockup";
+import LpDeliverables from "@/components/LpDeliverables";
 import {
   CATEGORIES,
   CATEGORY_DESCRIPTIONS,
   NO1_ATTRIBUTION,
-  SERVICES,
 } from "@/lib/constants";
 
 export default function LandingPage() {
@@ -173,57 +173,36 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 診断のその先(サービス) */}
+      {/* 診断で手に入るもの(成果物ショーケース) */}
       <section className="mx-auto max-w-6xl px-4 py-16 sm:py-20">
         <p className="text-center text-xs font-bold tracking-widest text-brand-600">
-          AFTER THE CHECK-UP
+          WHAT THE CHECK-UP DELIVERS
         </p>
         <h2 className="mt-2 text-center text-2xl font-bold tracking-tight sm:text-3xl">
-          診断のその先まで、デジライズが伴走します
+          5〜10分の回答で、ここまで見える
         </h2>
         <p className="mx-auto mt-3 max-w-2xl text-center text-sm text-gray-500">
-          診断結果の弱点カテゴリーに応じて、最適な打ち手をご提案。学ぶ(リスキリング)から創る(AI開発・内製化)まで一気通貫で支援します。
+          「なんとなくAIが使われていない気がする」を、数字と打ち手に変える3つの成果物。すべて回答完了と同時に自動生成されます。
         </p>
-        <div className="mt-10 grid grid-cols-1 gap-5 lg:grid-cols-3">
-          {Object.values(SERVICES).map((s) => (
-            <a
-              key={s.id}
-              href={s.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group flex flex-col rounded-2xl border border-gray-100 bg-white p-7 shadow-card transition hover:-translate-y-0.5 hover:border-brand-200"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  {s.badge && (
-                    <p className="text-[11px] font-bold tracking-wide text-flame">
-                      {s.badge.replace(" ※", "")}
-                    </p>
-                  )}
-                  <p className="mt-1.5 text-lg font-bold leading-snug tracking-tight">
-                    {s.name}
-                  </p>
-                  <p className="mt-1 text-xs font-semibold text-brand-700">{s.tagline}</p>
-                </div>
-                <Image src={s.image} alt={s.imageAlt} width={52} height={91} className="h-auto w-12 flex-none sm:w-13" />
-              </div>
-              <p className="mt-4 flex-1 border-t border-gray-100 pt-4 text-[13px] leading-[1.9] text-gray-600">
-                {s.description}
-              </p>
-              <p className="mt-4 text-sm font-bold text-brand-600 group-hover:underline">
-                詳しく見る →
-              </p>
-            </a>
-          ))}
+        <div className="mt-14">
+          <LpDeliverables />
         </div>
-        <p className="mt-4 text-center text-[10px] text-gray-400">{NO1_ATTRIBUTION}</p>
-        <div className="mt-12 text-center">
+        <div className="mt-16 rounded-3xl bg-gradient-to-br from-navy-950 via-navy-800 to-brand-800 p-8 text-center text-white shadow-hero sm:p-12">
+          <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+            まずは無料で、自社の現在地を知る
+          </h2>
+          <p className="mx-auto mt-3 max-w-xl text-sm text-white/70">
+            費用は一切かかりません。登録から3分でサーベイURLが発行され、回答が集まるそばからダッシュボードに反映されます。
+          </p>
           <Link
             href="/register"
-            className="inline-block rounded-xl bg-gradient-to-r from-brand-500 to-violet2 px-10 py-4 text-lg font-bold tracking-wide text-white shadow-hero hover:opacity-90"
+            className="mt-7 inline-block rounded-xl bg-gradient-to-r from-brand-500 to-violet2 px-12 py-4 text-lg font-bold tracking-wide text-white shadow-hero hover:opacity-90"
           >
-            まずは無料で現在地を知る
+            無料で診断を始める
           </Link>
+          <p className="mt-4 text-xs text-white/40">
+            クレジットカード不要 ・ 回答者の個人情報は一切取得しません
+          </p>
         </div>
       </section>
 
@@ -243,6 +222,7 @@ export default function LandingPage() {
               コーポレートサイト
             </a>
           </div>
+          <p className="text-[10px] text-white/30">{NO1_ATTRIBUTION}</p>
           <p className="text-xs text-white/40">© DigiRise, Inc. All Rights Reserved.</p>
         </div>
       </footer>
