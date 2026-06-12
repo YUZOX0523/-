@@ -355,3 +355,18 @@ $$;
 
 -- RPCの実行権限: refresh_benchmarksはサーバー(service role/cron)専用
 revoke execute on function public.refresh_benchmarks() from public, anon, authenticated;
+
+-- ---------- 権限付与(GRANT) ----------
+-- 新しいSupabase CLIのローカル環境ではpublicスキーマのデフォルト権限が
+-- 自動付与されないため、明示的にGRANTする(テーブル単位の入場許可)。
+-- 行レベルのアクセス制御は上記RLSポリシーが担う。
+grant usage on schema public to anon, authenticated, service_role;
+grant all on all tables in schema public to anon, authenticated, service_role;
+grant all on all sequences in schema public to anon, authenticated, service_role;
+grant execute on all functions in schema public to anon, authenticated, service_role;
+alter default privileges in schema public
+  grant all on tables to anon, authenticated, service_role;
+alter default privileges in schema public
+  grant all on sequences to anon, authenticated, service_role;
+-- 広範なGRANTの後に、サーバー専用RPCの実行権を改めて剥奪する
+revoke execute on function public.refresh_benchmarks() from public, anon, authenticated;
