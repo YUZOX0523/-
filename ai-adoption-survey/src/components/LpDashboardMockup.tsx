@@ -142,12 +142,12 @@ export default function LpDashboardMockup() {
         </div>
       </div>
 
-      {/* 注釈チップ(大画面のみ) */}
-      <div className="absolute -left-4 top-16 hidden -translate-x-full rounded-lg bg-white px-3 py-1.5 text-[10px] font-bold text-navy-900 shadow-card xl:block">
-        全国偏差値で立ち位置が分かる →
+      {/* 注釈チップ(モックの縁に重ねて表示し、見出しと干渉しないようにする) */}
+      <div className="absolute -top-3 left-3 hidden rounded-lg bg-white px-3 py-1.5 text-[10px] font-bold text-navy-900 shadow-card lg:block">
+        全国偏差値で立ち位置が分かる ↓
       </div>
-      <div className="absolute -right-4 bottom-24 hidden translate-x-full rounded-lg bg-white px-3 py-1.5 text-[10px] font-bold text-navy-900 shadow-card xl:block">
-        ← 弱い部署・弱いテーマを特定
+      <div className="absolute -left-3 bottom-24 hidden rounded-lg bg-white px-3 py-1.5 text-[10px] font-bold text-navy-900 shadow-card lg:block">
+        弱い部署・弱いテーマを特定 →
       </div>
       {/* PDFバッジ */}
       <div className="absolute -bottom-3 right-4 rounded-full bg-gradient-to-r from-brand-500 to-violet2 px-3.5 py-1.5 text-[10px] font-bold text-white shadow-lg">

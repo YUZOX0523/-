@@ -47,8 +47,8 @@ export default function LandingPage() {
         />
         <div className="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 px-4 py-16 sm:py-20 lg:grid-cols-[1fr_minmax(0,500px)]">
           <div className="text-center lg:text-left">
-            <p className="inline-block rounded-full border border-cyan-300/40 bg-cyan-400/10 px-4 py-1.5 text-xs font-bold text-cyan-200">
-              法人向けAIリスキリング 導入社数No.1 のデジライズが提供 ※
+            <p className="inline-block rounded-full border border-cyan-300/40 bg-cyan-400/10 px-5 py-2 text-sm font-bold tracking-wide text-cyan-200 sm:px-6 sm:py-2.5 sm:text-base">
+              法人向けAIリスキリング <span className="text-white">導入社数No.1</span> のデジライズが提供 ※
             </p>
             <h1 className="mt-6">
               <span className="block bg-gradient-to-r from-cyan-300 via-white to-violet-300 bg-clip-text text-5xl font-black leading-[1.15] tracking-tight text-transparent sm:text-[4.2rem]">
