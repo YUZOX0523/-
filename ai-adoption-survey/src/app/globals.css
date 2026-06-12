@@ -4,6 +4,31 @@
 
 @layer base {
   body {
-    @apply bg-gray-50 text-gray-900;
+    @apply bg-white text-gray-800 antialiased;
+    /* 日本語の詰め組み(プロポーショナルメトリクス)で上質な印象に */
+    font-feature-settings: "palt" 1;
+    letter-spacing: 0.015em;
+  }
+  h1,
+  h2,
+  h3 {
+    @apply tracking-tight;
+  }
+  /* スコア等の数字はInterのタブラー数字でそろえる */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .print-page {
+    page-break-after: always;
   }
 }

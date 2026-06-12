@@ -1,266 +1,241 @@
-'use client';
+import Image from "next/image";
+import Link from "next/link";
+import LpDashboardMockup from "@/components/LpDashboardMockup";
+import LpDeliverables from "@/components/LpDeliverables";
+import {
+  CATEGORIES,
+  CATEGORY_DESCRIPTIONS,
+  NO1_ATTRIBUTION,
+} from "@/lib/constants";
 
-import { useState, useEffect } from 'react';
-
-type Company = {
-  id: number;
-  name: string;
-  contact_name: string | null;
-  survey_token: string;
-  results_token: string | null;
-  created_at: string;
-  response_count: number;
-};
-
-export default function AdminPage() {
-  const [name, setName] = useState('');
-  const [contactName, setContactName] = useState('');
-  const [contactEmail, setContactEmail] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<{ token: string; resultsToken: string } | null>(null);
-  const [error, setError] = useState('');
-  const [companies, setCompanies] = useState<Company[]>([]);
-  const [loadingList, setLoadingList] = useState(true);
-
-  const origin = typeof window !== 'undefined' ? window.location.origin : '';
-
-  useEffect(() => {
-    fetchCompanies();
-  }, []);
-
-  async function fetchCompanies() {
-    setLoadingList(true);
-    const res = await fetch('/api/companies');
-    const data = await res.json();
-    setCompanies(data.companies || []);
-    setLoadingList(false);
-  }
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-    setResult(null);
-
-    const res = await fetch('/api/companies', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, contactName, contactEmail }),
-    });
-    const data = await res.json();
-
-    if (!res.ok) {
-      setError(data.error || 'エラーが発生しました');
-    } else {
-      setResult(data);
-      setName('');
-      setContactName('');
-      setContactEmail('');
-      fetchCompanies();
-    }
-    setLoading(false);
-  }
-
-  function copyToClipboard(text: string) {
-    navigator.clipboard.writeText(text);
-    alert('コピーしました');
-  }
-
+export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-violet-900">
-      {/* Header */}
-      <header className="px-6 py-5 flex items-center gap-3">
-        <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-          <span className="text-blue-800 font-black text-sm">AI</span>
-        </div>
-        <div>
-          <p className="text-white font-bold text-lg leading-none">AI活用組織診断</p>
-          <p className="text-blue-200 text-xs">by デジライズ</p>
-        </div>
-        <div className="ml-auto flex items-center gap-3">
-          <span className="bg-blue-700 text-blue-100 text-xs px-3 py-1 rounded-full">管理者画面</span>
-          <button
-            onClick={async () => {
-              await fetch('/api/admin/logout', { method: 'POST' });
-              window.location.href = '/admin/login';
-            }}
-            className="text-blue-200 hover:text-white text-xs underline"
-          >
-            ログアウト
-          </button>
+    <main className="min-h-screen">
+      <header className="sticky top-0 z-20 border-b border-gray-100 bg-white/90 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+          <div className="flex items-center gap-3">
+            <Image src="/digirise-logo.png" alt="DigiRise" width={120} height={40} priority />
+            <span className="hidden border-l border-gray-200 pl-3 text-sm font-bold text-navy-900 sm:inline">
+              AI活用レベル診断
+            </span>
+          </div>
+          <nav className="flex items-center gap-4 text-sm">
+            <Link href="/login" className="text-gray-600 hover:text-brand-700">
+              担当者ログイン
+            </Link>
+            <Link
+              href="/register"
+              className="rounded-lg bg-brand-600 px-4 py-2 font-bold text-white shadow-sm hover:bg-brand-700"
+            >
+              無料で診断する
+            </Link>
+          </nav>
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 pb-16">
-        {/* Create survey card */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
-          <h1 className="text-2xl font-bold text-gray-800 mb-1">診断リンクを発行する</h1>
-          <p className="text-gray-500 text-sm mb-6">
-            企業ごとに専用URLを発行します。対象社員にURLを共有するだけで診断を開始できます。
-          </p>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                企業名 <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="株式会社〇〇"
-                required
-                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+      {/* ヒーロー */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-navy-950 via-navy-800 to-brand-800 text-white">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -left-32 top-10 h-96 w-96 rounded-full opacity-20 blur-3xl"
+          style={{ background: "radial-gradient(circle, #06b6d4, transparent 70%)" }}
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -right-24 bottom-0 h-96 w-96 rounded-full opacity-20 blur-3xl"
+          style={{ background: "radial-gradient(circle, #6d28d9, transparent 70%)" }}
+        />
+        <div className="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 px-4 py-16 sm:py-20 lg:grid-cols-[1fr_minmax(0,500px)]">
+          <div className="text-center lg:text-left">
+            <p className="inline-block rounded-full border border-cyan-300/40 bg-cyan-400/10 px-5 py-2 text-sm font-bold tracking-wide text-cyan-200 sm:px-6 sm:py-2.5 sm:text-base">
+              法人向けAIリスキリング <span className="text-white">導入社数No.1</span> のデジライズが提供 ※
+            </p>
+            <h1 className="mt-6">
+              <span className="block bg-gradient-to-r from-cyan-300 via-white to-violet-300 bg-clip-text text-5xl font-black leading-[1.15] tracking-tight text-transparent sm:text-[4.2rem]">
+                AI活用レベル診断
+              </span>
+              <span className="mt-2 inline-flex items-center gap-2">
+                <span className="rounded-md bg-flame px-2 py-0.5 text-xs font-bold text-white sm:text-sm">
+                  無料
+                </span>
+                <span className="text-sm font-semibold tracking-wide text-white/60 sm:text-base">
+                  組織のAI活用力を、5〜10分で見える化
+                </span>
+              </span>
+            </h1>
+            <p className="mt-6 text-xl font-bold leading-snug tracking-tight text-white sm:text-2xl">
+              そのAI活用、
+              <span className="text-cyan-300">“一部の社員だけ”</span>
+              になっていませんか?
+            </p>
+            <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-white/70 sm:text-base lg:mx-0">
+              ツールを導入済みの企業も、これからの企業も。社員5〜10分の匿名サーベイで、組織のAI活用の実態と「次の一手」が見える無料診断です。企業全体・部署ごとのレベルを、全国ベンチマークと比較できるダッシュボードでお届けします。
+            </p>
+            <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row lg:justify-start sm:justify-center">
+              <Link
+                href="/register"
+                className="w-full rounded-xl bg-gradient-to-r from-brand-500 to-violet2 px-8 py-4 text-center text-lg font-bold tracking-wide text-white shadow-hero hover:opacity-90 sm:w-auto"
+              >
+                無料で診断を始める
+              </Link>
+              <p className="text-xs text-white/50">
+                登録から3分でサーベイURL発行
+                <br />
+                回答者の個人情報は一切取得しません
+              </p>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">担当者名</label>
-                <input
-                  type="text"
-                  value={contactName}
-                  onChange={(e) => setContactName(e.target.value)}
-                  placeholder="山田 太郎"
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">担当者メール</label>
-                <input
-                  type="email"
-                  value={contactEmail}
-                  onChange={(e) => setContactEmail(e.target.value)}
-                  placeholder="yamada@example.com"
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-
-            {error && <p className="text-red-600 text-sm bg-red-50 px-4 py-2 rounded-lg">{error}</p>}
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-blue-700 hover:bg-blue-800 disabled:opacity-50 text-white font-semibold py-3 rounded-lg transition-colors"
-            >
-              {loading ? '発行中...' : '診断リンクを発行する'}
-            </button>
-          </form>
-
-          {result && (
-            <div className="mt-6 bg-blue-50 border border-blue-200 rounded-xl p-5">
-              <p className="text-blue-800 font-semibold mb-3">発行が完了しました！</p>
-              <div className="space-y-3">
-                <div>
-                  <p className="text-xs text-gray-500 mb-1">
-                    📋 回答URL <span className="text-gray-400">— 社員全員に共有するURL</span>
-                  </p>
-                  <div className="flex gap-2">
-                    <code className="flex-1 bg-white border border-blue-200 rounded px-3 py-2 text-sm text-blue-800 break-all">
-                      {origin}/survey/{result.token}
-                    </code>
-                    <button
-                      onClick={() => copyToClipboard(`${origin}/survey/${result.token}`)}
-                      className="shrink-0 bg-blue-700 text-white text-xs px-3 rounded hover:bg-blue-800"
-                    >
-                      コピー
-                    </button>
-                  </div>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 mb-1">
-                    🔒 結果URL <span className="text-gray-400">— 企業担当者のみに共有するURL（回答URLとは別）</span>
-                  </p>
-                  <div className="flex gap-2">
-                    <code className="flex-1 bg-white border border-blue-200 rounded px-3 py-2 text-sm text-blue-800 break-all">
-                      {origin}/results/{result.resultsToken}
-                    </code>
-                    <button
-                      onClick={() => copyToClipboard(`${origin}/results/${result.resultsToken}`)}
-                      className="shrink-0 bg-blue-700 text-white text-xs px-3 rounded hover:bg-blue-800"
-                    >
-                      コピー
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Company list */}
-        <div className="bg-white rounded-2xl shadow-xl p-8">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-bold text-gray-800">発行済み一覧</h2>
-            <button
-              onClick={fetchCompanies}
-              className="text-blue-600 text-sm hover:text-blue-800"
-            >
-              更新
-            </button>
           </div>
 
-          {loadingList ? (
-            <p className="text-gray-400 text-sm">読み込み中...</p>
-          ) : companies.length === 0 ? (
-            <p className="text-gray-400 text-sm">まだ発行されていません</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-gray-100">
-                    <th className="text-left py-2 px-3 text-gray-500 font-medium">企業名</th>
-                    <th className="text-left py-2 px-3 text-gray-500 font-medium">担当者</th>
-                    <th className="text-center py-2 px-3 text-gray-500 font-medium">回答数</th>
-                    <th className="text-left py-2 px-3 text-gray-500 font-medium">発行日</th>
-                    <th className="text-left py-2 px-3 text-gray-500 font-medium">リンク</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {companies.map((c) => (
-                    <tr key={c.id} className="border-b border-gray-50 hover:bg-gray-50">
-                      <td className="py-3 px-3 font-medium">{c.name}</td>
-                      <td className="py-3 px-3 text-gray-500">{c.contact_name || '-'}</td>
-                      <td className="py-3 px-3 text-center">
-                        <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${
-                          c.response_count > 0
-                            ? 'bg-green-100 text-green-700'
-                            : 'bg-gray-100 text-gray-500'
-                        }`}>
-                          {c.response_count}名
-                        </span>
-                      </td>
-                      <td className="py-3 px-3 text-gray-500">
-                        {new Date(c.created_at).toLocaleDateString('ja-JP')}
-                      </td>
-                      <td className="py-3 px-3">
-                        <div className="flex gap-2">
-                          <a
-                            href={`/survey/${c.survey_token}`}
-                            target="_blank"
-                            className="text-blue-600 hover:text-blue-800 text-xs underline"
-                          >
-                            回答URL
-                          </a>
-                          {c.results_token && (
-                            <a
-                              href={`/results/${c.results_token}`}
-                              target="_blank"
-                              className="text-violet-600 hover:text-violet-800 text-xs underline"
-                            >
-                              結果URL
-                            </a>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+          {/* 成果物イメージ(ダッシュボードのモック) */}
+          <div className="relative mx-auto w-full max-w-md lg:max-w-none">
+            <p className="mb-3 text-center text-xs font-bold tracking-widest text-cyan-200">
+              ▼ 診断完了後に手に入るダッシュボード(イメージ)
+            </p>
+            <LpDashboardMockup />
+            <div className="pointer-events-none absolute -bottom-8 -left-10 hidden lg:block">
+              <Image
+                src="/char-squirrel.png"
+                alt="デジライズ公式キャラクター(リス)"
+                width={96}
+                height={137}
+                className="drop-shadow-2xl"
+                priority
+              />
             </div>
-          )}
+            <div className="pointer-events-none absolute -bottom-8 -right-8 hidden lg:block">
+              <Image
+                src="/char-giraffe.png"
+                alt="デジライズ公式キャラクター(キリン)"
+                width={88}
+                height={159}
+                className="drop-shadow-2xl"
+                priority
+              />
+            </div>
+          </div>
         </div>
-      </main>
-    </div>
+      </section>
+
+      {/* 診断で分かること */}
+      <section className="mx-auto max-w-6xl px-4 py-16 sm:py-20">
+        <p className="text-center text-xs font-bold tracking-widest text-brand-600">
+          WHAT YOU GET
+        </p>
+        <h2 className="mt-2 text-center text-2xl font-bold tracking-tight sm:text-3xl">
+          6つの視点 × 全国ベンチマークで組織を診断
+        </h2>
+        <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {CATEGORIES.map((c, i) => (
+            <div
+              key={c.key}
+              className="group rounded-2xl border border-gray-100 bg-white p-6 shadow-card transition hover:-translate-y-0.5"
+            >
+              <div className="flex items-center gap-3">
+                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-violet2 text-sm font-bold text-white">
+                  {i + 1}
+                </span>
+                <p className="font-bold tracking-tight">{c.label}</p>
+              </div>
+              <p className="mt-3 text-sm text-gray-500">
+                {CATEGORY_DESCRIPTIONS[c.key]}
+              </p>
+            </div>
+          ))}
+        </div>
+        <div className="mt-8 grid grid-cols-1 gap-4 rounded-2xl bg-gradient-to-br from-brand-50 to-cyan-50 p-6 text-center sm:grid-cols-3">
+          {[
+            ["総合偏差値", "全国・同業種・同規模と比較した立ち位置が数字でわかる"],
+            ["部署別ヒートマップ", "強い部署・支援が必要な部署がひと目でわかる"],
+            ["推奨アクション", "スコアに応じた具体的な次の一手を自動提案"],
+          ].map(([t, d]) => (
+            <div key={t}>
+              <p className="font-bold text-brand-800">{t}</p>
+              <p className="mt-1 text-xs text-gray-600">{d}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* 3ステップ */}
+      <section className="bg-gray-50 py-16 sm:py-20">
+        <div className="mx-auto max-w-6xl px-4">
+          <p className="text-center text-xs font-bold tracking-widest text-brand-600">
+            HOW IT WORKS
+          </p>
+          <h2 className="mt-2 text-center text-2xl font-bold tracking-tight sm:text-3xl">
+            導入はかんたん3ステップ
+          </h2>
+          <ol className="mx-auto mt-10 grid max-w-4xl grid-cols-1 gap-6 sm:grid-cols-3">
+            {[
+              ["登録", "会社情報と部署リストを入力すると、専用サーベイURLが即時発行されます。"],
+              ["展開", "URLを社内チャットやメールで共有するだけ。社員はスマホから匿名で回答できます。"],
+              ["診断", "回答はリアルタイムに集計。偏差値・部署別ヒートマップをダッシュボードで確認。"],
+            ].map(([title, desc], i) => (
+              <li key={title} className="relative rounded-2xl bg-white p-6 shadow-card">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-violet2 text-lg font-bold text-white">
+                  {i + 1}
+                </div>
+                <div className="mt-3 text-lg font-bold tracking-tight">{title}</div>
+                <p className="mt-1 text-sm text-gray-600">{desc}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      {/* 診断で手に入るもの(成果物ショーケース) */}
+      <section className="mx-auto max-w-6xl px-4 py-16 sm:py-20">
+        <p className="text-center text-xs font-bold tracking-widest text-brand-600">
+          WHAT THE CHECK-UP DELIVERS
+        </p>
+        <h2 className="mt-2 text-center text-2xl font-bold tracking-tight sm:text-3xl">
+          5〜10分の回答で、ここまで見える
+        </h2>
+        <p className="mx-auto mt-3 max-w-2xl text-center text-sm text-gray-500">
+          「なんとなくAIが使われていない気がする」を、数字と打ち手に変える3つの成果物。すべて回答完了と同時に自動生成されます。
+        </p>
+        <div className="mt-14">
+          <LpDeliverables />
+        </div>
+        <div className="mt-16 rounded-3xl bg-gradient-to-br from-navy-950 via-navy-800 to-brand-800 p-8 text-center text-white shadow-hero sm:p-12">
+          <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+            まずは無料で、自社の現在地を知る
+          </h2>
+          <p className="mx-auto mt-3 max-w-xl text-sm text-white/70">
+            費用は一切かかりません。登録から3分でサーベイURLが発行され、回答が集まるそばからダッシュボードに反映されます。
+          </p>
+          <Link
+            href="/register"
+            className="mt-7 inline-block rounded-xl bg-gradient-to-r from-brand-500 to-violet2 px-12 py-4 text-lg font-bold tracking-wide text-white shadow-hero hover:opacity-90"
+          >
+            無料で診断を始める
+          </Link>
+          <p className="mt-4 text-xs text-white/40">
+            クレジットカード不要 ・ 回答者の個人情報は一切取得しません
+          </p>
+        </div>
+      </section>
+
+      <footer className="bg-navy-950 py-10 text-white/70">
+        <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-4 text-center text-sm">
+          <Image src="/digirise-logo-white.png" alt="DigiRise" width={130} height={33} />
+          <p className="text-xs">
+            株式会社デジライズ(DigiRise, Inc.) ｜ 東京都港区海岸1-7-1 東京ポートシティ竹芝 10F
+            <br />
+            ミッション「AIを、組織に実装する」
+          </p>
+          <div className="space-x-4 text-xs">
+            <Link href="/privacy" className="hover:text-white">
+              プライバシーポリシー
+            </Link>
+            <a href="https://digirise.ai/" target="_blank" rel="noopener noreferrer" className="hover:text-white">
+              コーポレートサイト
+            </a>
+          </div>
+          <p className="text-[10px] text-white/30">{NO1_ATTRIBUTION}</p>
+          <p className="text-xs text-white/40">© DigiRise, Inc. All Rights Reserved.</p>
+        </div>
+      </footer>
+    </main>
   );
 }
