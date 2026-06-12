@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import LpDashboardMockup from "@/components/LpDashboardMockup";
 import {
   CATEGORIES,
   CATEGORY_DESCRIPTIONS,
@@ -44,7 +45,7 @@ export default function LandingPage() {
           className="pointer-events-none absolute -right-24 bottom-0 h-96 w-96 rounded-full opacity-20 blur-3xl"
           style={{ background: "radial-gradient(circle, #6d28d9, transparent 70%)" }}
         />
-        <div className="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-8 px-4 py-16 sm:py-20 lg:grid-cols-[1fr_auto]">
+        <div className="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 px-4 py-16 sm:py-20 lg:grid-cols-[1fr_minmax(0,500px)]">
           <div className="text-center lg:text-left">
             <p className="inline-block rounded-full border border-cyan-300/40 bg-cyan-400/10 px-4 py-1.5 text-xs font-bold text-cyan-200">
               法人向けAIリスキリング 導入社数No.1 のデジライズが提供 ※
@@ -74,24 +75,33 @@ export default function LandingPage() {
               </p>
             </div>
           </div>
-          <div className="hidden items-end justify-center gap-2 lg:flex">
-            <Image
-              src="/char-squirrel.png"
-              alt="デジライズ公式キャラクター(リス)"
-              width={170}
-              height=
-              {243}
-              className="drop-shadow-2xl"
-              priority
-            />
-            <Image
-              src="/char-giraffe.png"
-              alt="デジライズ公式キャラクター(キリン)"
-              width={160}
-              height={289}
-              className="drop-shadow-2xl"
-              priority
-            />
+
+          {/* 成果物イメージ(ダッシュボードのモック) */}
+          <div className="relative mx-auto w-full max-w-md lg:max-w-none">
+            <p className="mb-3 text-center text-xs font-bold tracking-widest text-cyan-200">
+              ▼ 診断完了後に手に入るダッシュボード(イメージ)
+            </p>
+            <LpDashboardMockup />
+            <div className="pointer-events-none absolute -bottom-8 -left-10 hidden lg:block">
+              <Image
+                src="/char-squirrel.png"
+                alt="デジライズ公式キャラクター(リス)"
+                width={96}
+                height={137}
+                className="drop-shadow-2xl"
+                priority
+              />
+            </div>
+            <div className="pointer-events-none absolute -bottom-8 -right-8 hidden lg:block">
+              <Image
+                src="/char-giraffe.png"
+                alt="デジライズ公式キャラクター(キリン)"
+                width={88}
+                height={159}
+                className="drop-shadow-2xl"
+                priority
+              />
+            </div>
           </div>
         </div>
       </section>
