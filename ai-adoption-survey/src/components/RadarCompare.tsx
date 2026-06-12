@@ -18,13 +18,6 @@ export type RadarSeries = {
   fillOpacity?: number;
 };
 
-// 色覚多様性に配慮した配色(Okabe-Itoパレット準拠)
-export const SERIES_COLORS = {
-  self: "#0072B2",
-  national: "#999999",
-  industry: "#E69F00",
-};
-
 export default function RadarCompare({
   data,
   series,

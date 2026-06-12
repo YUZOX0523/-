@@ -1,6 +1,7 @@
 import type { DashboardData } from "@/lib/dashboard-data";
 import { SERVICE_RECOMMENDATIONS, type CategoryKey } from "@/lib/constants";
-import RadarCompare, { SERIES_COLORS } from "./RadarCompare";
+import RadarCompare from "./RadarCompare";
+import { SERIES_COLORS } from "@/lib/colors";
 import Heatmap from "./Heatmap";
 import DeptResponseChart from "./DeptResponseChart";
 

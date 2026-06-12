@@ -9,7 +9,8 @@ import {
   pickBenchmark,
   type Benchmark,
 } from "@/lib/scoring";
-import RadarCompare, { SERIES_COLORS } from "@/components/RadarCompare";
+import RadarCompare from "@/components/RadarCompare";
+import { SERIES_COLORS } from "@/lib/colors";
 
 export const dynamic = "force-dynamic";
 
