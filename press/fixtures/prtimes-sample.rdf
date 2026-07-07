@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns="http://purl.org/rss/1.0/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel rdf:about="https://prtimes.jp/">
+    <title>PR TIMES（サンプルフィード）</title>
+    <link>https://prtimes.jp/</link>
+    <description>オフライン検証用のフィクスチャ。実データではありません。</description>
+  </channel>
+  <item rdf:about="https://prtimes.jp/main/html/rd/p/000000101.000099001.html">
+    <title>サンプル社、生成AI研修サービス「AIアカデミー」を提供開始　導入企業500社を突破</title>
+    <link>https://prtimes.jp/main/html/rd/p/000000101.000099001.html</link>
+    <description><![CDATA[サンプル社は生成AI研修サービスの提供を開始しました。&lt;br&gt;詳細はリリースをご覧ください。]]></description>
+    <dc:date>2026-07-06T10:00:00+09:00</dc:date>
+  </item>
+  <item rdf:about="https://prtimes.jp/main/html/rd/p/000000102.000099002.html">
+    <title>【調査】中小企業の68%が「AI活用に課題」と回答　n=1,200の実態調査を公開</title>
+    <link>https://prtimes.jp/main/html/rd/p/000000102.000099002.html</link>
+    <description>中小企業1,200社を対象としたAI活用実態調査の結果を公開。</description>
+    <dc:date>2026-07-06T11:30:00+09:00</dc:date>
+  </item>
+  <item rdf:about="https://prtimes.jp/main/html/rd/p/000000103.000099003.html">
+    <title>&amp;東京都内でAI活用セミナーを開催　参加費無料・定員100名</title>
+    <link>https://prtimes.jp/main/html/rd/p/000000103.000099003.html</link>
+    <description>AI活用セミナー開催のお知らせ。</description>
+    <dc:date>2026-07-05T14:00:00+09:00</dc:date>
+  </item>
+</rdf:RDF>
