@@ -1,0 +1,26 @@
+{
+  "_説明": "ウォッチ対象の定義ファイル。labelは自由な表示名。enabledをfalseにすると一時停止できます。",
+  "prtimes_all": {
+    "label": "PR TIMES 全体新着（キーワードで絞り込み）",
+    "enabled": true,
+    "url": "https://prtimes.jp/index.rdf",
+    "filter_keywords": ["生成AI", "AI研修", "AI活用", "ChatGPT", "AIエージェント", "DX研修"]
+  },
+  "companies": [
+    {
+      "label": "（例）競合A社 ※company_idを実IDに書き換えてください",
+      "enabled": false,
+      "company_id": "00000",
+      "_ヒント": "company_idはPR TIMESの企業ページURL prtimes.jp/main/html/searchrlp/company_id/XXXXX の数字部分です"
+    }
+  ],
+  "google_news_keywords": [
+    { "label": "生成AI ニュース", "enabled": true, "query": "生成AI when:7d" },
+    { "label": "AI研修 市場動向", "enabled": true, "query": "AI研修 when:7d" },
+    { "label": "AI導入 企業事例", "enabled": true, "query": "AI導入 企業 when:7d" }
+  ],
+  "limits": {
+    "max_items_per_feed": 30,
+    "fetch_timeout_ms": 15000
+  }
+}

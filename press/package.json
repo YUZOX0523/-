@@ -1,0 +1,13 @@
+{
+  "name": "press-kit",
+  "version": "1.0.0",
+  "description": "PR TIMES プレスリリース制作システム（デジライズ広報用）",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "watch": "node scripts/watch.mjs",
+    "watch:sample": "node scripts/watch.mjs --sample",
+    "check": "node scripts/seo-check.mjs",
+    "test": "node --test"
+  }
+}
