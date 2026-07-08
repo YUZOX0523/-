@@ -1,8 +1,9 @@
 # 株式会社トップ様 導入事例 掲載許可依頼
 
 - ステータス: **未送付**(送付日・承諾日を追記して更新すること)
-- 事例ページ: `ai-adoption-survey/public/cases/top/index.html`(公開URL: https://shindan.digirise.ai/cases/top/ ※マージ後)
-- 承諾後にやること: 支給されたロゴを `client-logo.png`、写真を `client-photo.jpg` として同フォルダに置くだけで完成
+- 事例原稿: `case-studies/top/draft.md`(ロゴ・写真の挿入位置マーカー入り)
+- 事例ページ(Web版): `ai-adoption-survey/public/cases/top/index.html`(公開URL: https://shindan.digirise.ai/cases/top/ ※マージ後)
+- 承諾後にやること: 支給されたロゴ・写真を原稿の【画像挿入位置①/②】に対応させる。Web版はロゴを `client-logo.png`、写真を `client-photo.jpg` として同フォルダに置くだけで完成
 
 ---
 
