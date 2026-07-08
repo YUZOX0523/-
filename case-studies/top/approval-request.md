@@ -2,8 +2,7 @@
 
 - ステータス: **未送付**(送付日・承諾日を追記して更新すること)
 - 事例原稿: `case-studies/top/draft.md`(ロゴ・写真の挿入位置マーカー入り)
-- 事例ページ(Web版): `ai-adoption-survey/public/cases/top/index.html`(公開URL: https://shindan.digirise.ai/cases/top/ ※マージ後)
-- 承諾後にやること: 支給されたロゴ・写真を原稿の【画像挿入位置①/②】に対応させる。Web版はロゴを `client-logo.png`、写真を `client-photo.jpg` として同フォルダに置くだけで完成
+- 承諾後にやること: 支給されたロゴ・写真を `case-studies/top/assets/` に保存し、原稿+素材をサイト担当へ引き渡す(配置位置は原稿の【画像挿入位置①/②】マーカー参照。公開は社内で手動)
 
 ---
 
@@ -24,8 +23,7 @@
 つきましては、この成果を弊社サイトの「導入事例」として掲載させて
 いただきたく、ご相談のご連絡を差し上げました。
 
-■ 掲載を予定している内容(プレビューを添付・下記URLよりご確認いただけます)
-・プレビューURL: <プレビューURLをここに記載>
+■ 掲載を予定している内容(原稿を添付いたしますので、あわせてご確認ください)
 ・貴社名(株式会社トップ様)
 ・最終報告資料に基づく定量成果
  - AI活用業務数: 1.52件/週 → 6.3件/週(約4.1倍)
@@ -69,6 +67,7 @@
 
 ## 素材の反映手順(承諾後)
 
-1. ロゴ → `ai-adoption-survey/public/cases/top/client-logo.png` に配置(透過PNG推奨・高さ88px以上)
-2. 写真 → `ai-adoption-survey/public/cases/top/client-photo.jpg` に配置(幅1600px以上推奨)
-3. コミットしてmainへマージ → 自動デプロイで公開ページに反映(HTML編集は不要)
+1. ロゴ(透過PNG推奨)と写真(横長・幅1600px以上推奨)を `case-studies/top/assets/` に保存
+2. 原稿の frontmatter を `status: approved` に更新し、`approved_date` を記入
+3. 原稿 `draft.md` + `assets/` の素材一式をサイト担当へ引き渡す(配置位置は原稿の【画像挿入位置①/②】マーカー参照)
+4. 掲載できたら `status: published` に更新

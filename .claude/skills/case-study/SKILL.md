@@ -62,16 +62,17 @@ description: 法人リスキリングの最終報告MTG資料(PDF)から導入�
    - [ ] 個人名・動画視聴状況が入っていないか
    - [ ] 顧客へ依頼メールを送付
    - [ ] 承諾記録を approval-request.md に記入
-   - [ ] ロゴ・写真を受領し、原稿のマーカー位置に配置(または Web担当へ原稿+素材を引き渡し)
+   - [ ] ロゴ・写真を受領し、原稿+素材をサイト担当へ引き渡し(配置位置は原稿のマーカー参照)
 
 ## 承諾後の反映
 
 - 受領したロゴ・写真は `case-studies/<企業スラッグ>/assets/` に保存
 - 原稿の frontmatter を `status: approved` にし、`approved_date` を記入
-- Webページ化する場合: `ai-adoption-survey/public/cases/top/index.html` をベースに複製し、
-  ロゴを `client-logo.png`・写真を `client-photo.jpg` として同フォルダに置く(自動表示される)
-- 公開したら `status: published` に更新
+- **サイトへの公開は社内担当が手動で行う**(このスキルはデプロイ・公開を行わない)。
+  原稿と `assets/` の素材一式をサイト担当へ引き渡し、ロゴ・写真は原稿内の
+  `【画像挿入位置①/②】` の位置に配置してもらう
+- 公開されたら `status: published` に更新
 
 ## このスキルが編集してよい場所
 
-`case-studies/` 配下と `ai-adoption-survey/public/cases/` 配下のみ。
+`case-studies/` 配下のみ。
