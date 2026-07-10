@@ -120,19 +120,25 @@ function authRoutes(express) {
   return router;
 }
 
-// 初回起動時の管理者作成
+// 管理者アカウントを .env の内容と同期（起動のたびに反映）
+// → .env の ADMIN_EMAIL / ADMIN_PASSWORD が常にログインに使える状態を保証する
 function ensureAdmin() {
-  const count = db.prepare('SELECT COUNT(*) AS c FROM users').get().c;
-  if (count > 0) return;
   const email = (process.env.ADMIN_EMAIL || '').toLowerCase().trim();
   const password = process.env.ADMIN_PASSWORD;
   if (!email || !password) {
-    console.warn('[warn] ユーザーが存在しません。.env に ADMIN_EMAIL / ADMIN_PASSWORD を設定して再起動すると管理者が作成されます。');
+    console.warn('[warn] .env に ADMIN_EMAIL / ADMIN_PASSWORD を設定してください（管理者ログインに必要です）。');
     return;
   }
-  db.prepare('INSERT INTO users (email, password_hash, name, role) VALUES (?, ?, ?, ?)')
-    .run(email, hashPassword(password), process.env.ADMIN_NAME || '管理者', 'admin');
-  console.log(`[init] 管理者アカウントを作成しました: ${email}`);
+  const existing = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
+  if (!existing) {
+    db.prepare('INSERT INTO users (email, password_hash, name, role) VALUES (?, ?, ?, ?)')
+      .run(email, hashPassword(password), process.env.ADMIN_NAME || '管理者', 'admin');
+    console.log(`[init] 管理者アカウントを作成しました: ${email}`);
+  } else if (!verifyPassword(password, existing.password_hash) || existing.role !== 'admin' || !existing.active) {
+    db.prepare('UPDATE users SET password_hash = ?, role = ?, active = 1 WHERE id = ?')
+      .run(hashPassword(password), 'admin', existing.id);
+    console.log(`[init] 管理者アカウントを .env の内容に更新しました: ${email}`);
+  }
 }
 
 module.exports = { hashPassword, verifyPassword, requireAuth, requireAdmin, authRoutes, ensureAdmin };
