@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ログイン | AIワークスペース</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="login-wrap">
+    <div class="login-box">
+      <h1>🤝 AIワークスペース</h1>
+      <p class="sub">会社のAIアシスタントにログインします</p>
+      <form id="loginForm">
+        <div class="field">
+          <label for="email">メールアドレス</label>
+          <input type="email" id="email" autocomplete="username" required placeholder="例：tanaka@kaisha.co.jp">
+        </div>
+        <div class="field">
+          <label for="password">パスワード</label>
+          <input type="password" id="password" autocomplete="current-password" required>
+        </div>
+        <button type="submit" class="btn-primary" id="loginBtn">ログインする</button>
+        <p class="error-msg" id="errorMsg"></p>
+      </form>
+    </div>
+  </div>
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('loginBtn');
+      const err = document.getElementById('errorMsg');
+      btn.disabled = true; err.textContent = '';
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: document.getElementById('email').value,
+            password: document.getElementById('password').value,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'ログインに失敗しました');
+        location.href = '/';
+      } catch (e2) {
+        err.textContent = e2.message;
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
