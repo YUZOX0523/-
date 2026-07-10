@@ -42,27 +42,26 @@ AI未導入企業向けの**オールインワン社内AIツール**。
 
 ## セットアップ
 
+**管理者アカウントは、初回にブラウザで開いたときに表示される「初期設定」画面から作成します**（設定ファイルにパスワードを書く必要はありません）。以降のユーザー追加は 管理画面 → ユーザー管理 から行います。
+
 ### 方法A: ブラウザだけでデモ環境を立てる（いちばん簡単・ターミナル不要）
 
 1. [render.com](https://render.com) にGitHubアカウントでサインアップ（無料）
 2. ダッシュボードで **New + → Blueprint** → このリポジトリ（YUZOX0523/-）を選択
-3. 環境変数を3つ入力して **Apply**
-   - `ANTHROPIC_API_KEY` … Anthropic APIキー
-   - `ADMIN_EMAIL` … 管理者のメールアドレス
-   - `ADMIN_PASSWORD` … 管理者のパスワード
-4. 数分待つと `https://xxxx.onrender.com` のURLが発行される → それがログイン画面
+3. 環境変数 `ANTHROPIC_API_KEY` にAnthropic APIキーを入力して **Apply**
+4. 数分待つと `https://xxxx.onrender.com` のURLが発行される → 開くと初期設定画面
 
 ※ 無料プランは再デプロイでデータが消えるためデモ専用。本番は方法B/Cで。
 
-### 方法B: 手元のPCで動かす（要 Node.js）
+### 方法B: 手元のPCで動かす（要 Node.js 22.5以上）
 
 ```bash
 cd ai-workspace
 npm install
 cp .env.example .env
-# .env を編集: ANTHROPIC_API_KEY / ADMIN_EMAIL / ADMIN_PASSWORD
+# .env を編集: ANTHROPIC_API_KEY にAPIキーを設定（それだけ）
 npm start
-# → http://localhost:3100
+# → http://localhost:3100 を開くと初期設定画面
 ```
 
 ### 方法C: 顧客向け本番（VPS + Docker）
@@ -72,8 +71,15 @@ docker build -t ai-workspace .
 docker run -d -p 3100:3100 --env-file .env -v ai-workspace-data:/app/data ai-workspace
 ```
 
-初回起動時に管理者アカウントが自動作成されます。
-以降のユーザー追加は 管理画面 → ユーザー管理 から行います。
+### 管理者パスワードを忘れたとき（デモ環境）
+
+サーバーを止めて `data` フォルダを削除して再起動すると、まっさらな状態に戻り初期設定からやり直せます:
+
+```bash
+rm -rf data && npm start
+```
+
+※ 会話履歴・ユーザーもすべて消えます。本番運用ではデータのバックアップを取ってください。
 
 ## 画面構成
 

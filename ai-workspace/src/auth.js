@@ -19,16 +19,17 @@ function verifyPassword(password, stored) {
 }
 
 // ---- ログイン試行のレート制限（IPごと・メモリ内） ----
+// 失敗した試行のみカウントする（正しいパスワードまでブロックしない）
 const attempts = new Map(); // ip -> { count, resetAt }
-function loginRateLimited(ip) {
+function isLoginBlocked(ip) {
+  const entry = attempts.get(ip);
+  return !!(entry && Date.now() < entry.resetAt && entry.count >= 10); // 失敗10回/10分
+}
+function recordLoginFailure(ip) {
   const now = Date.now();
   const entry = attempts.get(ip);
-  if (!entry || now > entry.resetAt) {
-    attempts.set(ip, { count: 1, resetAt: now + 10 * 60 * 1000 });
-    return false;
-  }
-  entry.count += 1;
-  return entry.count > 10; // 10分間に10回まで
+  if (!entry || now > entry.resetAt) attempts.set(ip, { count: 1, resetAt: now + 10 * 60 * 1000 });
+  else entry.count += 1;
 }
 
 // ---- セッション ----
@@ -80,17 +81,40 @@ function requireAdmin(req, res, next) {
 function authRoutes(express) {
   const router = express.Router();
 
+  // 初期設定が必要か（ユーザーが1人もいない = 初回起動）
+  router.get('/setup-status', (req, res) => {
+    const c = db.prepare('SELECT COUNT(*) AS c FROM users').get().c;
+    res.json({ needs_setup: c === 0 });
+  });
+
+  // 初期設定: 最初の管理者アカウントをブラウザから作成（ユーザー0人のときだけ有効）
+  router.post('/setup', (req, res) => {
+    const c = db.prepare('SELECT COUNT(*) AS c FROM users').get().c;
+    if (c > 0) return res.status(403).json({ error: '初期設定はすでに完了しています' });
+    const { name, email, password } = req.body || {};
+    if (!name || !email || !password) return res.status(400).json({ error: 'すべての項目を入力してください' });
+    if (String(password).length < 8) return res.status(400).json({ error: 'パスワードは8文字以上にしてください' });
+    const info = db.prepare('INSERT INTO users (email, password_hash, name, role) VALUES (?, ?, ?, ?)')
+      .run(String(email).toLowerCase().trim(), hashPassword(password), String(name).slice(0, 100), 'admin');
+    const token = createSession(info.lastInsertRowid);
+    audit(info.lastInsertRowid, 'setup.admin_created', email, req.ip);
+    res.setHeader('Set-Cookie',
+      `session=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${SESSION_TTL_HOURS * 3600}${req.secure ? '; Secure' : ''}`);
+    res.json({ ok: true });
+  });
+
   router.post('/login', (req, res) => {
     const ip = req.ip;
-    if (loginRateLimited(ip)) {
+    if (isLoginBlocked(ip)) {
       audit(null, 'login.rate_limited', null, ip);
-      return res.status(429).json({ error: 'ログイン試行回数が多すぎます。しばらく待ってから再試行してください' });
+      return res.status(429).json({ error: 'ログイン失敗が続いたため一時的にロックしました。10分ほど待ってから再試行してください' });
     }
     const { email, password } = req.body || {};
     if (!email || !password) return res.status(400).json({ error: 'メールアドレスとパスワードを入力してください' });
 
     const user = db.prepare('SELECT * FROM users WHERE email = ? AND active = 1').get(String(email).toLowerCase().trim());
     if (!user || !verifyPassword(password, user.password_hash)) {
+      recordLoginFailure(ip);
       audit(null, 'login.failed', email, ip);
       return res.status(401).json({ error: 'メールアドレスまたはパスワードが正しくありません' });
     }
@@ -120,24 +144,12 @@ function authRoutes(express) {
   return router;
 }
 
-// 管理者アカウントを .env の内容と同期（起動のたびに反映）
-// → .env の ADMIN_EMAIL / ADMIN_PASSWORD が常にログインに使える状態を保証する
+// 起動時の案内: ユーザーが1人もいなければ、ブラウザでの初期設定を促す
+// （管理者アカウントは .env ではなくブラウザの初期設定画面で作成する）
 function ensureAdmin() {
-  const email = (process.env.ADMIN_EMAIL || '').toLowerCase().trim();
-  const password = process.env.ADMIN_PASSWORD;
-  if (!email || !password) {
-    console.warn('[warn] .env に ADMIN_EMAIL / ADMIN_PASSWORD を設定してください（管理者ログインに必要です）。');
-    return;
-  }
-  const existing = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
-  if (!existing) {
-    db.prepare('INSERT INTO users (email, password_hash, name, role) VALUES (?, ?, ?, ?)')
-      .run(email, hashPassword(password), process.env.ADMIN_NAME || '管理者', 'admin');
-    console.log(`[init] 管理者アカウントを作成しました: ${email}`);
-  } else if (!verifyPassword(password, existing.password_hash) || existing.role !== 'admin' || !existing.active) {
-    db.prepare('UPDATE users SET password_hash = ?, role = ?, active = 1 WHERE id = ?')
-      .run(hashPassword(password), 'admin', existing.id);
-    console.log(`[init] 管理者アカウントを .env の内容に更新しました: ${email}`);
+  const count = db.prepare('SELECT COUNT(*) AS c FROM users').get().c;
+  if (count === 0) {
+    console.log('[init] 初回起動です。ブラウザで開くと最初の管理者アカウントを作成する画面が表示されます。');
   }
 }
 

@@ -26,6 +26,11 @@
     </div>
   </div>
   <script>
+    // 初回起動（アカウント未作成）なら初期設定画面へ
+    fetch('/api/auth/setup-status').then((r) => r.json()).then((d) => {
+      if (d.needs_setup) location.href = '/setup.html';
+    });
+
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = document.getElementById('loginBtn');
