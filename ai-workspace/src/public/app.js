@@ -50,7 +50,11 @@ const chatView = document.getElementById('chatView');
 async function initHome() {
   me = await api('/api/auth/me');
   document.getElementById('userName').textContent = me.name + ' さん';
-  if (me.role === 'admin') document.getElementById('adminLink').style.display = '';
+  if (me.role === 'admin') {
+    const adminLink = document.getElementById('adminLink');
+    adminLink.style.display = '';
+    adminLink.onclick = () => { location.href = '/admin.html'; };
+  }
 
   availableModes = await api('/api/modes');
   const enabled = new Set(availableModes.map((m) => m.key));
