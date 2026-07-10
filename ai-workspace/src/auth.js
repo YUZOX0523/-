@@ -94,6 +94,9 @@ function authRoutes(express) {
     const { name, email, password } = req.body || {};
     if (!name || !email || !password) return res.status(400).json({ error: 'すべての項目を入力してください' });
     if (String(password).length < 8) return res.status(400).json({ error: 'パスワードは8文字以上にしてください' });
+    if (/[^\x21-\x7E]/.test(String(password))) {
+      return res.status(400).json({ error: 'パスワードに全角文字または空白が含まれています。日本語入力をオフ（半角英数）にして入力し直してください' });
+    }
     const info = db.prepare('INSERT INTO users (email, password_hash, name, role) VALUES (?, ?, ?, ?)')
       .run(String(email).toLowerCase().trim(), hashPassword(password), String(name).slice(0, 100), 'admin');
     const token = createSession(info.lastInsertRowid);

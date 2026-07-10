@@ -22,12 +22,17 @@
         </div>
         <div class="field">
           <label for="password">パスワード（8文字以上・半角）</label>
-          <input type="password" id="password" required minlength="8" autocomplete="new-password">
+          <input type="password" id="password" required minlength="8" autocomplete="new-password"
+                 autocapitalize="off" autocorrect="off" spellcheck="false">
         </div>
         <div class="field">
           <label for="password2">パスワード（もう一度）</label>
-          <input type="password" id="password2" required minlength="8" autocomplete="new-password">
+          <input type="password" id="password2" required minlength="8" autocomplete="new-password"
+                 autocapitalize="off" autocorrect="off" spellcheck="false">
         </div>
+        <label style="display:flex;align-items:center;gap:8px;margin-bottom:20px;font-size:.95rem;cursor:pointer">
+          <input type="checkbox" id="showPw" style="width:20px;height:20px"> 入力した文字を表示する
+        </label>
         <button type="submit" class="btn-primary" id="setupBtn">この内容ではじめる</button>
         <p class="error-msg" id="errorMsg"></p>
       </form>
@@ -39,12 +44,23 @@
       if (!d.needs_setup) location.href = '/login.html';
     });
 
+    // パスワードを見えるようにするチェックボックス
+    document.getElementById('showPw').addEventListener('change', (e) => {
+      const type = e.target.checked ? 'text' : 'password';
+      document.getElementById('password').type = type;
+      document.getElementById('password2').type = type;
+    });
+
     document.getElementById('setupForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = document.getElementById('setupBtn');
       const err = document.getElementById('errorMsg');
       err.textContent = '';
       const password = document.getElementById('password').value;
+      if (/[^\x21-\x7E]/.test(password)) {
+        err.textContent = 'パスワードに全角文字または空白が入っています。日本語入力をオフ（半角英数）にして入力し直してください';
+        return;
+      }
       if (password !== document.getElementById('password2').value) {
         err.textContent = 'パスワードが一致しません。同じものを2回入力してください';
         return;

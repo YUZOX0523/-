@@ -18,8 +18,12 @@
         </div>
         <div class="field">
           <label for="password">パスワード</label>
-          <input type="password" id="password" autocomplete="current-password" required>
+          <input type="password" id="password" autocomplete="current-password" required
+                 autocapitalize="off" autocorrect="off" spellcheck="false">
         </div>
+        <label style="display:flex;align-items:center;gap:8px;margin-bottom:20px;font-size:.95rem;cursor:pointer">
+          <input type="checkbox" id="showPw" style="width:20px;height:20px"> 入力した文字を表示する
+        </label>
         <button type="submit" class="btn-primary" id="loginBtn">ログインする</button>
         <p class="error-msg" id="errorMsg"></p>
       </form>
@@ -29,6 +33,10 @@
     // 初回起動（アカウント未作成）なら初期設定画面へ
     fetch('/api/auth/setup-status').then((r) => r.json()).then((d) => {
       if (d.needs_setup) location.href = '/setup.html';
+    });
+
+    document.getElementById('showPw').addEventListener('change', (e) => {
+      document.getElementById('password').type = e.target.checked ? 'text' : 'password';
     });
 
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
