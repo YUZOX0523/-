@@ -21,7 +21,10 @@ app.use('/api/auth', authRoutes(express));
 app.use('/api', require('./routes/chat'));
 app.use('/api/admin', require('./routes/admin'));
 
-app.use(express.static(path.join(__dirname, 'public')));
+// no-cache: 使う前に必ずサーバーへ更新確認させる（アップデート後に古い画面が残るのを防ぐ）
+app.use(express.static(path.join(__dirname, 'public'), {
+  setHeaders: (res) => res.setHeader('Cache-Control', 'no-cache'),
+}));
 
 // APIのエラーハンドラ
 app.use((err, req, res, next) => {
