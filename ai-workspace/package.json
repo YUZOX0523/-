@@ -3,13 +3,15 @@
   "version": "0.1.0",
   "description": "企業向けオールインワンAIワークスペース（チャット / ドキュメント分析 / コード支援）",
   "main": "src/index.js",
+  "engines": {
+    "node": ">=22.5.0"
+  },
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "node --watch src/index.js"
+    "start": "node --disable-warning=ExperimentalWarning src/index.js",
+    "dev": "node --disable-warning=ExperimentalWarning --watch src/index.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
-    "better-sqlite3": "^11.0.0",
     "dotenv": "^16.4.0",
     "express": "^4.21.0"
   }

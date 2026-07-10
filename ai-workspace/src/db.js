@@ -1,13 +1,15 @@
-const Database = require('better-sqlite3');
+// Node.js標準内蔵のSQLiteを使用（ネイティブビルド不要 = どのPCでも npm install が確実に通る）
+// 要件: Node.js 22.5 以上
+const { DatabaseSync } = require('node:sqlite');
 const path = require('path');
 const fs = require('fs');
 
 const DATA_DIR = path.join(__dirname, '..', 'data');
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 
-const db = new Database(path.join(DATA_DIR, 'workspace.db'));
-db.pragma('journal_mode = WAL');
-db.pragma('foreign_keys = ON');
+const db = new DatabaseSync(path.join(DATA_DIR, 'workspace.db'));
+db.exec('PRAGMA journal_mode = WAL');
+db.exec('PRAGMA foreign_keys = ON');
 
 db.exec(`
 CREATE TABLE IF NOT EXISTS users (
