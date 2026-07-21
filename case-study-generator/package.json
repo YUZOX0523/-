@@ -1,0 +1,24 @@
+{
+  "name": "case-study-generator",
+  "version": "1.0.0",
+  "private": true,
+  "description": "法人リスキリング最終報告MTG資料(PDF)から導入事例原稿を自動生成する社内ツール",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.112.4",
+    "@vercel/blob": "^2.6.1",
+    "next": "^15.5.20",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.1",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "typescript": "^5.9.3"
+  }
+}

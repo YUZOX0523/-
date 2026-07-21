@@ -1,0 +1,231 @@
+:root {
+  --ink: #1e2740;
+  --ink-soft: #55617e;
+  --ink-faint: #8a94ad;
+  --bg: #f4f6fb;
+  --card: #ffffff;
+  --line: #e4e9f4;
+  --blue: #3b82f6;
+  --grad: linear-gradient(120deg, #7c6ff0 0%, #3b82f6 55%, #38bdf8 100%);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Hiragino Sans", "Noto Sans JP", "Yu Gothic", sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.site-head {
+  background: #fff;
+  border-bottom: 1px solid var(--line);
+}
+.site-head .wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 60px;
+}
+.brand-mark {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--grad);
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-weight: 800;
+  font-size: 14px;
+}
+.brand-name {
+  font-weight: 800;
+  font-size: 17px;
+}
+.head-tag {
+  margin-left: 8px;
+  font-size: 12px;
+  color: var(--ink-faint);
+  background: #eef2fa;
+  border-radius: 999px;
+  padding: 2px 12px;
+}
+
+main {
+  padding: 36px 0 80px;
+}
+h1 {
+  font-size: 24px;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+.lead {
+  color: var(--ink-soft);
+  font-size: 14px;
+  margin-bottom: 28px;
+}
+
+.panel {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 6px 20px rgba(30, 39, 64, 0.05);
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+input[type="password"] {
+  width: 100%;
+  max-width: 320px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+.dropzone {
+  border: 2px dashed #c4cfe6;
+  border-radius: 14px;
+  padding: 34px 20px;
+  text-align: center;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  font-size: 14px;
+}
+.dropzone.drag {
+  border-color: var(--blue);
+  background: #f0f6ff;
+}
+.dropzone .file-name {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.gen-btn {
+  display: inline-block;
+  background: var(--grad);
+  color: #fff;
+  border: none;
+  font-weight: 800;
+  font-size: 15px;
+  padding: 13px 40px;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
+}
+.gen-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.status {
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin-top: 12px;
+}
+.status.error {
+  color: #d13c4b;
+  font-weight: 700;
+}
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.tab {
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 999px;
+  padding: 7px 20px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+.tab.active {
+  background: var(--ink);
+  color: #fff;
+  border-color: var(--ink);
+}
+.tab .spin {
+  display: inline-block;
+  margin-left: 6px;
+}
+
+.out-actions {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.mini-btn {
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  color: var(--ink);
+}
+.mini-btn:hover {
+  background: #f4f7fd;
+}
+
+.output {
+  width: 100%;
+  min-height: 420px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fafbfe;
+  padding: 16px;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 12.5px;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  word-break: break-all;
+  overflow-y: auto;
+  max-height: 640px;
+}
+
+.note {
+  font-size: 12px;
+  color: var(--ink-faint);
+  margin-top: 16px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid #c4cfe6;
+  border-top-color: var(--blue);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  vertical-align: -1px;
+}
