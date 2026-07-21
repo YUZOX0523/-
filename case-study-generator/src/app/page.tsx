@@ -5,9 +5,10 @@ import { upload } from "@vercel/blob/client";
 
 type Format = "draft" | "wordpress";
 
-// これを超えるPDFはVercelの関数ボディ制限(4.5MB)に収まらないため、
-// Vercel Blob経由でアップロードしてURLを渡す
-const DIRECT_UPLOAD_LIMIT = 3.5 * 1024 * 1024;
+// Base64化するとサイズが約37%増えるため、Vercelの関数ボディ制限(4.5MB)に
+// 収まるよう、生ファイルの時点で余裕を持った閾値にする(4.5MB / 1.37 ≈ 3.2MB)。
+// これを超えるPDFはVercel Blob経由でアップロードしてURLを渡す
+const DIRECT_UPLOAD_LIMIT = 2.5 * 1024 * 1024;
 
 const FORMAT_LABEL: Record<Format, string> = {
   draft: "チェック用原稿 (Markdown)",
