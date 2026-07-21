@@ -1,5 +1,3 @@
-import { marked } from "marked";
-
 type FrontMatter = {
   company?: string;
   program?: string;
@@ -23,6 +21,148 @@ function parseFrontmatter(markdown: string): { data: FrontMatter; body: string }
   return { data, body: match[2] };
 }
 
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+// インライン装飾(**太字**)を適用しつつHTMLエスケープする
+function inline(text: string): string {
+  const escaped = escapeHtml(text);
+  return escaped.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+}
+
+// 生成AIが出力する原稿は「見出し(#〜###)/段落/テーブル/引用/箇条書き/区切り線/太字」
+// という限られた構文のみを使う想定のため、外部パッケージ(marked)には頼らず
+// この構文だけを確実に変換する自前パーサーにしている。
+// (marked はNext.jsの本番バンドルで変換が効かず、生の "##"や"|---|"が
+//  そのまま出力される不具合が確認されたため)
+function markdownToHtml(markdown: string): string {
+  const lines = markdown.replace(/\r\n/g, "\n").split("\n");
+  const blocks: string[] = [];
+
+  let list: { type: "ul" | "ol"; items: string[] } | null = null;
+  let quote: string[] | null = null;
+
+  const flushList = () => {
+    if (!list) return;
+    const items = list.items.map((it) => `<li>${inline(it)}</li>`).join("");
+    blocks.push(`<${list.type}>${items}</${list.type}>`);
+    list = null;
+  };
+  const flushQuote = () => {
+    if (!quote) return;
+    blocks.push(`<blockquote>${quote.map((l) => `<p>${inline(l)}</p>`).join("")}</blockquote>`);
+    quote = null;
+  };
+
+  const isTableSeparator = (line: string) =>
+    /^\s*\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?\s*$/.test(line);
+  const isTableRow = (line: string) => /^\s*\|.*\|\s*$/.test(line);
+  const splitRow = (line: string) =>
+    line.trim().replace(/^\|/, "").replace(/\|$/, "").split("|").map((c) => c.trim());
+
+  let i = 0;
+  while (i < lines.length) {
+    const line = lines[i];
+
+    if (line.trim() === "") {
+      flushList();
+      flushQuote();
+      i++;
+      continue;
+    }
+
+    const heading = line.match(/^(#{1,3})\s+(.*)$/);
+    if (heading) {
+      flushList();
+      flushQuote();
+      const level = heading[1].length;
+      blocks.push(`<h${level}>${inline(heading[2].trim())}</h${level}>`);
+      i++;
+      continue;
+    }
+
+    if (/^-{3,}\s*$/.test(line.trim())) {
+      flushList();
+      flushQuote();
+      blocks.push("<hr>");
+      i++;
+      continue;
+    }
+
+    if (/^\s*>/.test(line)) {
+      flushList();
+      quote = quote || [];
+      quote.push(line.replace(/^\s*>\s?/, ""));
+      i++;
+      continue;
+    }
+    flushQuote();
+
+    if (isTableRow(line) && lines[i + 1] !== undefined && isTableSeparator(lines[i + 1])) {
+      flushList();
+      const header = splitRow(line);
+      i += 2;
+      const rows: string[][] = [];
+      while (i < lines.length && isTableRow(lines[i])) {
+        rows.push(splitRow(lines[i]));
+        i++;
+      }
+      const thead = `<thead><tr>${header.map((c) => `<th>${inline(c)}</th>`).join("")}</tr></thead>`;
+      const tbody = `<tbody>${rows
+        .map((r) => `<tr>${r.map((c) => `<td>${inline(c)}</td>`).join("")}</tr>`)
+        .join("")}</tbody>`;
+      blocks.push(`<table>${thead}${tbody}</table>`);
+      continue;
+    }
+
+    const ordered = line.match(/^\s*\d+\.\s+(.*)$/);
+    if (ordered) {
+      if (!list || list.type !== "ol") {
+        flushList();
+        list = { type: "ol", items: [] };
+      }
+      list.items.push(ordered[1]);
+      i++;
+      continue;
+    }
+
+    const bullet = line.match(/^\s*[-*]\s+(.*)$/);
+    if (bullet) {
+      if (!list || list.type !== "ul") {
+        flushList();
+        list = { type: "ul", items: [] };
+      }
+      list.items.push(bullet[1]);
+      i++;
+      continue;
+    }
+    flushList();
+
+    const paragraph = [line];
+    i++;
+    while (
+      i < lines.length &&
+      lines[i].trim() !== "" &&
+      !/^#{1,3}\s+/.test(lines[i]) &&
+      !/^\s*>/.test(lines[i]) &&
+      !(isTableRow(lines[i]) && lines[i + 1] !== undefined && isTableSeparator(lines[i + 1])) &&
+      !isTableRow(lines[i]) &&
+      !/^\s*[-*]\s+/.test(lines[i]) &&
+      !/^\s*\d+\.\s+/.test(lines[i]) &&
+      !/^-{3,}\s*$/.test(lines[i].trim())
+    ) {
+      paragraph.push(lines[i]);
+      i++;
+    }
+    blocks.push(`<p>${inline(paragraph.join(" ").trim())}</p>`);
+  }
+  flushList();
+  flushQuote();
+
+  return blocks.join("\n");
+}
+
 // 画像挿入位置の指示文から、プレースホルダーに出すラベルだけ抜き出す。
 // 「【画像挿入位置①:企業ロゴ】ここに導入企業のロゴを挿入(背景透過…」→「企業ロゴ」
 function extractPlaceholderLabel(text: string): { kind: "logo" | "photo"; label: string } {
@@ -32,18 +172,18 @@ function extractPlaceholderLabel(text: string): { kind: "logo" | "photo"; label:
   return { kind: isLogo ? "logo" : "photo", label };
 }
 
-function escapeHtml(s: string): string {
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-}
-
 export function exportMarkdownAsPdf(markdown: string, titleFallback: string) {
   const { data, body } = parseFrontmatter(markdown);
-  const bodyHtml = marked.parse(body, { async: false }) as string;
+  const bodyHtml = markdownToHtml(body);
 
-  const doc = new DOMParser().parseFromString(
-    `<div id="root">${bodyHtml}</div>`,
-    "text/html"
-  );
+  if (!/<h1|<h2|<table|<p/.test(bodyHtml)) {
+    alert(
+      "原稿の変換に失敗しました。お手数ですが、この画面のスクリーンショットを添えて開発担当に連絡してください。"
+    );
+    return;
+  }
+
+  const doc = new DOMParser().parseFromString(`<div id="root">${bodyHtml}</div>`, "text/html");
   const root = doc.getElementById("root")!;
 
   // 引用ブロック(画像挿入位置の指示 / 受講者の声)を見た目で仕分けして装飾する
@@ -62,7 +202,8 @@ export function exportMarkdownAsPdf(markdown: string, titleFallback: string) {
       return;
     }
     // 受講者の声: 末尾の出典表記(例: (受講者アンケートより))を切り出してキャプションにする
-    const attrMatch = text.match(/^(.*?)\s*[\((]([^()]*(?:アンケート|より)[^()]*)[\))]\s*$/);
+    const normalized = text.replace(/\s*\n\s*/g, " ");
+    const attrMatch = normalized.match(/^(.*?)\s*[\((]([^()]*(?:アンケート|より)[^()]*)[\))]\s*$/);
     const quoteText = attrMatch ? attrMatch[1].trim() : text;
     const attribution = attrMatch ? attrMatch[2].trim() : "";
     const card = doc.createElement("div");
