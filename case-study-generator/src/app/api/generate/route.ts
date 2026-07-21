@@ -4,6 +4,7 @@ import {
   SYSTEM_PROMPT,
   DRAFT_INSTRUCTION,
   WORDPRESS_INSTRUCTION,
+  buildReviseInstruction,
 } from "@/lib/prompt";
 
 // 原稿生成は数分かかるため、Vercelの関数実行時間を最大まで延長する
@@ -11,11 +12,14 @@ export const maxDuration = 300;
 
 type GenerateBody = {
   format: "draft" | "wordpress";
-  // どちらか一方を指定する。
-  // pdfBase64: 小さいPDF(〜3.5MB)を直接送る場合
+  // 新規生成時: どちらか一方を指定する。
+  // pdfBase64: 小さいPDF(〜2.5MB)を直接送る場合
   // pdfUrl: Vercel Blobにアップロード済みの大きいPDFのURL
   pdfBase64?: string;
   pdfUrl?: string;
+  // 修正指示モード: 両方指定すると、PDFの再指定は任意(あれば事実確認に使う)
+  currentText?: string;
+  reviseInstruction?: string;
 };
 
 export async function POST(req: NextRequest) {
@@ -38,19 +42,36 @@ export async function POST(req: NextRequest) {
     return new Response("リクエストが不正です", { status: 400 });
   }
 
-  const { format, pdfBase64, pdfUrl } = body;
+  const { format, pdfBase64, pdfUrl, currentText, reviseInstruction } = body;
   if (format !== "draft" && format !== "wordpress") {
     return new Response("format は draft か wordpress を指定してください", { status: 400 });
   }
-  if (!pdfBase64 && !pdfUrl) {
+
+  const isRevision = Boolean(currentText && reviseInstruction);
+  if (!isRevision && !pdfBase64 && !pdfUrl) {
     return new Response("PDFが指定されていません", { status: 400 });
   }
 
-  const source = pdfUrl
-    ? ({ type: "url", url: pdfUrl } as const)
-    : ({ type: "base64", media_type: "application/pdf", data: pdfBase64! } as const);
+  const content: Anthropic.Messages.ContentBlockParam[] = [];
 
-  const instruction = format === "draft" ? DRAFT_INSTRUCTION : WORDPRESS_INSTRUCTION;
+  if (pdfBase64 || pdfUrl) {
+    const source = pdfUrl
+      ? ({ type: "url", url: pdfUrl } as const)
+      : ({ type: "base64", media_type: "application/pdf", data: pdfBase64! } as const);
+    content.push({ type: "document", source });
+  }
+
+  if (isRevision) {
+    content.push({
+      type: "text",
+      text: buildReviseInstruction(format, currentText!, reviseInstruction!),
+    });
+  } else {
+    content.push({
+      type: "text",
+      text: format === "draft" ? DRAFT_INSTRUCTION : WORDPRESS_INSTRUCTION,
+    });
+  }
 
   const client = new Anthropic();
   const stream = client.messages.stream({
@@ -58,15 +79,7 @@ export async function POST(req: NextRequest) {
     max_tokens: 32000,
     thinking: { type: "adaptive" },
     system: SYSTEM_PROMPT,
-    messages: [
-      {
-        role: "user",
-        content: [
-          { type: "document", source },
-          { type: "text", text: instruction },
-        ],
-      },
-    ],
+    messages: [{ role: "user", content }],
   });
 
   const encoder = new TextEncoder();

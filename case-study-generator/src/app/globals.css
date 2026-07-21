@@ -191,6 +191,19 @@ input[type="password"] {
 .mini-btn:hover {
   background: #f4f7fd;
 }
+.mini-btn.primary {
+  background: var(--grad);
+  color: #fff;
+  border: none;
+}
+.mini-btn.primary:hover {
+  opacity: 0.9;
+  background: var(--grad);
+}
+.mini-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 
 .output {
   width: 100%;
@@ -206,6 +219,44 @@ input[type="password"] {
   word-break: break-all;
   overflow-y: auto;
   max-height: 640px;
+}
+textarea.output.editable {
+  resize: vertical;
+  color: var(--ink);
+  outline: none;
+}
+textarea.output.editable:focus {
+  border-color: var(--blue);
+  background: #fff;
+}
+
+.revise-box {
+  margin-top: 14px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #f7f9fe;
+}
+.revise-box label {
+  font-size: 12.5px;
+  margin-bottom: 8px;
+}
+.revise-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.revise-row input[type="text"] {
+  flex: 1;
+  min-width: 240px;
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 13px;
+  background: #fff;
+}
+.revise-row input[type="text"]:disabled {
+  background: #f0f2f7;
 }
 
 .note {

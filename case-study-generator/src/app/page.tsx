@@ -2,6 +2,7 @@
 
 import { useCallback, useRef, useState } from "react";
 import { upload } from "@vercel/blob/client";
+import { exportMarkdownAsPdf } from "@/lib/exportPdf";
 
 type Format = "draft" | "wordpress";
 
@@ -36,6 +37,15 @@ export default function Home() {
     wordpress: false,
   });
   const [activeTab, setActiveTab] = useState<Format>("draft");
+  const [reviseText, setReviseText] = useState("");
+  const [lastPayload, setLastPayload] = useState<{
+    pdfBase64?: string;
+    pdfUrl?: string;
+  } | null>(null);
+  const [history, setHistory] = useState<Record<Format, string[]>>({
+    draft: [],
+    wordpress: [],
+  });
   const fileInput = useRef<HTMLInputElement>(null);
 
   const pickFile = useCallback((f: File | undefined | null) => {
@@ -65,7 +75,12 @@ export default function Home() {
 
   const streamGenerate = async (
     format: Format,
-    payload: { pdfBase64?: string; pdfUrl?: string }
+    payload: {
+      pdfBase64?: string;
+      pdfUrl?: string;
+      currentText?: string;
+      reviseInstruction?: string;
+    }
   ) => {
     setPending((p) => ({ ...p, [format]: true }));
     try {
@@ -112,6 +127,8 @@ export default function Home() {
         });
         payload = { pdfUrl: blob.url };
       }
+      setLastPayload(payload);
+      setHistory({ draft: [], wordpress: [] });
       setStatusText(
         "原稿を生成しています…(2形式を同時生成。3〜5分ほどかかります。画面を閉じないでください)"
       );
@@ -142,6 +159,50 @@ export default function Home() {
     a.download = FILE_NAME[activeTab];
     a.click();
     URL.revokeObjectURL(a.href);
+  };
+
+  const downloadAsPdf = () => {
+    exportMarkdownAsPdf(outputs.draft, "導入事例原稿");
+    setStatusText(
+      "印刷画面が開きました。「PDFとして保存」を選んでダウンロードしてください。"
+    );
+  };
+
+  const requestRevision = async () => {
+    const format = activeTab;
+    const instruction = reviseText.trim();
+    if (!instruction || !password || pending[format] || running) return;
+
+    const before = outputs[format];
+    setHistory((h) => ({ ...h, [format]: [...h[format], before] }));
+    setOutputs((o) => ({ ...o, [format]: "" }));
+    setError("");
+    setStatusText("修正を反映しています…");
+    try {
+      await streamGenerate(format, {
+        ...(lastPayload ?? {}),
+        currentText: before,
+        reviseInstruction: instruction,
+      });
+      setReviseText("");
+      setStatusText("修正が完了しました。内容を確認してください。");
+    } catch (e) {
+      // 失敗時は直前の内容に戻す
+      setOutputs((o) => ({ ...o, [format]: before }));
+      setHistory((h) => ({ ...h, [format]: h[format].slice(0, -1) }));
+      setError(e instanceof Error ? e.message : "修正に失敗しました");
+      setStatusText("");
+    }
+  };
+
+  const undoRevision = () => {
+    const format = activeTab;
+    const stack = history[format];
+    if (stack.length === 0) return;
+    const previous = stack[stack.length - 1];
+    setOutputs((o) => ({ ...o, [format]: previous }));
+    setHistory((h) => ({ ...h, [format]: h[format].slice(0, -1) }));
+    setStatusText("修正前の内容に戻しました");
   };
 
   return (
@@ -244,8 +305,70 @@ export default function Home() {
               <button className="mini-btn" onClick={downloadOutput} disabled={!outputs[activeTab]}>
                 ⬇️ {FILE_NAME[activeTab]} をダウンロード
               </button>
+              {activeTab === "draft" && (
+                <button
+                  className="mini-btn primary"
+                  onClick={downloadAsPdf}
+                  disabled={!outputs.draft}
+                >
+                  🖨️ PDFで書き出す(お客様送付用)
+                </button>
+              )}
             </div>
-            <div className="output">{outputs[activeTab] || "(生成待ち…)"}</div>
+            <textarea
+              className="output editable"
+              value={outputs[activeTab]}
+              onChange={(e) =>
+                setOutputs((o) => ({ ...o, [activeTab]: e.target.value }))
+              }
+              placeholder="(生成待ち…)"
+              spellCheck={false}
+            />
+
+            <div className="revise-box">
+              <label htmlFor="revise">AIに修正指示を出す(このタブの原稿が対象)</label>
+              <div className="revise-row">
+                <input
+                  id="revise"
+                  type="text"
+                  value={reviseText}
+                  onChange={(e) => setReviseText(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") requestRevision();
+                  }}
+                  placeholder="例: ROIの前提を注記の直前に移動して/受講者の声を1件差し替えて/もっと簡潔にして"
+                  disabled={pending[activeTab] || running}
+                />
+                <button
+                  className="mini-btn primary"
+                  onClick={requestRevision}
+                  disabled={
+                    !reviseText.trim() ||
+                    !outputs[activeTab] ||
+                    pending[activeTab] ||
+                    running
+                  }
+                >
+                  🪄 この指示で修正する
+                </button>
+                <button
+                  className="mini-btn"
+                  onClick={undoRevision}
+                  disabled={history[activeTab].length === 0}
+                >
+                  ↩️ 修正前に戻す
+                </button>
+              </div>
+              <p className="note">
+                上のテキストボックスは直接編集もできます(数値の細かい修正や誤字はそのまま書き換えてOK)。
+              </p>
+            </div>
+
+            {activeTab === "draft" && (
+              <p className="note">
+                💡 お客様への確認依頼には「PDFで書き出す」を使ってください(.mdファイルはお客様の環境で開けないことがあります)。
+              </p>
+            )}
             <p className="note">
               ⚠️ 公開前に必ず確認: ①数値がPDFと一致しているか ②個人名が入っていないか
               ③導入企業の掲載承諾を得てから公開すること(承諾依頼と同時にロゴ・宣材写真の支給を依頼)
