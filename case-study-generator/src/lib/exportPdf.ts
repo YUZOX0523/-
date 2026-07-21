@@ -144,24 +144,29 @@ export function exportMarkdownAsPdf(markdown: string, titleFallback: string) {
   }
   .content { padding: 0 4mm; }
 
+  /* ヒーロー部分は「背景色」に色を頼らない設計にしている。
+     多くのブラウザは印刷/PDF保存時に既定で背景色・背景画像を出力しない
+     (「背景のグラフィック」設定がオフ)ため、背景塗りだけで色を表現すると
+     設定次第で真っ白になってしまう。文字色・枠線は常に印刷されるため、
+     そちらだけで確実に色が出るようにする。 */
   .hero {
-    background: linear-gradient(120deg, #7c6ff0 0%, #3b82f6 55%, #38bdf8 100%);
-    color: #fff;
-    border-radius: 14px;
-    padding: 22px 24px;
+    border: 1.5px solid #cdd8f2;
+    border-top: 5px solid #4c6fe0;
+    border-radius: 4px 4px 14px 14px;
+    padding: 20px 24px;
     margin-bottom: 22px;
   }
   .hero-tag {
     display: inline-block;
     font-size: 10.5px; font-weight: 700; letter-spacing: .06em;
-    background: rgba(255,255,255,.22); border-radius: 999px;
+    border: 1px solid #7c6ff0; color: #5b54e8; border-radius: 999px;
     padding: 3px 12px; margin-bottom: 12px;
   }
-  .hero h1 { color: #fff; font-size: 19px; line-height: 1.55; margin: 0 0 10px; border: none; padding: 0; }
-  .hero .lead { color: rgba(255,255,255,.94); font-size: 12px; margin: 0 0 14px; }
+  .hero h1 { color: #23306b; font-size: 19px; line-height: 1.55; margin: 0 0 10px; border: none; padding: 0; }
+  .hero .lead { color: #4a5578; font-size: 12px; margin: 0 0 14px; }
   .hero .chips { display: flex; flex-wrap: wrap; gap: 8px; }
   .hero .chip {
-    background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.35);
+    border: 1px solid #a9bdf5; color: #3b63d8;
     border-radius: 999px; padding: 4px 12px; font-size: 11px; font-weight: 600;
   }
 
@@ -171,31 +176,31 @@ export function exportMarkdownAsPdf(markdown: string, titleFallback: string) {
   p { margin: 0 0 10px; }
 
   table {
-    width: 100%; table-layout: fixed; border-collapse: separate; border-spacing: 0;
+    width: 100%; table-layout: fixed; border-collapse: collapse;
     margin: 10px 0 16px; font-size: 11.5px;
-    border: 1px solid #dde4f2; border-radius: 10px; overflow: hidden;
   }
-  th, td { border-bottom: 1px solid #eef1f9; border-right: 1px solid #eef1f9; padding: 8px 10px; text-align: left; overflow-wrap: break-word; word-break: break-word; }
-  th:last-child, td:last-child { border-right: none; }
-  tr:last-child td { border-bottom: none; }
-  th { background: #eef2fa; font-weight: 700; color: #2f3b5c; }
+  /* table-layout:fixed は列幅を均等割りするため、セル内の長文が
+     はみ出さず必ず折り返す(word-break併用)。印刷可能幅からの
+     はみ出し=欠落を防ぐための必須設定。 */
+  th, td { border: 1px solid #d3ddf2; padding: 8px 10px; text-align: left; overflow-wrap: break-word; word-break: break-word; }
+  th { font-weight: 700; color: #2f3b5c; border-bottom: 2px solid #3b82f6; }
 
   .img-placeholder {
     margin: 12px 0; padding: 22px 16px; text-align: center;
-    border: 1.5px dashed #b7c3e0; border-radius: 12px; background: #f7f9fe;
+    border: 1.5px dashed #a9bdf5; border-radius: 12px;
   }
   .img-placeholder.logo { padding: 16px; }
   .img-icon { font-size: 22px; margin-bottom: 6px; }
   .img-placeholder-label { font-weight: 700; color: #3b63d8; font-size: 12.5px; margin-bottom: 3px; }
-  .img-placeholder-note { font-size: 10.5px; color: #8a94ad; }
+  .img-placeholder-note { font-size: 10.5px; color: #6d7893; }
 
   .quote-card {
     margin: 10px 0; padding: 14px 18px 12px;
-    background: #f4f6fb; border-left: 4px solid #7c6ff0; border-radius: 0 10px 10px 0;
+    border: 1px solid #e4e9f4; border-left: 4px solid #7c6ff0; border-radius: 0 10px 10px 0;
   }
-  .quote-mark { font-family: Georgia, serif; font-size: 26px; color: #a9bdf5; line-height: 1; margin-bottom: 2px; }
+  .quote-mark { font-family: Georgia, serif; font-size: 26px; color: #7c6ff0; line-height: 1; margin-bottom: 2px; }
   .quote-text { margin: 0; font-size: 12px; color: #333; }
-  .quote-attr { margin-top: 8px; font-size: 10.5px; color: #8a94ad; }
+  .quote-attr { margin-top: 8px; font-size: 10.5px; color: #6d7893; }
 
   ul, ol { margin: 0 0 12px; padding-left: 22px; }
   li { margin-bottom: 4px; }
