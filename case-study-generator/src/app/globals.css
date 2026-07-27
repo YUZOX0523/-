@@ -301,6 +301,17 @@ textarea.output.editable:focus {
   border-color: var(--blue);
   outline: none;
 }
+.title-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.title-row .text-input {
+  flex: 1;
+}
+.title-row .mini-btn {
+  white-space: nowrap;
+}
 .check-grid {
   display: flex;
   flex-wrap: wrap;

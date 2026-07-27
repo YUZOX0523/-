@@ -19,9 +19,17 @@ export type WpDraftResult = {
   permalink?: string;
 };
 
-// 生成済みWordPress原稿の冒頭コメント(貼り付け手順+タイトル)からタイトルを抽出する。
-// 「タイトル(タイトル欄にコピペ):」の同一行 or 次行のどちらの書き方にも対応。
+// チェック用原稿(Markdown)のfrontmatterから企業名を抽出する
+export function extractCompany(draftText: string): string {
+  const m = draftText.match(/^company:\s*(.+)$/m);
+  return m ? m[1].trim() : "";
+}
+
+// 生成済み原稿から、WordPressのタイトル欄に入れる記事タイトルを抽出する。
+// AIの出力ゆれで1つの書き方に依存すると空欄になるため、確度の高い順に
+// 複数の取り方を試し、最後はチェック用原稿の見出し+企業名から組み立てる。
 export function extractWpTitle(wordpressText: string, draftText: string): string {
+  // 1) 冒頭コメントの「タイトル(タイトル欄にコピペ):」(同一行 or 次行)
   const m = wordpressText.match(
     /タイトル\s*[((]タイトル欄にコピペ[))]\s*[::]\s*([^\r\n]*)\r?\n?\s*([^\r\n]*)/
   );
@@ -31,14 +39,25 @@ export function extractWpTitle(wordpressText: string, draftText: string): string
     const nextLine = (m[2] ?? "").trim();
     if (nextLine && !nextLine.startsWith("-->")) return nextLine;
   }
-  const h1 = draftText.match(/^#\s+(.+)$/m);
-  return h1 ? h1[1].trim() : "";
+
+  // 2) 「タイトル: ◯◯」のような行(手順説明の文には「タイトル+コロン」の並びが無いため安全)
+  const plain = wordpressText.match(/^\s*[・■]?\s*タイトル\s*[::]\s*(.{5,})$/m);
+  if (plain) return plain[1].trim();
+
+  // 3) チェック用原稿のタイトル(h1)+企業名で組み立てる
+  const h1 = draftText.match(/^#\s+(.+)$/m)?.[1]?.trim() ?? "";
+  if (!h1) return "";
+  const company = extractCompany(draftText);
+  if (company && !h1.includes(company)) return `${h1}|${company}様`;
+  return h1;
 }
 
-// チェック用原稿(Markdown)のfrontmatterから企業名を抽出する
-export function extractCompany(draftText: string): string {
-  const m = draftText.match(/^company:\s*(.+)$/m);
-  return m ? m[1].trim() : "";
+// 導入サービスの選択肢のうち、事例作成の対象外として画面に出さないもの。
+// WordPress側のタクソノミーから該当タームが削除されれば、この対応は不要になる。
+const HIDDEN_IMPLEMENTATION_NAMES = ["楽ジョブAI"];
+
+export function visibleImplementationTerms(terms: WpTerm[]): WpTerm[] {
+  return terms.filter((t) => !HIDDEN_IMPLEMENTATION_NAMES.includes(t.name.trim()));
 }
 
 // WordPress原稿の冒頭にある「使い方」説明コメントを取り除く。

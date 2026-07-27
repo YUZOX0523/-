@@ -13,6 +13,7 @@ import {
   normalizeTermName,
   findSimilarTerms,
   sortEmployeeTerms,
+  visibleImplementationTerms,
 } from "@/lib/wordpress";
 
 type Format = "draft" | "wordpress";
@@ -302,6 +303,10 @@ export default function Home() {
     (setter: React.Dispatch<React.SetStateAction<number[]>>) => (id: number) =>
       setter((cur) => (cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id]));
 
+  const implementationTerms = useMemo(
+    () => (wpOptions ? visibleImplementationTerms(wpOptions.implementation) : []),
+    [wpOptions]
+  );
   const employeeTerms = useMemo(
     () => (wpOptions ? sortEmployeeTerms(wpOptions.employees) : []),
     [wpOptions]
@@ -591,14 +596,33 @@ export default function Home() {
               <label htmlFor="wp-title">
                 タイトル<span className="req">必須</span>
               </label>
-              <input
-                id="wp-title"
-                className="text-input"
-                type="text"
-                value={wpTitle}
-                onChange={(e) => setWpTitle(e.target.value)}
-                placeholder="原稿の生成が完了すると自動入力されます"
-              />
+              <div className="title-row">
+                <input
+                  id="wp-title"
+                  className="text-input"
+                  type="text"
+                  value={wpTitle}
+                  onChange={(e) => setWpTitle(e.target.value)}
+                  placeholder="原稿の生成が完了すると自動入力されます(編集OK)"
+                />
+                <button
+                  type="button"
+                  className="mini-btn"
+                  onClick={() => {
+                    const t = extractWpTitle(outputs.wordpress, outputs.draft);
+                    if (t) {
+                      setWpTitle(t);
+                      setStatusText("原稿からタイトルを取得しました");
+                    } else {
+                      setWpError("原稿からタイトルを取得できませんでした。手入力してください。");
+                    }
+                  }}
+                  disabled={!outputs.wordpress && !outputs.draft}
+                  title="生成済みの原稿からタイトルを取り直します(修正指示でタイトルが変わったときに)"
+                >
+                  🔄 原稿から再取得
+                </button>
+              </div>
             </div>
 
             <div className="field-grid">
@@ -667,7 +691,7 @@ export default function Home() {
                     導入サービス<span className="req">必須</span>
                   </label>
                   <CheckGroup
-                    terms={wpOptions.implementation}
+                    terms={implementationTerms}
                     selected={wpImplementation}
                     onToggle={toggleTerm(setWpImplementation)}
                   />
