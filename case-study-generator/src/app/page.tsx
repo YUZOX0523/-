@@ -1,8 +1,19 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { upload } from "@vercel/blob/client";
 import { exportMarkdownAsPdf } from "@/lib/exportPdf";
+import {
+  WpOptions,
+  WpTerm,
+  WpDraftResult,
+  extractWpTitle,
+  extractCompany,
+  stripInstructionComments,
+  normalizeTermName,
+  findSimilarTerms,
+  sortEmployeeTerms,
+} from "@/lib/wordpress";
 
 type Format = "draft" | "wordpress";
 
@@ -20,6 +31,32 @@ const FILE_NAME: Record<Format, string> = {
   draft: "draft.md",
   wordpress: "wordpress.html",
 };
+
+// タクソノミーのチェックボックス群(導入サービス/従業員数/所在地で共用)
+function CheckGroup({
+  terms,
+  selected,
+  onToggle,
+}: {
+  terms: WpTerm[];
+  selected: number[];
+  onToggle: (id: number) => void;
+}) {
+  return (
+    <div className="check-grid">
+      {terms.map((t) => (
+        <label key={t.id} className={`check-chip${selected.includes(t.id) ? " on" : ""}`}>
+          <input
+            type="checkbox"
+            checked={selected.includes(t.id)}
+            onChange={() => onToggle(t.id)}
+          />
+          {t.name}
+        </label>
+      ))}
+    </div>
+  );
+}
 
 export default function Home() {
   const [password, setPassword] = useState("");
@@ -47,6 +84,21 @@ export default function Home() {
     wordpress: [],
   });
   const fileInput = useRef<HTMLInputElement>(null);
+
+  // --- WordPress下書き保存(自動投稿API連携)用の状態 ---
+  const [wpOptions, setWpOptions] = useState<WpOptions | null>(null);
+  const [wpOptionsLoading, setWpOptionsLoading] = useState(false);
+  const [wpOptionsError, setWpOptionsError] = useState("");
+  const [wpTitle, setWpTitle] = useState("");
+  const [wpCompany, setWpCompany] = useState("");
+  const [wpIndustry, setWpIndustry] = useState("");
+  const [wpCorpUrl, setWpCorpUrl] = useState("");
+  const [wpImplementation, setWpImplementation] = useState<number[]>([]);
+  const [wpEmployees, setWpEmployees] = useState<number[]>([]);
+  const [wpLocation, setWpLocation] = useState<number[]>([]);
+  const [wpSaving, setWpSaving] = useState(false);
+  const [wpError, setWpError] = useState("");
+  const [wpResult, setWpResult] = useState<WpDraftResult | null>(null);
 
   const pickFile = useCallback((f: File | undefined | null) => {
     setError("");
@@ -203,6 +255,142 @@ export default function Home() {
     setOutputs((o) => ({ ...o, [format]: previous }));
     setHistory((h) => ({ ...h, [format]: h[format].slice(0, -1) }));
     setStatusText("修正前の内容に戻しました");
+  };
+
+  // タームIDはWordPress管理画面での追加・削除で変わるため、ハードコードせず
+  // 表示のたびに options APIから最新を取得する(API仕様書の指示)
+  const loadWpOptions = useCallback(async () => {
+    if (!password) return;
+    setWpOptionsError("");
+    setWpOptionsLoading(true);
+    try {
+      const res = await fetch("/api/wordpress/options", {
+        headers: { "x-app-password": password },
+      });
+      const body = await res.json().catch(() => null);
+      if (!res.ok || !body?.ok) {
+        throw new Error(body?.error || `選択肢の取得に失敗しました (${res.status})`);
+      }
+      const data = body.data as WpOptions;
+      setWpOptions(data);
+      // このGeneratorは法人リスキリングの事例専用なので、導入サービスは既定で選択しておく
+      setWpImplementation((cur) =>
+        cur.length > 0
+          ? cur
+          : data.implementation.filter((t) => t.name === "法人リスキリング").map((t) => t.id)
+      );
+    } catch (e) {
+      setWpOptionsError(e instanceof Error ? e.message : "選択肢の取得に失敗しました");
+    } finally {
+      setWpOptionsLoading(false);
+    }
+  }, [password]);
+
+  // 生成が完了したら、タイトル・企業名を原稿から自動入力し、選択肢を読み込む。
+  // 既に入力済みの欄は上書きしない(手修正を消さないため)。
+  useEffect(() => {
+    if (running || pending.wordpress || pending.draft || !outputs.wordpress) return;
+    setWpTitle((t) => t || extractWpTitle(outputs.wordpress, outputs.draft));
+    setWpCompany((c) => c || extractCompany(outputs.draft));
+    if (!wpOptions && !wpOptionsLoading && !wpOptionsError) {
+      loadWpOptions();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [running, pending.wordpress, pending.draft, outputs.wordpress, outputs.draft]);
+
+  const toggleTerm =
+    (setter: React.Dispatch<React.SetStateAction<number[]>>) => (id: number) =>
+      setter((cur) => (cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id]));
+
+  const employeeTerms = useMemo(
+    () => (wpOptions ? sortEmployeeTerms(wpOptions.employees) : []),
+    [wpOptions]
+  );
+  const locationTerms = useMemo(
+    () =>
+      wpOptions
+        ? [...wpOptions.location].sort((a, b) => a.name.localeCompare(b.name, "ja"))
+        : [],
+    [wpOptions]
+  );
+  // 業種の表記ゆれによるターム重複作成を防ぐためのサジェスト(仕様書7.1の推奨対応)
+  const industrySuggestions = useMemo(
+    () => (wpOptions ? findSimilarTerms(wpIndustry, wpOptions.industry) : []),
+    [wpOptions, wpIndustry]
+  );
+  const industryExactMatch = useMemo(() => {
+    if (!wpOptions || !wpIndustry.trim()) return null;
+    const key = normalizeTermName(wpIndustry);
+    return wpOptions.industry.find((t) => normalizeTermName(t.name) === key) ?? null;
+  }, [wpOptions, wpIndustry]);
+
+  const saveToWordPress = async () => {
+    if (wpSaving) return;
+    setWpError("");
+    setWpResult(null);
+
+    const title = wpTitle.trim();
+    const industryInput = wpIndustry.trim();
+    const corpUrl = wpCorpUrl.trim();
+    const content = stripInstructionComments(outputs.wordpress);
+
+    const missing: string[] = [];
+    if (!title) missing.push("タイトル");
+    if (!industryInput) missing.push("業種");
+    if (wpImplementation.length === 0) missing.push("導入サービス");
+    if (wpEmployees.length === 0) missing.push("従業員数");
+    if (wpLocation.length === 0) missing.push("所在地");
+    if (missing.length > 0) {
+      setWpError(`必須項目が未入力です: ${missing.join(" / ")}`);
+      return;
+    }
+    if (!content.includes("wp:")) {
+      setWpError(
+        "WordPress入稿用の原稿がGutenberg形式になっていません。「WordPress入稿用」タブの内容を確認してください。"
+      );
+      return;
+    }
+    if (corpUrl && !/^https?:\/\/.+/.test(corpUrl)) {
+      setWpError("企業ホームページURLは https:// から始まる形式で入力してください");
+      return;
+    }
+
+    // 正規化して一致する既存タームがあれば、その表記をそのまま使う(重複ターム防止)
+    const industry = industryExactMatch ? industryExactMatch.name : industryInput;
+
+    setWpSaving(true);
+    try {
+      const res = await fetch("/api/wordpress/draft", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-app-password": password,
+        },
+        body: JSON.stringify({
+          title,
+          content,
+          company_name: wpCompany.trim() || undefined,
+          corp_url: corpUrl || undefined,
+          implementation: wpImplementation,
+          employees: wpEmployees,
+          location: wpLocation,
+          industry,
+        }),
+      });
+      const body = await res.json().catch(() => null);
+      if (!res.ok || !body?.ok) {
+        throw new Error(body?.error || `下書きの作成に失敗しました (${res.status})`);
+      }
+      setWpResult(body.data as WpDraftResult);
+      if (industryExactMatch && industryExactMatch.name !== industryInput) {
+        setWpIndustry(industryExactMatch.name);
+      }
+      setStatusText("WordPressに下書きを作成しました。写真の挿入と最終確認はWordPress側で行ってください。");
+    } catch (e) {
+      setWpError(e instanceof Error ? e.message : "下書きの作成に失敗しました");
+    } finally {
+      setWpSaving(false);
+    }
   };
 
   return (
@@ -372,6 +560,177 @@ export default function Home() {
             <p className="note">
               ⚠️ 公開前に必ず確認: ①数値がPDFと一致しているか ②個人名が入っていないか
               ③導入企業の掲載承諾を得てから公開すること(承諾依頼と同時にロゴ・宣材写真の支給を依頼)
+            </p>
+          </div>
+        )}
+
+        {outputs.wordpress && !running && !pending.wordpress && (
+          <div className="panel">
+            <h2 className="panel-title">📤 WordPressへ下書き保存</h2>
+            <p className="panel-sub">
+              下の項目を入力して保存すると、digirise.ai
+              に事例記事の下書きが自動作成されます(公開はされません)。
+              写真のアップロード・挿入と最終確認・公開はWordPress側で行います。
+            </p>
+
+            {wpOptionsError && (
+              <p className="status error">
+                {wpOptionsError}{" "}
+                <button className="mini-btn" onClick={loadWpOptions} disabled={wpOptionsLoading}>
+                  🔄 選択肢を再読み込み
+                </button>
+              </p>
+            )}
+            {wpOptionsLoading && (
+              <p className="status">
+                <span className="spinner" /> WordPressから選択肢を読み込んでいます…
+              </p>
+            )}
+
+            <div className="field">
+              <label htmlFor="wp-title">
+                タイトル<span className="req">必須</span>
+              </label>
+              <input
+                id="wp-title"
+                className="text-input"
+                type="text"
+                value={wpTitle}
+                onChange={(e) => setWpTitle(e.target.value)}
+                placeholder="原稿の生成が完了すると自動入力されます"
+              />
+            </div>
+
+            <div className="field-grid">
+              <div className="field">
+                <label htmlFor="wp-company">企業名</label>
+                <input
+                  id="wp-company"
+                  className="text-input"
+                  type="text"
+                  value={wpCompany}
+                  onChange={(e) => setWpCompany(e.target.value)}
+                  placeholder="例: 株式会社トップ"
+                />
+              </div>
+              <div className="field">
+                <label htmlFor="wp-url">企業ホームページURL</label>
+                <input
+                  id="wp-url"
+                  className="text-input"
+                  type="text"
+                  value={wpCorpUrl}
+                  onChange={(e) => setWpCorpUrl(e.target.value)}
+                  placeholder="https://example.com/"
+                />
+              </div>
+            </div>
+
+            <div className="field">
+              <label htmlFor="wp-industry">
+                業種<span className="req">必須</span>
+              </label>
+              <input
+                id="wp-industry"
+                className="text-input"
+                type="text"
+                value={wpIndustry}
+                onChange={(e) => setWpIndustry(e.target.value)}
+                placeholder="例: 製造業"
+              />
+              {industryExactMatch && industryExactMatch.name !== wpIndustry.trim() && (
+                <p className="suggest">
+                  💡 保存時は既存の「{industryExactMatch.name}」として登録されます(表記ゆれによる重複防止)
+                </p>
+              )}
+              {!industryExactMatch && industrySuggestions.length > 0 && (
+                <p className="suggest">
+                  似た名前が既に登録されています。同じ業種なら既存の表記に揃えてください(クリックで入力):
+                  {industrySuggestions.map((t) => (
+                    <button
+                      key={t.id}
+                      type="button"
+                      className="sug-chip"
+                      onClick={() => setWpIndustry(t.name)}
+                    >
+                      {t.name}
+                    </button>
+                  ))}
+                </p>
+              )}
+            </div>
+
+            {wpOptions && (
+              <>
+                <div className="field">
+                  <label>
+                    導入サービス<span className="req">必須</span>
+                  </label>
+                  <CheckGroup
+                    terms={wpOptions.implementation}
+                    selected={wpImplementation}
+                    onToggle={toggleTerm(setWpImplementation)}
+                  />
+                </div>
+                <div className="field">
+                  <label>
+                    従業員数<span className="req">必須</span>
+                  </label>
+                  <CheckGroup
+                    terms={employeeTerms}
+                    selected={wpEmployees}
+                    onToggle={toggleTerm(setWpEmployees)}
+                  />
+                </div>
+                <div className="field">
+                  <label>
+                    所在地<span className="req">必須</span>
+                  </label>
+                  <CheckGroup
+                    terms={locationTerms}
+                    selected={wpLocation}
+                    onToggle={toggleTerm(setWpLocation)}
+                  />
+                </div>
+              </>
+            )}
+
+            <div style={{ marginTop: 18 }}>
+              <button
+                className="gen-btn"
+                onClick={saveToWordPress}
+                disabled={wpSaving || wpOptionsLoading || !wpOptions}
+              >
+                {wpSaving ? "保存中…" : "📤 WordPressへ下書き保存"}
+              </button>
+            </div>
+            {wpError && <p className="status error">{wpError}</p>}
+            {wpResult && (
+              <div className="wp-success">
+                ✅ WordPressに下書きを作成しました(投稿ID: {wpResult.post_id})
+                <div style={{ marginTop: 6 }}>
+                  {wpResult.edit_url && (
+                    <a href={wpResult.edit_url} target="_blank" rel="noreferrer">
+                      📝 WordPressで編集画面を開く
+                    </a>
+                  )}
+                  {wpResult.edit_url && wpResult.preview_url && " / "}
+                  {wpResult.preview_url && (
+                    <a href={wpResult.preview_url} target="_blank" rel="noreferrer">
+                      👀 プレビューを見る
+                    </a>
+                  )}
+                </div>
+                <p className="note" style={{ marginTop: 8 }}>
+                  残りの作業(WordPress側): 写真のアップロード →
+                  記事内の【画像挿入位置①/②】を画像ブロックに差し替え → アイキャッチ設定 →
+                  最終確認 → 公開。
+                  <br />※ もう一度保存ボタンを押すと、同じ内容の下書きがもう1件作成されるので注意。
+                </p>
+              </div>
+            )}
+            <p className="note">
+              🔒 保存されるのは「下書き」のみで、このアプリから公開はできません。掲載承諾を得てから公開してください。
             </p>
           </div>
         )}
