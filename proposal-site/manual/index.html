@@ -135,6 +135,18 @@ h2{font-size:clamp(1.3rem,1.05rem + 1.1vw,1.7rem);font-weight:700;letter-spacing
 .step .sub{padding-left:2.55rem;display:flex;flex-direction:column;gap:.6rem}
 @media (max-width:520px){.step .sub{padding-left:0}}
 
+/* 手順の中の細かいクリック手順 */
+.mini{display:flex;flex-direction:column;gap:.45rem}
+.mini li{display:flex;gap:.65rem;align-items:flex-start;font-size:.9375rem;line-height:1.85}
+.mini .k{
+  flex:none;width:22px;height:22px;border-radius:6px;margin-top:.32rem;
+  background:var(--card-2);border:1px solid var(--line-2);color:var(--ink-2);
+  font-family:var(--mono);font-size:.75rem;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+}
+.mini small{display:block;color:var(--ink-3);font-size:.8125rem;line-height:1.75;margin-top:.1rem}
+.mini b{color:var(--ink);font-weight:700}
+
 /* コピーできるコード枠 */
 .copy{
   display:flex;align-items:stretch;gap:0;border:1px solid var(--line-2);border-radius:8px;
@@ -319,6 +331,24 @@ details[open] summary .ar{transform:rotate(180deg)}
           <div class="box box-warn">
             <span class="ic">注意</span>
             <div>名前は<b>ハイフン1文字の「-」</b>です。文字が入っていないように見えますが、それで合っています。</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-hd"><span class="n">4</span><h3>提案先のHPを読めるようにする（ここだけ少し探します）</h3></div>
+        <div class="sub">
+          <p>最初は<strong>提案先のHPを読み込めない設定</strong>になっています。ここを1回変えれば、以降ずっと不要です。<strong>クリック5回で終わります。</strong></p>
+          <ol class="mini">
+            <li><span class="k">1</span><span>文字を打つ欄の<b>すぐ上</b>に、雲のマークのボタンがあります。押してください</span></li>
+            <li><span class="k">2</span><span>出てきた一覧の、いま使っている環境の名前の上に<b>マウスを乗せる</b>。右側に歯車が出てきます。押してください<small>歯車は乗せないと出てきません。「無い」と思ったら、名前の上をゆっくり通ってみてください</small></span></li>
+            <li><span class="k">3</span><span><b>Network access</b> と書いてある欄を探す</span></li>
+            <li><span class="k">4</span><span>いま <b>Trusted</b> になっています。それを <b>Full</b> に変える</span></li>
+            <li><span class="k">5</span><span>保存する</span></li>
+          </ol>
+          <div class="box box-warn">
+            <span class="ic">注意</span>
+            <div>変えたあとは、<b>セッションを新しく開き直してください。</b>いま開いている画面のままでは変わりません。</div>
           </div>
           <p>これで準備は完了です。以降はこの画面から始めます。</p>
         </div>
@@ -505,7 +535,27 @@ details[open] summary .ar{transform:rotate(180deg)}
       </details>
       <details>
         <summary><span class="q">Q02</span><span>ホームページが読めなかったと言われた</span><span class="ar">▾</span></summary>
-        <div class="ans">提案先のサイトが外から読めない設定のことがあります。その場合は<strong>会社概要や事業内容を自分で貼り付けて</strong>渡してください。「HPが読めないので、この内容で作って」と書いて、事業内容・従業員数・部門を箇条書きで貼れば作れます。</div>
+        <div class="ans">
+          <p><strong>提案先のせいではありません。ほぼ全部、STEP 1の④をやっていないだけです。</strong>あれをやると直ります。クリック5回で、管理担当に頼まなくても自分でできます。<strong>やったのに直らないときは、セッションを新しく開き直してください</strong>（設定を変える前に開いた画面のままでは変わりません）。</p>
+          <p style="margin-top:.7rem">それでも読めない、あるいは今すぐその日の商談に間に合わせたいときは、<strong>HPの中身を自分で貼れば同じ品質で作れます。</strong>提案先のHPを開いて、下の型に沿ってコピペしてください。</p>
+          <div class="copy" style="margin-top:.5rem"><code>/proposal-site HPが読めないので、この内容で作って
+
+■事業内容・サービス名
+（トップページと事業紹介から貼る）
+
+■会社概要
+（従業員数・拠点・設立年）
+
+■職種一覧
+（採用ページから貼る。部門構成の材料になるので一番効く）
+
+■直近の関心事
+（社長メッセージやニュースから。人手不足・技能承継など）
+
+■サイトの色
+（分かれば #0F5C8C のような色コード。分からなければ「濃い青」でよい）</code><button type="button" data-copy>コピー</button></div>
+          <p style="margin-top:.7rem">全部そろっていなくても作れます。<strong>職種一覧だけでも貼ると精度が大きく上がります。</strong></p>
+        </div>
       </details>
       <details>
         <summary><span class="q">Q03</span><span>色が思ったのと違う</span><span class="ar">▾</span></summary>

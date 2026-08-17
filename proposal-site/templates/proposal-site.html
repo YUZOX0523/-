@@ -46,15 +46,26 @@
   --brand-wash-2:color-mix(in oklab, var(--brand-src) 14%, #fff);
   --brand-edge:color-mix(in oklab, var(--brand-src) 32%, #E3E5EC);
 
+  /* 到達レベルの4段階トーン。1→4で濃くなることで「上がっていく」ことを色で示す。
+     地色と文字色を必ず対で持たせる（片方だけ反転すると読めなくなる） */
+  --lv1-bg:color-mix(in oklab, var(--brand-src) 9%, #fff);
+  --lv1-ink:var(--ink); --lv1-edge:color-mix(in oklab, var(--brand-src) 28%, #fff);
+  --lv2-bg:color-mix(in oklab, var(--brand-src) 24%, #fff);
+  --lv2-ink:var(--ink); --lv2-edge:color-mix(in oklab, var(--brand-src) 44%, #fff);
+  --lv3-bg:color-mix(in oklab, var(--brand-src) 92%, #000);
+  --lv3-ink:#fff;       --lv3-edge:color-mix(in oklab, var(--brand-src) 92%, #000);
+  --lv4-bg:color-mix(in oklab, var(--brand-src) 58%, #000);
+  --lv4-ink:#fff;       --lv4-edge:color-mix(in oklab, var(--brand-src) 58%, #000);
+
   /* ニュートラル：アクセント側へわずかに寒色バイアス */
-  --paper:#FAFAFB;
+  --paper:#F6F7F9;
   --surface:#FFFFFF;
-  --surface-2:#F2F3F7;
-  --line:#E3E5EC;
-  --line-strong:#C8CCD7;
-  --ink:#13151B;
-  --ink-2:#565D6E;
-  --ink-3:#868C9A;
+  --surface-2:#EEF0F4;
+  --line:#DDE0E8;
+  --line-strong:#B9BFCC;
+  --ink:#111319;
+  --ink-2:#454C5C;
+  --ink-3:#646B7B;
 
   --good:#12704A;
   --good-wash:#E9F4EF;
@@ -70,9 +81,11 @@
   --f-sans:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI",YuGothic,"Yu Gothic","Noto Sans JP",Meiryo,system-ui,-apple-system,"Segoe UI",sans-serif;
   --f-serif:"Hiragino Mincho ProN","Yu Mincho",YuMincho,"Noto Serif JP","Times New Roman",serif;
   --f-mono:ui-monospace,"SF Mono",SFMono-Regular,"Cascadia Mono","Roboto Mono","Noto Sans Mono",Menlo,Consolas,monospace;
+  /* 数字・時刻・コードにだけ使う。和文には使わない（極小の等幅和文が最も読みにくい） */
+  --f-num:var(--f-mono);
 
-  --shell:1140px;
-  --read:64ch;
+  --shell:1200px;
+  --read:62ch;
   --r-s:6px;
   --r-m:10px;
   --r-l:16px;
@@ -90,6 +103,14 @@
     --brand-wash:color-mix(in oklab, var(--brand-src) 16%, #171A21);
     --brand-wash-2:color-mix(in oklab, var(--brand-src) 26%, #171A21);
     --brand-edge:color-mix(in oklab, var(--brand-src) 42%, #2A2F3A);
+    --lv1-bg:color-mix(in oklab, var(--brand-src) 16%, #171A21);
+    --lv1-ink:var(--ink); --lv1-edge:color-mix(in oklab, var(--brand-src) 36%, #2A2F3A);
+    --lv2-bg:color-mix(in oklab, var(--brand-src) 32%, #171A21);
+    --lv2-ink:var(--ink); --lv2-edge:color-mix(in oklab, var(--brand-src) 50%, #2A2F3A);
+    --lv3-bg:color-mix(in oklab, var(--brand-src) 64%, #fff);
+    --lv3-ink:#0D0F14;    --lv3-edge:color-mix(in oklab, var(--brand-src) 64%, #fff);
+    --lv4-bg:color-mix(in oklab, var(--brand-src) 40%, #fff);
+    --lv4-ink:#0D0F14;    --lv4-edge:color-mix(in oklab, var(--brand-src) 40%, #fff);
 
     --paper:#0D0F14;
     --surface:#171A21;
@@ -97,8 +118,8 @@
     --line:#2A2F3A;
     --line-strong:#3D434F;
     --ink:#EDEFF4;
-    --ink-2:#A8AFBD;
-    --ink-3:#79808E;
+    --ink-2:#B4BBC9;
+    --ink-3:#8B93A2;
 
     --good:#4FC38C;
     --good-wash:#14291F;
@@ -118,14 +139,22 @@
   --brand-wash:color-mix(in oklab, var(--brand-src) 16%, #171A21);
   --brand-wash-2:color-mix(in oklab, var(--brand-src) 26%, #171A21);
   --brand-edge:color-mix(in oklab, var(--brand-src) 42%, #2A2F3A);
+  --lv1-bg:color-mix(in oklab, var(--brand-src) 16%, #171A21);
+  --lv1-ink:var(--ink); --lv1-edge:color-mix(in oklab, var(--brand-src) 36%, #2A2F3A);
+  --lv2-bg:color-mix(in oklab, var(--brand-src) 32%, #171A21);
+  --lv2-ink:var(--ink); --lv2-edge:color-mix(in oklab, var(--brand-src) 50%, #2A2F3A);
+  --lv3-bg:color-mix(in oklab, var(--brand-src) 64%, #fff);
+  --lv3-ink:#0D0F14;    --lv3-edge:color-mix(in oklab, var(--brand-src) 64%, #fff);
+  --lv4-bg:color-mix(in oklab, var(--brand-src) 40%, #fff);
+  --lv4-ink:#0D0F14;    --lv4-edge:color-mix(in oklab, var(--brand-src) 40%, #fff);
   --paper:#0D0F14;
   --surface:#171A21;
   --surface-2:#1F232C;
   --line:#2A2F3A;
   --line-strong:#3D434F;
   --ink:#EDEFF4;
-  --ink-2:#A8AFBD;
-  --ink-3:#79808E;
+  --ink-2:#B4BBC9;
+  --ink-3:#8B93A2;
   --good:#4FC38C;
   --good-wash:#14291F;
   --warn:#D8A03A;
@@ -141,11 +170,16 @@ body{
   background:var(--paper);
   color:var(--ink);
   font-family:var(--f-sans);
-  font-size:16px;
-  line-height:1.85;
+  font-size:17px;
+  line-height:1.8;
+  font-feature-settings:"palt" 1;
   -webkit-font-smoothing:antialiased;
   text-size-adjust:100%;
 }
+/* 和文の折り返し。単語やカタカナ語の途中で切れると一気に読みにくくなる */
+h1,h2,h3,h4,p,li,dt,dd,td,th,summary{line-break:strict;word-break:normal;overflow-wrap:break-word}
+h1,h2,h3{text-wrap:balance}
+p{text-wrap:pretty}
 h1,h2,h3,h4,p,ul,ol,dl,figure{margin:0}
 ul,ol{padding:0;list-style:none}
 img{max-width:100%;display:block}
@@ -160,14 +194,10 @@ button{font:inherit;color:inherit;cursor:pointer}
 .read{max-width:var(--read)}
 
 .eyebrow{
-  font-family:var(--f-mono);
-  font-size:.6875rem;
-  letter-spacing:.16em;
-  text-transform:uppercase;
-  color:var(--ink-3);
-  line-height:1.6;
+  font-size:.75rem;font-weight:700;letter-spacing:.1em;
+  color:var(--ink-3);line-height:1.6;
 }
-.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.num{font-family:var(--f-num);font-variant-numeric:tabular-nums;letter-spacing:0}
 
 /* ===== 3. ヘッダー / ロゴロックアップ ========================== */
 .top{
@@ -312,8 +342,9 @@ h1 .hl{
 .s:first-child{border-top:0}
 .s-head{display:flex;gap:1rem;align-items:baseline;margin-bottom:1.6rem}
 .s-head .n{
-  font-family:var(--f-mono);font-size:.75rem;letter-spacing:.1em;
-  color:var(--brand);flex:none;padding-top:.45rem;
+  font-family:var(--f-num);font-variant-numeric:tabular-nums;
+  font-size:.875rem;font-weight:700;letter-spacing:.06em;
+  color:var(--brand);flex:none;padding-top:.55rem;
 }
 .s h2{font-size:clamp(1.4rem,1.05rem + 1.4vw,2rem);font-weight:700;letter-spacing:-.028em;line-height:1.38;text-wrap:balance}
 .s-sub{margin-top:.5rem;color:var(--ink-2);font-size:.9375rem}
@@ -336,8 +367,7 @@ h1 .hl{
 .fact h3{font-size:.9375rem;font-weight:700;line-height:1.6}
 .fact p{font-size:.875rem;color:var(--ink-2);line-height:1.8}
 .src{
-  font-family:var(--f-mono);font-size:.625rem;letter-spacing:.08em;
-  color:var(--ink-3);text-transform:uppercase;
+  font-size:.75rem;font-weight:600;letter-spacing:.02em;color:var(--ink-3);
 }
 
 /* ===== 9. 業務変化マップ ====================================== */
@@ -377,42 +407,102 @@ h1 .hl{
 .task{
   background:var(--surface);border:1px solid var(--line);border-radius:var(--r-m);
   display:flex;flex-direction:column;overflow:hidden;
+  /* 「今の手順／到達後」を分割するかは、画面幅ではなくカード自身の幅で決める。
+     画面が広くてもカードが狭ければ1列のままにして、1行の文字数を確保する */
+  container-type:inline-size;
 }
 .task-hd{padding:1rem 1.15rem .85rem;display:flex;flex-direction:column;gap:.45rem;border-bottom:1px solid var(--line)}
 .task-hd h3{font-size:1rem;font-weight:700;line-height:1.55}
 .task-tags{display:flex;flex-wrap:wrap;gap:.3rem}
 .tag{
-  font-size:.6875rem;font-family:var(--f-mono);letter-spacing:.04em;
-  border:1px solid var(--line);border-radius:4px;padding:.1rem .45rem;color:var(--ink-3);
+  font-size:.8125rem;line-height:1.5;letter-spacing:0;
+  border:1px solid var(--line);border-radius:6px;padding:.2rem .6rem;color:var(--ink-2);
 }
-.tag.tool{border-color:var(--brand-edge);color:var(--brand-deep);background:var(--brand-wash)}
-.tag.lv{background:var(--brand-wash-2);border-color:var(--brand-edge);color:var(--brand-deep);font-weight:600}
-.tag.lv-core{background:var(--brand-solid);border-color:var(--brand-solid);color:var(--brand-on)}
-.tag.via{border-style:dashed}
-/* 到達レベルのはしご */
-.ladder{display:grid;gap:.6rem;grid-template-columns:1fr}
-@media (min-width:620px){.ladder{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media (min-width:1000px){.ladder{grid-template-columns:repeat(4,minmax(0,1fr))}}
-.rung{border:1px solid var(--brand-edge);border-radius:var(--r-m);padding:.85rem 1rem;display:flex;flex-direction:column;gap:.2rem;background:var(--brand-wash)}
-.rung .lv{font-family:var(--f-mono);font-size:.625rem;letter-spacing:.12em;color:var(--brand)}
-.rung h3{font-size:.9375rem;font-weight:700}
-.rung p{font-size:.8125rem;color:var(--ink-2);line-height:1.7}
-.rung .via{font-size:.6875rem;font-family:var(--f-mono);letter-spacing:.04em;color:var(--brand-deep);margin-top:.15rem}
-.rung .tls{font-size:.625rem;font-family:var(--f-mono);color:var(--ink-3);line-height:1.5;margin-top:.15rem}
-.rung-core{background:var(--brand-solid);border-color:var(--brand-solid);color:var(--brand-on)}
-.rung-core .lv{color:rgba(255,255,255,.72)}
-.rung-core p{color:rgba(255,255,255,.85)}
-.rung-core .tls{color:rgba(255,255,255,.62)}
-.rung-core .via{color:#fff}
+.tag .n{font-family:var(--f-num);font-variant-numeric:tabular-nums;font-weight:700}
+.tag.tool{border-color:var(--brand-edge);color:var(--brand-deep);background:var(--brand-wash);font-weight:600}
+.tag.via{border-style:dashed;color:var(--ink-3)}
+/* 業務カードのレベル表示も、はしごと同じ4段階トーンで揃える */
+.tag.lv{font-weight:700;background:var(--lv1-bg);border-color:var(--lv1-edge);color:var(--lv1-ink)}
+.tag.lv-2{background:var(--lv2-bg);border-color:var(--lv2-edge);color:var(--lv2-ink)}
+.tag.lv-3{background:var(--lv3-bg);border-color:var(--lv3-edge);color:var(--lv3-ink)}
+.tag.lv-4{background:var(--lv4-bg);border-color:var(--lv4-edge);color:var(--lv4-ink)}
+/* ===== 到達レベルのはしご =====================================
+   読み取ってほしい順に、大きさで優先度をつける：
+   ①いま何レベルか（巨大な数字）→ ②何ができるか（見出し）→
+   ③どちらのサービスで届くか（帯）→ ④詳細（説明・ツール）
+   1→4で地色が濃くなることで、進んでいることを色そのもので示す。 */
+/* サービスと担当レベルの対応を示す帯。はしごと同じ列割りで真上に置く */
+.ladder-bands{display:none}
+@media (min-width:1040px){
+  .ladder-bands{
+    display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.5rem;margin-bottom:.5rem;
+  }
+  .band{
+    display:flex;align-items:baseline;gap:.6rem;flex-wrap:wrap;
+    padding:.5rem .9rem;border-radius:var(--r-s);
+    background:var(--surface);border:1px solid var(--line);
+    border-bottom:3px solid var(--brand-solid);
+  }
+  .band-name{font-size:.9375rem;font-weight:700;color:var(--ink)}
+  .band-lv{font-size:.8125rem;font-weight:700;color:var(--ink-3)}
+}
+.ladder{display:grid;gap:.5rem;grid-template-columns:1fr;counter-reset:rung}
+@media (min-width:700px){.ladder{grid-template-columns:repeat(2,minmax(0,1fr));gap:.6rem}}
+@media (min-width:1040px){.ladder{grid-template-columns:repeat(4,minmax(0,1fr))}}
+
+.rung{
+  --bg:var(--lv1-bg); --fg:var(--lv1-ink); --ed:var(--lv1-edge);
+  position:relative;overflow:hidden;
+  background:var(--bg);color:var(--fg);
+  border:1px solid var(--ed);border-radius:var(--r-m);
+  padding:1.15rem 1.15rem 1.05rem;
+  display:flex;flex-direction:column;gap:.5rem;
+}
+.rung-1{--bg:var(--lv1-bg);--fg:var(--lv1-ink);--ed:var(--lv1-edge)}
+.rung-2{--bg:var(--lv2-bg);--fg:var(--lv2-ink);--ed:var(--lv2-edge)}
+.rung-3{--bg:var(--lv3-bg);--fg:var(--lv3-ink);--ed:var(--lv3-edge)}
+.rung-4{--bg:var(--lv4-bg);--fg:var(--lv4-ink);--ed:var(--lv4-edge)}
+
+/* 到達の高さを示すメーター。4段階で伸びるので、色を見なくても段階が分かる */
+.rung::after{
+  content:"";position:absolute;left:0;top:0;height:5px;width:100%;
+  background:currentColor;opacity:.16;
+}
+.rung::before{
+  content:"";position:absolute;left:0;top:0;height:5px;width:var(--fill,25%);
+  background:currentColor;opacity:.9;z-index:1;
+}
+.rung-1{--fill:25%} .rung-2{--fill:50%} .rung-3{--fill:75%} .rung-4{--fill:100%}
+
+.rung-top{display:flex;flex-direction:column;gap:.1rem}
+.rung .lv-l{font-size:.75rem;font-weight:700;letter-spacing:.14em;opacity:.7}
+.rung .lv-n{
+  font-family:var(--f-num);font-variant-numeric:tabular-nums;
+  font-size:3.25rem;font-weight:700;line-height:.8;letter-spacing:-.05em;
+}
+.rung h3{font-size:1.0625rem;font-weight:700;line-height:1.5;letter-spacing:-.01em}
+.rung p{font-size:.875rem;line-height:1.75;opacity:.86}
+
+/* どちらのサービスで到達するか。ここが商談の要なので帯にして明示する */
+.rung .via{
+  margin-top:auto;align-self:flex-start;
+  font-size:.8125rem;font-weight:700;line-height:1.5;
+  border:1px solid currentColor;border-radius:999px;
+  padding:.22rem .7rem;
+}
+.rung .tls{font-size:.8125rem;line-height:1.6;opacity:.72}
 .ba{display:grid;grid-template-columns:1fr;gap:0}
-@media (min-width:520px){.ba{grid-template-columns:1fr 1fr}}
-.ba > div{padding:.9rem 1.15rem;display:flex;flex-direction:column;gap:.35rem}
+.ba > div{padding:1rem 1.15rem;display:flex;flex-direction:column;gap:.4rem}
 .ba .before{background:var(--surface-2)}
 .ba .after{border-top:1px solid var(--line)}
-@media (min-width:520px){.ba .after{border-top:0;border-left:1px solid var(--line)}}
-.ba h4{font-family:var(--f-mono);font-size:.625rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:500}
+@container (min-width:620px){
+  .ba{grid-template-columns:1fr 1fr}
+  .ba .after{border-top:0;border-left:1px solid var(--line)}
+}
+.ba h4{font-size:.8125rem;letter-spacing:.04em;color:var(--ink-3);font-weight:700}
 .ba .after h4{color:var(--good)}
-.ba p{font-size:.875rem;line-height:1.8;color:var(--ink-2)}
+.ba .after h4::before{content:"→ "}
+.ba p{font-size:.9375rem;line-height:1.85;color:var(--ink-2)}
 .ba .after p{color:var(--ink)}
 .task-ft{
   margin-top:auto;padding:.8rem 1.15rem;border-top:1px solid var(--line);
@@ -458,9 +548,14 @@ h1 .hl{
 .demo-bar{display:flex;flex-direction:column;gap:.85rem}
 .demo-group{display:flex;flex-direction:column;gap:.4rem}
 .demo-group-hd{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
-.demo-group-hd .badge{font-family:var(--f-mono);font-size:.625rem;letter-spacing:.1em;padding:.12rem .5rem;border-radius:4px;font-weight:600}
+.demo-group-hd .badge{font-size:.8125rem;letter-spacing:.02em;padding:.2rem .6rem;border-radius:6px;font-weight:700}
 .badge-base{background:var(--brand-wash-2);color:var(--brand-deep);border:1px solid var(--brand-edge)}
 .badge-core{background:var(--brand-solid);color:var(--brand-on)}
+.badge-lv{font-weight:700;border:1px solid var(--lv1-edge);background:var(--lv1-bg);color:var(--lv1-ink)}
+.badge-lv .n{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+.badge-lv-2{background:var(--lv2-bg);border-color:var(--lv2-edge);color:var(--lv2-ink)}
+.badge-lv-3{background:var(--lv3-bg);border-color:var(--lv3-edge);color:var(--lv3-ink)}
+.badge-lv-4{background:var(--lv4-bg);border-color:var(--lv4-edge);color:var(--lv4-ink)}
 .demo-group-hd .txt{font-size:.8125rem;color:var(--ink-2)}
 .disclaim{
   display:inline-flex;align-items:center;gap:.4rem;
@@ -500,6 +595,14 @@ h1 .hl{
   --brand-wash:color-mix(in oklab, var(--brand-src) 16%, #171A21);
   --brand-wash-2:color-mix(in oklab, var(--brand-src) 26%, #171A21);
   --brand-edge:color-mix(in oklab, var(--brand-src) 42%, #2A2F3A);
+  --lv1-bg:color-mix(in oklab, var(--brand-src) 16%, #171A21);
+  --lv1-ink:var(--ink); --lv1-edge:color-mix(in oklab, var(--brand-src) 36%, #2A2F3A);
+  --lv2-bg:color-mix(in oklab, var(--brand-src) 32%, #171A21);
+  --lv2-ink:var(--ink); --lv2-edge:color-mix(in oklab, var(--brand-src) 50%, #2A2F3A);
+  --lv3-bg:color-mix(in oklab, var(--brand-src) 64%, #fff);
+  --lv3-ink:#0D0F14;    --lv3-edge:color-mix(in oklab, var(--brand-src) 64%, #fff);
+  --lv4-bg:color-mix(in oklab, var(--brand-src) 40%, #fff);
+  --lv4-ink:#0D0F14;    --lv4-edge:color-mix(in oklab, var(--brand-src) 40%, #fff);
   --shadow-1:0 1px 2px rgba(0,0,0,.5), 0 4px 14px -6px rgba(0,0,0,.6);
 }
 /* トークンでは拾えない箇所の補正 */
@@ -530,7 +633,7 @@ h1 .hl{
 }
 @media (prefers-reduced-motion: reduce){.dev-stage{scroll-behavior:auto}}
 .device.dark .dev-stage{
-  font-family:var(--f-mono);font-size:.8125rem;line-height:1.75;color:#D6DBE4;
+  font-family:var(--f-mono);font-size:.875rem;line-height:1.8;color:#DCE1EA;
 }
 /* 常時ダークの端末フレーム内部は、ページのテーマに関係なく固定色で塗る */
 .device.dark .empty{color:#79808E;border-color:#333A46}
@@ -590,7 +693,7 @@ h1 .hl{
 }
 .doc-title{font-size:.9375rem;font-weight:700}
 .doc p{font-size:.875rem;color:var(--ink-2);line-height:1.85}
-.sheet{width:100%;border-collapse:collapse;font-size:.8125rem;font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.sheet{width:100%;border-collapse:collapse;font-size:.8125rem;font-variant-numeric:tabular-nums}
 .sheet th,.sheet td{border:1px solid var(--line);padding:.34rem .55rem;text-align:right;white-space:nowrap}
 .sheet th{background:var(--surface-2);color:var(--ink-2);font-weight:600;text-align:center}
 .sheet td:first-child,.sheet th:first-child{text-align:left}
@@ -608,7 +711,7 @@ h1 .hl{
   border:1px solid var(--line-strong);border-radius:var(--r-s);
   background:var(--surface);padding:.7rem .85rem;font-size:.875rem;
 }
-.prompt-line .cue{flex:none;font-family:var(--f-mono);font-size:.6875rem;color:var(--ink-3);padding-top:.28rem}
+.prompt-line .cue{flex:none;font-size:.75rem;font-weight:700;color:var(--ink-3);padding-top:.28rem}
 .thinking{display:flex;align-items:center;gap:.55rem;font-size:.8125rem;color:var(--ink-3)}
 .device.dark .thinking{color:#8B93A3}
 .spin{width:13px;height:13px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:sp .8s linear infinite;flex:none}
@@ -625,14 +728,14 @@ h1 .hl{
 .builder-hd{padding:.5rem .85rem;background:var(--brand-wash);border-bottom:1px solid var(--brand-edge);font-size:.75rem;font-weight:700;color:var(--brand-deep);display:flex;align-items:center;gap:.4rem}
 .builder-body{padding:.85rem 1rem;display:flex;flex-direction:column;gap:.7rem}
 .field{display:flex;flex-direction:column;gap:.2rem}
-.field .k{font-family:var(--f-mono);font-size:.625rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.field .k{font-size:.75rem;font-weight:700;letter-spacing:.02em;color:var(--ink-3)}
 .field .v{font-size:.8125rem;line-height:1.7;color:var(--ink);white-space:pre-wrap;border-left:2px solid var(--brand-edge);padding-left:.6rem}
 .field .files{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.15rem}
-.field .files span{font-size:.6875rem;font-family:var(--f-mono);border:1px solid var(--line);border-radius:4px;padding:.1rem .45rem;color:var(--ink-2);background:var(--surface-2)}
+.field .files span{font-size:.75rem;border:1px solid var(--line);border-radius:5px;padding:.14rem .5rem;color:var(--ink-2);background:var(--surface-2)}
 
 /* 作ったボットを試すチャット */
 .chat{display:flex;flex-direction:column;gap:.5rem}
-.bub-name{font-family:var(--f-mono);font-size:.625rem;letter-spacing:.08em;color:var(--ink-3);align-self:flex-start;margin-bottom:-.2rem}
+.bub-name{font-size:.75rem;font-weight:700;color:var(--ink-3);align-self:flex-start;margin-bottom:-.2rem}
 .bub{max-width:86%;padding:.6rem .85rem;border-radius:12px;font-size:.875rem;line-height:1.75;white-space:pre-wrap}
 .bub-user{align-self:flex-end;background:var(--brand-solid);color:var(--brand-on);border-bottom-right-radius:3px}
 .bub-bot{align-self:flex-start;background:var(--surface-2);color:var(--ink);border:1px solid var(--line);border-bottom-left-radius:3px}
@@ -642,7 +745,7 @@ h1 .hl{
 .autorun-hd{display:flex;align-items:center;gap:.5rem;padding:.45rem .8rem;border-bottom:1px solid var(--line);flex-wrap:wrap}
 .autorun-note{font-size:.75rem;color:var(--ink-2);line-height:1.6}
 .daystrip{display:flex;gap:4px;padding:.45rem .8rem;border-bottom:1px solid var(--line);flex-wrap:wrap;align-items:center}
-.daystrip .lb{font-family:var(--f-mono);font-size:.5625rem;letter-spacing:.08em;color:var(--ink-3);margin-right:.2rem}
+.daystrip .lb{font-size:.75rem;font-weight:700;color:var(--ink-3);margin-right:.2rem}
 .daychip{
   font-family:var(--f-mono);font-size:.625rem;padding:.08rem .45rem;border-radius:4px;
   border:1px solid var(--line);color:var(--ink-3);background:var(--surface);white-space:nowrap;
@@ -651,7 +754,7 @@ h1 .hl{
 .daychip.now{border-color:var(--brand);color:var(--brand-on);background:var(--brand-solid);font-weight:700}
 .daychip.done{border-color:color-mix(in oklab,var(--good) 40%,var(--line));color:var(--good);background:var(--good-wash)}
 .daychip.human{border-color:color-mix(in oklab,var(--warn) 45%,var(--line));color:var(--warn);background:color-mix(in oklab,var(--warn) 10%,var(--surface));font-weight:700}
-.autorun-body{padding:.5rem 0;min-height:132px;font-family:var(--f-mono);font-size:.75rem;line-height:1.75;max-height:210px;overflow-y:auto}
+.autorun-body{padding:.5rem 0;min-height:132px;font-family:var(--f-mono);font-size:.8125rem;line-height:1.75;max-height:210px;overflow-y:auto}
 .autorun-body .ev{display:flex;gap:.7rem;padding:.06rem .8rem;animation:logIn .28s ease both}
 .autorun-body .ev .tm{flex:none;color:var(--ink-3);font-variant-numeric:tabular-nums}
 .autorun-body .ev .tx{color:var(--ink-2)}
@@ -672,7 +775,7 @@ h1 .hl{
   padding:.5rem .8rem;border-top:1px solid var(--line);background:var(--surface);
   font-size:.75rem;color:var(--ink-2);display:flex;gap:.4rem 1.2rem;flex-wrap:wrap;align-items:baseline;
 }
-.autorun-foot strong{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-size:1.0625rem;color:var(--brand-deep)}
+.autorun-foot strong{font-family:var(--f-num);font-variant-numeric:tabular-nums;font-size:1.1875rem;color:var(--brand-deep)}
 
 /* 横展開ボード（Lv4） */
 .rollout{display:flex;flex-direction:column;gap:.4rem}
@@ -681,11 +784,11 @@ h1 .hl{
   padding:.42rem .7rem;border:1px solid var(--line);border-radius:var(--r-s);background:var(--surface);font-size:.8125rem;
 }
 .ro-row .nm{line-height:1.4}
-.ro-row .nm small{display:block;font-size:.625rem;color:var(--ink-3);font-family:var(--f-mono)}
+.ro-row .nm small{display:block;font-size:.75rem;color:var(--ink-3)}
 .ro-bar{height:6px;border-radius:3px;background:var(--surface-2);overflow:hidden}
 .ro-bar i{display:block;height:100%;background:var(--brand);border-radius:3px;transition:width .5s cubic-bezier(.22,.61,.36,1)}
 @media (prefers-reduced-motion: reduce){.ro-bar i{transition:none}}
-.ro-state{font-family:var(--f-mono);font-size:.5625rem;padding:.08rem .4rem;border-radius:3px;white-space:nowrap;font-weight:700}
+.ro-state{font-size:.75rem;padding:.12rem .5rem;border-radius:5px;white-space:nowrap;font-weight:700}
 .ro-done{background:var(--good-wash);color:var(--good)}
 .ro-wip{background:var(--brand-wash);color:var(--brand-deep)}
 .ro-todo{background:var(--surface-2);color:var(--ink-3)}
@@ -705,21 +808,21 @@ h1 .hl{
 .queue{border:1px solid var(--brand-edge);border-radius:var(--r-s);background:var(--surface);overflow:hidden}
 .queue-hd{display:flex;align-items:center;justify-content:space-between;gap:.6rem;padding:.5rem .85rem;background:var(--brand-wash);border-bottom:1px solid var(--brand-edge);flex-wrap:wrap}
 .queue-hd .ttl{font-size:.8125rem;font-weight:700;color:var(--brand-deep)}
-.queue-hd .cnt{font-family:var(--f-mono);font-size:.6875rem;color:var(--ink-2)}
+.queue-hd .cnt{font-size:.75rem;font-weight:600;color:var(--ink-2)}
 .qrow{padding:.7rem .85rem;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:.4rem}
 .qrow:last-child{border-bottom:0}
 .qrow .top{display:flex;gap:.5rem;align-items:baseline;flex-wrap:wrap}
-.qrow .to{font-size:.6875rem;font-family:var(--f-mono);color:var(--ink-3)}
+.qrow .to{font-size:.75rem;color:var(--ink-3)}
 .qrow .sub{font-size:.8125rem;font-weight:700;line-height:1.5}
 .qrow .body{font-size:.75rem;color:var(--ink-2);line-height:1.7;white-space:pre-wrap;border-left:2px solid var(--line);padding-left:.6rem}
 .qrow .foot{display:flex;gap:.4rem;align-items:center;flex-wrap:wrap}
-.qrow .conf{font-size:.6875rem;font-family:var(--f-mono);border:1px solid var(--line);border-radius:4px;padding:.05rem .4rem;color:var(--ink-3)}
+.qrow .conf{font-size:.75rem;border:1px solid var(--line);border-radius:5px;padding:.1rem .45rem;color:var(--ink-3)}
 .qbtn{border:1px solid var(--line-strong);background:var(--surface);border-radius:var(--r-s);padding:.2rem .7rem;font-size:.75rem;font-weight:600}
 .qbtn.ok{border-color:color-mix(in oklab, var(--good) 45%, var(--line));color:var(--good)}
 .qbtn.ok:hover{background:var(--good-wash)}
 .qbtn.no:hover{background:var(--surface-2)}
 .qrow[data-state] .qbtn{display:none}
-.qrow .state{font-size:.75rem;font-family:var(--f-mono);font-weight:700}
+.qrow .state{font-size:.8125rem;font-weight:700}
 .qrow:not([data-state]) .state{display:none}
 .qrow[data-state="ok"]{background:var(--good-wash)}
 .qrow[data-state="ok"] .state{color:var(--good)}
@@ -731,7 +834,7 @@ h1 .hl{
 @media (min-width:560px){.handoff{grid-template-columns:1fr 1fr}}
 .hcol{border:1px solid var(--line);border-radius:var(--r-s);background:var(--surface);overflow:hidden}
 .hcol.aft{border-color:var(--brand-edge)}
-.hcol-hd{padding:.4rem .7rem;font-family:var(--f-mono);font-size:.625rem;letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid var(--line);color:var(--ink-3);background:var(--surface-2)}
+.hcol-hd{padding:.45rem .7rem;font-size:.8125rem;font-weight:700;letter-spacing:.02em;border-bottom:1px solid var(--line);color:var(--ink-3);background:var(--surface-2)}
 .hcol.aft .hcol-hd{background:var(--brand-wash);color:var(--brand-deep);border-bottom-color:var(--brand-edge)}
 .hcol ol{display:flex;flex-direction:column}
 .hcol li{display:flex;gap:.5rem;align-items:flex-start;padding:.38rem .7rem;font-size:.75rem;line-height:1.6;border-bottom:1px dotted var(--line)}
@@ -767,7 +870,7 @@ h1 .hl{
 .flow-step .txt{display:flex;flex-direction:column;gap:.1rem}
 .flow-step .t{font-size:.8125rem;font-weight:700;line-height:1.5}
 .flow-step .d{font-size:.75rem;color:var(--ink-2);line-height:1.65}
-.flow-step .gate{font-size:.6875rem;font-family:var(--f-mono);color:var(--warn);letter-spacing:.03em}
+.flow-step .gate{font-size:.8125rem;font-weight:700;color:var(--warn)}
 
 /* ターミナル / エディタ */
 .term-line{white-space:pre-wrap;word-break:break-word}
@@ -793,7 +896,7 @@ h1 .hl{
 .steps i{width:22px;height:3px;border-radius:2px;background:var(--line-strong);display:block;transition:background .2s}
 .device.dark .steps i{background:#3B4250}
 .steps i.on{background:var(--brand)}
-.dev-caption{font-size:.75rem;color:var(--ink-3);font-family:var(--f-mono)}
+.dev-caption{font-size:.75rem;color:var(--ink-3)}
 .device.dark .dev-caption{color:#79808E}
 .demo-link{font-size:.8125rem;color:var(--ink-2)}
 
@@ -1001,6 +1104,7 @@ details.q[open] summary .caret{transform:rotate(180deg)}
         </div>
       </div>
       <div class="s-body">
+        <div class="ladder-bands reveal" id="ladderBands" aria-hidden="true"></div>
         <ul class="ladder reveal" id="ladder"></ul>
         <p class="note-strip reveal" id="ladderNote"></p>
         <div class="picker reveal">
@@ -1779,10 +1883,26 @@ const CONFIG = {
   /* --- 02 到達レベルのはしご ------------------------------------------- */
   const levelOf = lv => CONFIG.levels.find(l => l.lv===lv) || CONFIG.levels[0];
   CONFIG.levels.forEach(l => {
-    const li = el("li", l.lv>=3 ? "rung rung-core" : "rung");
-    li.append(el("span","lv",`レベル ${l.lv}`), el("h3",null,l.name), el("p",null,l.desc),
-              el("span","tls",l.tools), el("span","via",`▸ ${l.via}`));
+    const li = el("li", `rung rung-${l.lv}`);
+    const top = el("div","rung-top");
+    top.append(el("span","lv-l","レベル"), el("span","lv-n",String(l.lv)));
+    li.append(top, el("h3",null,l.name), el("p",null,l.desc),
+              el("span","tls",l.tools), el("span","via",l.via));
     $("#ladder").append(li);
+  });
+  /* 「どのサービスがどのレベルを担うか」を、はしごの上の帯で一目で示す */
+  const bands = [];
+  CONFIG.levels.forEach(l => {
+    const last = bands[bands.length-1];
+    if(last && last.via === l.via) last.span++;
+    else bands.push({ via:l.via, span:1, from:l.lv });
+  });
+  bands.forEach(b => {
+    const d = el("div","band");
+    d.style.gridColumn = `span ${b.span}`;
+    d.append(el("span","band-name",b.via),
+             el("span","band-lv",`レベル ${b.from}〜${b.from + b.span - 1}`));
+    $("#ladderBands").append(d);
   });
   $("#ladderNote").innerHTML = CONFIG.levelsNote;
 
@@ -1835,7 +1955,8 @@ const CONFIG = {
       hd.append(el("h3",null,T(t.title)));
       const tags = el("div","task-tags");
       const L = levelOf(t.level);
-      tags.append(el("span", t.level>=3 ? "tag lv lv-core" : "tag lv", `Lv.${t.level} ${L.name}`));
+      tags.append(Object.assign(el("span",`tag lv lv-${t.level}`),
+        {innerHTML:`<span class="n">Lv.${t.level}</span> ${L.name}`}));
       tags.append(el("span","tag via", L.via));
       tags.append(el("span","tag tool", toolNameOf(t.needs)));
       hd.append(tags);
@@ -1875,7 +1996,7 @@ const CONFIG = {
     if(!inLv.length) return;
     const g  = el("div","demo-group");
     const hd = el("div","demo-group-hd");
-    hd.append(Object.assign(el("span",`badge ${L.lv>=3 ? "badge-core" : "badge-base"}`),{textContent:`レベル ${L.lv}`}),
+    hd.append(Object.assign(el("span",`badge badge-lv badge-lv-${L.lv}`),{innerHTML:`レベル <span class="n">${L.lv}</span>`}),
               el("span","txt",`${L.name} — ${L.via}で到達`));
     const row = el("div","chips");
     inLv.forEach(d => {
