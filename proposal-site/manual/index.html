@@ -135,6 +135,18 @@ h2{font-size:clamp(1.3rem,1.05rem + 1.1vw,1.7rem);font-weight:700;letter-spacing
 .step .sub{padding-left:2.55rem;display:flex;flex-direction:column;gap:.6rem}
 @media (max-width:520px){.step .sub{padding-left:0}}
 
+/* 手順の中の細かいクリック手順 */
+.mini{display:flex;flex-direction:column;gap:.45rem}
+.mini li{display:flex;gap:.65rem;align-items:flex-start;font-size:.9375rem;line-height:1.85}
+.mini .k{
+  flex:none;width:22px;height:22px;border-radius:6px;margin-top:.32rem;
+  background:var(--card-2);border:1px solid var(--line-2);color:var(--ink-2);
+  font-family:var(--mono);font-size:.75rem;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+}
+.mini small{display:block;color:var(--ink-3);font-size:.8125rem;line-height:1.75;margin-top:.1rem}
+.mini b{color:var(--ink);font-weight:700}
+
 /* コピーできるコード枠 */
 .copy{
   display:flex;align-items:stretch;gap:0;border:1px solid var(--line-2);border-radius:8px;
@@ -300,7 +312,6 @@ details[open] summary .ar{transform:rotate(180deg)}
           <ul class="checks">
             <li><span class="bx"></span><span class="t">Claude が使えること<small>会社のアカウントでログインできれば大丈夫です</small></span></li>
             <li><span class="bx"></span><span class="t">GitHub の「-」という置き場所が見えること<small>資料の元データが置いてある場所です。中身を触る必要はありません</small></span></li>
-            <li><span class="bx"></span><span class="t">提案先のHPを読み込める状態になっていること<small>ここが止まっていると、どの会社のHPでも読み込めません。管理担当が1回設定すれば以降は不要です。止まっていた場合の対処はQ02にあります</small></span></li>
           </ul>
         </div>
       </div>
@@ -320,6 +331,24 @@ details[open] summary .ar{transform:rotate(180deg)}
           <div class="box box-warn">
             <span class="ic">注意</span>
             <div>名前は<b>ハイフン1文字の「-」</b>です。文字が入っていないように見えますが、それで合っています。</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-hd"><span class="n">4</span><h3>提案先のHPを読めるようにする（ここだけ少し探します）</h3></div>
+        <div class="sub">
+          <p>最初は<strong>提案先のHPを読み込めない設定</strong>になっています。ここを1回変えれば、以降ずっと不要です。<strong>クリック5回で終わります。</strong></p>
+          <ol class="mini">
+            <li><span class="k">1</span><span>文字を打つ欄の<b>すぐ上</b>に、雲のマークのボタンがあります。押してください</span></li>
+            <li><span class="k">2</span><span>出てきた一覧の、いま使っている環境の名前の上に<b>マウスを乗せる</b>。右側に歯車が出てきます。押してください<small>歯車は乗せないと出てきません。「無い」と思ったら、名前の上をゆっくり通ってみてください</small></span></li>
+            <li><span class="k">3</span><span><b>Network access</b> と書いてある欄を探す</span></li>
+            <li><span class="k">4</span><span>いま <b>Trusted</b> になっています。それを <b>Full</b> に変える</span></li>
+            <li><span class="k">5</span><span>保存する</span></li>
+          </ol>
+          <div class="box box-warn">
+            <span class="ic">注意</span>
+            <div>変えたあとは、<b>セッションを新しく開き直してください。</b>いま開いている画面のままでは変わりません。</div>
           </div>
           <p>これで準備は完了です。以降はこの画面から始めます。</p>
         </div>
@@ -507,8 +536,8 @@ details[open] summary .ar{transform:rotate(180deg)}
       <details>
         <summary><span class="q">Q02</span><span>ホームページが読めなかったと言われた</span><span class="ar">▾</span></summary>
         <div class="ans">
-          <p><strong>提案先のせいではありません。</strong>こちら側の環境設定で外部サイトへのアクセスが止められていると、どの会社のHPでも同じことが起きます。<strong>まず社内の管理担当に「提案サイトのHP読み込みが止まっています」と伝えてください。</strong>1回設定を直せば、以降ずっと不要になります。</p>
-          <p style="margin-top:.7rem">その日の商談に間に合わせたいときは、<strong>HPの中身を自分で貼れば同じ品質で作れます。</strong>提案先のHPを開いて、下の型に沿ってコピペしてください。</p>
+          <p><strong>提案先のせいではありません。ほぼ全部、STEP 1の④をやっていないだけです。</strong>あれをやると直ります。クリック5回で、管理担当に頼まなくても自分でできます。<strong>やったのに直らないときは、セッションを新しく開き直してください</strong>（設定を変える前に開いた画面のままでは変わりません）。</p>
+          <p style="margin-top:.7rem">それでも読めない、あるいは今すぐその日の商談に間に合わせたいときは、<strong>HPの中身を自分で貼れば同じ品質で作れます。</strong>提案先のHPを開いて、下の型に沿ってコピペしてください。</p>
           <div class="copy" style="margin-top:.5rem"><code>/proposal-site HPが読めないので、この内容で作って
 
 ■事業内容・サービス名
