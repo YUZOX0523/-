@@ -2,20 +2,30 @@
 
 <!--
   ============================================================================
-  デジライズ 提案前フックサイト テンプレート
+  デジライズ 法人リスキリング 提案前フックサイト テンプレート
   ----------------------------------------------------------------------------
+  提案するサービス: 法人リスキリング（法人リスキリング365 ＋ AI人材養成講座）
+  中心となる思想 : 「全社員が使い、リーダーが変える」= 2層を同時に立ち上げる
+  到達レベル     : 公式4段階（レベル1〜2=365 / レベル3〜4=養成講座）
+
   編集するのはファイル末尾の CONFIG オブジェクトだけです。CSS・HTML・描画
   ロジックは触らないでください。手順は proposal-site/README.md を参照。
 
   差し替え箇所（この順に上から埋めるだけ）
     1. <title>            提案先の業務に即した固有名（社名は入れない）
     2. CONFIG.brand.color 提案先HPから推定したコーポレートカラー（1色）
-    3. CONFIG.company      業種・規模・事業サマリー（社名は入れない）
-    4. CONFIG.tools        導入検討ツールを選択（gemini/copilot/claudecode/codex）
-    5. CONFIG.departments  部門 × 職位 × 業務カード
-    6. CONFIG.demos        選択ツールの再現デモ
-    7. CONFIG.roi          対象人数・想定削減時間
-    8. CONFIG.qa           想定質疑
+    3. CONFIG.company     業種・規模・事業サマリー（社名は入れない）
+    4. CONFIG.premise     HPから読み取った貴社理解（出典つき）
+    5. CONFIG.choices     ツールの2択のみ
+                            office: "copilot"（Microsoft 365）| "gemini"（Google Workspace）
+                            agent : "claudecode" | "codex"
+                          ChatGPT・Claude は選択に関わらず含まれる
+    6. CONFIG.levels      公式4レベル（名称・説明・ツール・到達手段は変えない）
+    7. CONFIG.departments 部門 × 職位 × 到達レベル × 業務カード
+    8. CONFIG.demos       レベル1〜4のデモ。デモは「次へ」で1ステップずつ進む。
+                          レベル4は auto（「翌日を実行」で1日ずつ）で繰り返しを見せる
+    9. CONFIG.roi         対象人数・想定削減時間
+   10. CONFIG.qa          想定質疑
   ============================================================================
 -->
 
@@ -366,20 +376,23 @@ h1 .hl{
 }
 .tag.tool{border-color:var(--brand-edge);color:var(--brand-deep);background:var(--brand-wash)}
 .tag.lv{background:var(--brand-wash-2);border-color:var(--brand-edge);color:var(--brand-deep);font-weight:600}
-.tag.lv3{background:var(--brand-deep);border-color:var(--brand-deep);color:#fff}
+.tag.lv-core{background:var(--brand-deep);border-color:var(--brand-deep);color:#fff}
 .tag.via{border-style:dashed}
 /* 到達レベルのはしご */
 .ladder{display:grid;gap:.6rem;grid-template-columns:1fr}
-@media (min-width:760px){.ladder{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (min-width:620px){.ladder{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (min-width:1000px){.ladder{grid-template-columns:repeat(4,minmax(0,1fr))}}
 .rung{border:1px solid var(--brand-edge);border-radius:var(--r-m);padding:.85rem 1rem;display:flex;flex-direction:column;gap:.2rem;background:var(--brand-wash)}
 .rung .lv{font-family:var(--f-mono);font-size:.625rem;letter-spacing:.12em;color:var(--brand)}
 .rung h3{font-size:.9375rem;font-weight:700}
 .rung p{font-size:.8125rem;color:var(--ink-2);line-height:1.7}
 .rung .via{font-size:.6875rem;font-family:var(--f-mono);letter-spacing:.04em;color:var(--brand-deep);margin-top:.15rem}
-.rung-3{background:var(--brand-deep);border-color:var(--brand-deep);color:#fff}
-.rung-3 .lv{color:rgba(255,255,255,.72)}
-.rung-3 p{color:rgba(255,255,255,.85)}
-.rung-3 .via{color:#fff}
+.rung .tls{font-size:.625rem;font-family:var(--f-mono);color:var(--ink-3);line-height:1.5;margin-top:.15rem}
+.rung-core{background:var(--brand-deep);border-color:var(--brand-deep);color:#fff}
+.rung-core .lv{color:rgba(255,255,255,.72)}
+.rung-core p{color:rgba(255,255,255,.85)}
+.rung-core .tls{color:rgba(255,255,255,.62)}
+.rung-core .via{color:#fff}
 .ba{display:grid;grid-template-columns:1fr;gap:0}
 @media (min-width:520px){.ba{grid-template-columns:1fr 1fr}}
 .ba > div{padding:.9rem 1.15rem;display:flex;flex-direction:column;gap:.35rem}
@@ -413,6 +426,14 @@ h1 .hl{
 .btn-primary{background:var(--brand-deep);border-color:var(--brand-deep);color:#fff}
 .btn-primary:hover{background:var(--brand);border-color:var(--brand);color:#fff}
 .btn-primary[disabled]{opacity:.45;cursor:not-allowed}
+.gate-hint{
+  display:inline-flex;align-items:center;gap:.4rem;font-size:.75rem;font-weight:700;color:var(--warn);
+  background:color-mix(in oklab,var(--warn) 12%,var(--surface));
+  border:1px solid color-mix(in oklab,var(--warn) 40%,var(--line));
+  border-radius:999px;padding:.15rem .7rem;
+}
+.gate-hint i{width:6px;height:6px;border-radius:50%;background:var(--warn);display:block;animation:pulse 1.4s ease-in-out infinite}
+@media (prefers-reduced-motion: reduce){.gate-hint i{animation:none}}
 .btn-lg{padding:.6rem 1.3rem;font-size:.9375rem}
 .empty{padding:2rem 1.2rem;text-align:center;color:var(--ink-3);font-size:.875rem;border:1px dashed var(--line);border-radius:var(--r-m)}
 
@@ -490,6 +511,20 @@ h1 .hl{
 .device.dark .flow-step{border-bottom-color:#2C313C}
 .device.dark .flow-step .no{background:rgba(255,255,255,.1);color:#C3CAD6}
 .device.dark .flow-step .d{color:#8B93A3}
+.device.dark .autorun{background:#12141A;border-color:#2C313C}
+.device.dark .autorun-hd,.device.dark .daystrip{border-bottom-color:#2C313C}
+.device.dark .autorun-note{color:#8B93A3}
+.device.dark .daychip{background:#1B1F27;border-color:#3B4250;color:#8B93A3}
+.device.dark .autorun-body .ev .tm{color:#666D7A}
+.device.dark .autorun-body .ev .tx{color:#B6BDC9}
+.device.dark .autorun-body .ev.tool .tx{color:#8FB8FF}
+.device.dark .autorun-body .ev.ok .tx{color:#4FC38C}
+.device.dark .autorun-body .ev.dim .tx{color:#79808E}
+.device.dark .autorun-foot,.device.dark .autorun-run{background:#1B1F27;border-top-color:#2C313C;color:#8B93A3}
+.device.dark .autorun-hint{color:#8B93A3}
+.device.dark .ro-row{background:#1B1F27;border-color:#2C313C}
+.device.dark .ro-bar{background:#12141A}
+.device.dark .kpi-item{background:#1B1F27;border-color:#2C313C}
 .device.dark .runlog{background:#12141A;border-color:#2C313C}
 .device.dark .runlog-hd{border-bottom-color:#2C313C}
 .device.dark .runlog-hd .auto{background:rgba(79,195,140,.14);color:#4FC38C}
@@ -566,6 +601,70 @@ h1 .hl{
 .bub{max-width:86%;padding:.6rem .85rem;border-radius:12px;font-size:.875rem;line-height:1.75;white-space:pre-wrap}
 .bub-user{align-self:flex-end;background:var(--brand-deep);color:#fff;border-bottom-right-radius:3px}
 .bub-bot{align-self:flex-start;background:var(--surface-2);color:var(--ink);border:1px solid var(--line);border-bottom-left-radius:3px}
+
+/* 自動実行タイムライン（勝手に動き続ける／日をまたいで繰り返す） */
+.autorun{border:1px solid var(--line);border-radius:var(--r-s);background:var(--surface-2);overflow:hidden}
+.autorun-hd{display:flex;align-items:center;gap:.5rem;padding:.45rem .8rem;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.autorun-note{font-size:.75rem;color:var(--ink-2);line-height:1.6}
+.daystrip{display:flex;gap:4px;padding:.45rem .8rem;border-bottom:1px solid var(--line);flex-wrap:wrap;align-items:center}
+.daystrip .lb{font-family:var(--f-mono);font-size:.5625rem;letter-spacing:.08em;color:var(--ink-3);margin-right:.2rem}
+.daychip{
+  font-family:var(--f-mono);font-size:.625rem;padding:.08rem .45rem;border-radius:4px;
+  border:1px solid var(--line);color:var(--ink-3);background:var(--surface);white-space:nowrap;
+  transition:background .2s, color .2s, border-color .2s;
+}
+.daychip.now{border-color:var(--brand);color:#fff;background:var(--brand-deep);font-weight:700}
+.daychip.done{border-color:color-mix(in oklab,var(--good) 40%,var(--line));color:var(--good);background:var(--good-wash)}
+.daychip.human{border-color:color-mix(in oklab,var(--warn) 45%,var(--line));color:var(--warn);background:color-mix(in oklab,var(--warn) 10%,var(--surface));font-weight:700}
+.autorun-body{padding:.5rem 0;min-height:132px;font-family:var(--f-mono);font-size:.75rem;line-height:1.75;max-height:210px;overflow-y:auto}
+.autorun-body .ev{display:flex;gap:.7rem;padding:.06rem .8rem;animation:logIn .28s ease both}
+.autorun-body .ev .tm{flex:none;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.autorun-body .ev .tx{color:var(--ink-2)}
+.autorun-body .ev.tool .tx{color:var(--brand-deep)}
+.autorun-body .ev.ok .tx{color:var(--good);font-weight:600}
+.autorun-body .ev.warn .tx{color:var(--warn)}
+.autorun-body .ev.dim .tx{color:var(--ink-3)}
+.dayres{
+  margin:.4rem .8rem .1rem;padding:.32rem .6rem;border-radius:4px;font-size:.6875rem;
+  font-family:var(--f-mono);display:flex;gap:.6rem;flex-wrap:wrap;align-items:baseline;
+  animation:logIn .3s ease both;
+}
+.dayres.ok{background:var(--good-wash);color:var(--good)}
+.dayres.human{background:color-mix(in oklab,var(--warn) 12%,var(--surface));color:var(--warn);font-weight:700}
+.autorun-run{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;padding:.55rem .8rem;border-top:1px solid var(--line);background:var(--surface)}
+.autorun-hint{font-size:.75rem;color:var(--ink-2);line-height:1.6}
+.autorun-foot{
+  padding:.5rem .8rem;border-top:1px solid var(--line);background:var(--surface);
+  font-size:.75rem;color:var(--ink-2);display:flex;gap:.4rem 1.2rem;flex-wrap:wrap;align-items:baseline;
+}
+.autorun-foot strong{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-size:1.0625rem;color:var(--brand-deep)}
+
+/* 横展開ボード（Lv4） */
+.rollout{display:flex;flex-direction:column;gap:.4rem}
+.ro-row{
+  display:grid;grid-template-columns:minmax(84px,1.1fr) minmax(60px,2fr) auto;gap:.7rem;align-items:center;
+  padding:.42rem .7rem;border:1px solid var(--line);border-radius:var(--r-s);background:var(--surface);font-size:.8125rem;
+}
+.ro-row .nm{line-height:1.4}
+.ro-row .nm small{display:block;font-size:.625rem;color:var(--ink-3);font-family:var(--f-mono)}
+.ro-bar{height:6px;border-radius:3px;background:var(--surface-2);overflow:hidden}
+.ro-bar i{display:block;height:100%;background:var(--brand);border-radius:3px;transition:width .5s cubic-bezier(.22,.61,.36,1)}
+@media (prefers-reduced-motion: reduce){.ro-bar i{transition:none}}
+.ro-state{font-family:var(--f-mono);font-size:.5625rem;padding:.08rem .4rem;border-radius:3px;white-space:nowrap;font-weight:700}
+.ro-done{background:var(--good-wash);color:var(--good)}
+.ro-wip{background:var(--brand-wash);color:var(--brand-deep)}
+.ro-todo{background:var(--surface-2);color:var(--ink-3)}
+
+/* 導入前後のKPI（Lv4） */
+.kpi-cmp{display:grid;gap:.5rem;grid-template-columns:1fr}
+@media (min-width:560px){.kpi-cmp{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.kpi-item{border:1px solid var(--line);border-radius:var(--r-s);background:var(--surface);padding:.55rem .8rem;display:flex;flex-direction:column;gap:.1rem}
+.kpi-item .k{font-size:.6875rem;color:var(--ink-3);line-height:1.4}
+.kpi-item .row{display:flex;align-items:baseline;gap:.4rem;font-family:var(--f-mono);font-variant-numeric:tabular-nums;flex-wrap:wrap}
+.kpi-item .b{color:var(--ink-3);font-size:.9375rem;text-decoration:line-through;text-decoration-color:var(--line-strong)}
+.kpi-item .ar{color:var(--ink-3);font-size:.75rem}
+.kpi-item .a{color:var(--brand-deep);font-size:1.25rem;font-weight:600;letter-spacing:-.02em}
+.kpi-item .d{font-size:.6875rem;font-weight:700;color:var(--good);font-family:var(--f-mono)}
 
 /* 稼働ログ（自動実行されている実感） */
 .runlog{border:1px solid var(--line);border-radius:var(--r-s);background:var(--surface-2);overflow:hidden}
@@ -886,7 +985,7 @@ details.q[open] summary .caret{transform:rotate(180deg)}
         <span class="n">02</span>
         <div>
           <h2>職種ごとに、どこまでできるようになるか</h2>
-          <p class="s-sub">部門と職位を選ぶと、その立場の方の業務が「今」と「到達後」で並びます。到達レベルは、どちらのサービスで届くかを示しています。</p>
+          <p class="s-sub">AI活用の到達レベルは4段階です。レベル1〜2は法人リスキリング365、レベル3〜4はAI人材養成講座で到達します。部門と職位を選ぶと、その立場の方の業務が「今」と「到達後」で並びます。</p>
         </div>
       </div>
       <div class="s-body">
@@ -913,7 +1012,7 @@ details.q[open] summary .caret{transform:rotate(180deg)}
         <span class="n">03</span>
         <div>
           <h2>その場で動かせる再現デモ</h2>
-          <p class="s-sub">365で全社員が到達する「チャットボットを作る」と、養成講座で推進人材が到達する「エージェントを設計する」を、それぞれご覧いただけます。</p>
+          <p class="s-sub">レベル1から4まで、順に動かしてご覧いただけます。<strong>「次へ」を1回ずつ押して進めてください。</strong>レベル4では「翌日を実行」を押すたびに、誰も操作していないまま次の日が動きます。</p>
         </div>
       </div>
       <div class="s-body">
@@ -931,9 +1030,10 @@ details.q[open] summary .caret{transform:rotate(180deg)}
           <div class="dev-stage" id="devStage" aria-live="polite"></div>
           <div class="dev-foot">
             <span class="steps" id="devSteps" aria-hidden="true"></span>
+            <span class="gate-hint" id="devGate" hidden><i></i><span>人の判断を待っています</span></span>
             <span class="dev-caption" id="devCaption"></span>
             <button class="btn" id="devReset" type="button">最初から</button>
-            <button class="btn btn-primary" id="devNext" type="button">▶ 実行する</button>
+            <button class="btn btn-primary btn-lg" id="devNext" type="button">▶ 実行する</button>
           </div>
         </div>
         <p class="demo-link" id="demoWhy"></p>
@@ -1055,15 +1155,12 @@ const CONFIG = {
 
   /* --- 提案先プロフィール（社名は入れない。「貴社」で通す） --------------- */
   company: {
-    // ヒーロー
     eyebrow: "法人リスキリング 導入シミュレーション",
     title: '<span class="hl">精密加工の現場</span>で、<br>AIはどの仕事から効くのか',
     lead: "貴社の公開情報から業務を読み解き、部門・職位ごとに「今の手順」と「到達後の手順」を並べました。全社基盤と推進中核を<strong>同時に立ち上げる</strong>——この2層同時推進の設計を、数字と画面でご確認いただけます。",
-    // 社名を出さないプロフィールチップ
     profile: ["精密部品の製造・販売", "従業員 約320名", "国内3拠点", "対象 290名"],
-    // 冒頭の前提開示（誠実さの核。書き換えは慎重に）
     notice: "本サイトは貴社の公開情報のみをもとに、デジライズが作成した想定シミュレーションです。社内の実データは使用しておらず、社名も記載していません。数値は前提を開示した概算であり、成果を保証するものではありません。",
-    footMeta: "本サイトは提案前の共通イメージづくりを目的に作成しています。記載の業務内容・数値は公開情報にもとづく想定です。実際のご提案は、貴社の実態をお伺いしたうえで別途ご説明します。画面はすべて再現イメージであり、各サービスの実画面ではありません。",
+    footMeta: "本サイトは提案前の共通イメージづくりを目的に作成しています。記載の業務内容・数値は公開情報にもとづく想定です。実際のご提案は、貴社の実態をお伺いしたうえで別途ご説明します。デモ画面はすべて再現イメージであり、各サービスの実画面ではありません。",
   },
 
   /* --- 01 前提の確認：HPから読み取った事実（推測は「想定」と明記） ------- */
@@ -1078,19 +1175,33 @@ const CONFIG = {
     ],
   },
 
-  /* --- 導入検討ツール：使うものだけ残す ---------------------------------- */
-  /* 利用可: gemini / copilot / claudecode / codex */
-  tools: ["gemini", "copilot", "claudecode", "codex"],
+  /* ======================================================================
+     ツールの前提と、企業が選ぶ2択
+     ----------------------------------------------------------------------
+     前提として ChatGPT / Claude / Copilot / Gemini / Claude Code / Codex を
+     すべて扱う。企業が選ぶのは次の2つだけ。
+       office : オフィスソフト内のAI  … "copilot"（Microsoft 365）
+                                       or "gemini"（Google Workspace）
+       agent  : エージェント設計ツール … "claudecode" or "codex"
+     ====================================================================== */
+  choices: {
+    office: "copilot",
+    agent:  "claudecode",
+  },
 
-  /* --- 到達レベル（1〜2=365で到達 / 3=養成講座で到達） -------------------- */
-  levelsNote: "Lv.1〜2（全社員）と Lv.3（推進中核）は、<strong>順番ではなく同時に立ち上げます</strong>。全社基盤だけでは業務が変わらず、推進人材だけでは成果が横に広がらないためです。",
+  /* --- 到達レベル（1〜2=365で到達 / 3〜4=養成講座で到達） ----------------- */
+  levelsNote: "レベル1〜2（全社員）とレベル3〜4（推進中核）は、<strong>順番ではなく同時に立ち上げます</strong>。全社基盤だけでは業務が変わらず、推進人材だけでは成果が横に広がらないためです。",
   levels: [
-    { lv:1, name:"使う",     desc:"日常業務でAIに的確な指示を出し、下書き・要約・調査を任せられる。", via:"法人リスキリング365" },
-    { lv:2, name:"つくる",   desc:"自分の業務専用のチャットボットを作り、同じ仕事をする同僚に配れる。", via:"法人リスキリング365" },
-    { lv:3, name:"設計する", desc:"業務プロセスごとAIエージェントに設計し、効果を測って横展開できる。", via:"AI人材養成講座" },
+    { lv:1, name:"基礎機能マスター", desc:"生成AIの基本機能を理解し、適切に使いこなせる。",
+      tools:"ChatGPT・Gemini・Copilot・Claude", via:"法人リスキリング365" },
+    { lv:2, name:"ルーティンワーク効率化", desc:"反復作業をAIで効率化し、生産性を向上させる。",
+      tools:"GPTs・Gems・チャットボット", via:"法人リスキリング365" },
+    { lv:3, name:"業務ツール連携", desc:"業務ツールと連携し、情報の活用と共有を加速する。",
+      tools:"Word・Excel・Google Workspace", via:"AI人材養成講座" },
+    { lv:4, name:"簡易コーディング・ワークフロー自動化", desc:"コードと自動化で、業務プロセスを最適化する。",
+      tools:"GAS・Copilot Studio・VBA ＋ Claude Code / Codex", via:"AI人材養成講座" },
   ],
 
-  /* --- 職位 -------------------------------------------------------------- */
   roles: [
     { id:"exec",  label:"経営層" },
     { id:"mgr",   label:"管理職" },
@@ -1098,26 +1209,32 @@ const CONFIG = {
   ],
 
   /* --- 02 部門 × 業務カード ---------------------------------------------- */
+  /* needs: "office" = officeの選択に依存 / "agent" = agentの選択に依存      */
+  /*        null（省略）= 汎用AI（ChatGPT・Claude）で、選択に依存しない      */
   departments: [
     {
       id:"mgmt", label:"経営・企画",
       tasks:[
-        { roles:["exec","mgr"], level:1, title:"月次経営会議の資料づくり",
+        { roles:["exec","mgr"], level:1, needs:"office", title:"月次経営会議の資料づくり",
           before:"各部門から届くExcelを担当者が手作業で統合し、グラフを作り直す。数字が固まるのは会議の前日。",
-          after:"表計算AIに前月比・要因コメントまで下書きさせ、担当者は数字の確認と判断の言葉づくりに時間を使う。",
-          hours:4.0, tool:"copilot", demo:"copilot-bot" },
-        { roles:["exec"], level:2, title:"取引先・市場の情報収集",
-          before:"気になる業界動向を都度検索。まとまった整理はできておらず、判断は経験と勘に依存する。",
-          after:"論点を決めてAIに一次調査させ、出典付きの要約を受け取る。判断材料の抜けに気づける。",
-          hours:2.5, tool:"gemini", demo:"gemini-bot" },
+          after:"表計算のAIに前月比・要因コメントまで下書きさせ、担当者は数字の確認と判断の言葉づくりに時間を使う。",
+          hours:4.0, demo:"l1-office" },
+        { roles:["exec"], level:2, title:"経営判断のための情報収集",
+          before:"気になる業界動向を都度検索。整理はできておらず、判断は経験と勘に依存する。",
+          after:"論点と出典の条件を仕込んだ調査用チャットボットを用意し、毎回同じ品質の一次調査が出てくる。",
+          hours:2.5, demo:"l2-bot" },
         { roles:["mgr"], level:2, title:"稟議・社内通達の作成",
-          before:"過去文書を探して体裁を真似る。書き出しに時間がかかり、担当者への差し戻しも多い。",
-          after:"要点を箇条書きで渡すと体裁の整った草案が出る。管理職は判断根拠の記述に集中できる。",
-          hours:1.5, tool:"gemini", demo:"gemini-bot" },
-        { roles:["staff"], level:3, title:"会議資料の数字集めと差し込み",
+          before:"過去文書を探して体裁を真似る。書き出しに時間がかかり、差し戻しも多い。",
+          after:"自社の書式と過去の稟議を覚えたボットに要点を渡すと、体裁の整った草案が出る。",
+          hours:1.5, demo:"l2-bot" },
+        { roles:["staff"], level:3, needs:"office", title:"部門横断の数字集めと共有",
           before:"各部門にメールで依頼し、届いたExcelを整形して資料に差し込む。締め切り前は他の業務が止まる。",
-          after:"集まった数値の統合と整形が自動化され、担当者は不足データの確認と催促に集中できる。",
-          hours:2.5, tool:"copilot", demo:"copilot-agent" },
+          after:"表計算・文書・チャットをつないで集約と共有までを一続きにし、担当者は不足データの確認だけを行う。",
+          hours:2.5, demo:"l3-link" },
+        { roles:["exec","mgr"], level:4, needs:"agent", title:"経営数値のモニタリングそのもの",
+          before:"数字が上がってくるのは締め後。異常に気づくのは翌月で、打ち手が遅れる。",
+          after:"日次で数値を集計し、閾値を外れた項目だけ通知する仕組みに置き換える。判断のタイミングが早くなる。",
+          hours:2.0, demo:"l4-agent" },
       ]
     },
     {
@@ -1125,62 +1242,74 @@ const CONFIG = {
       tasks:[
         { roles:["staff","mgr"], level:2, title:"図面ベースの見積作成",
           before:"類似案件を過去ファイルから探し、単価と工数を転記して積み上げる。1件あたり40〜60分。",
-          after:"条件を伝えると過去実績の型に沿った見積のたたき台が生成される。担当者は妥当性の判断だけを行う。",
-          hours:3.0, tool:"gemini", demo:"gemini-bot" },
-        { roles:["staff"], level:3, title:"問い合わせ対応そのものの流れ",
-          before:"納期・仕様の問い合わせに、担当者が都度過去メールを探して返信文を書く。担当者が不在だと止まる。",
-          after:"問い合わせを分類し、社内データを確認して下書きまで用意し、承認待ちにするところまで自動で回る。担当者は事実確認と承認だけを行う。",
-          hours:2.5, tool:"copilot", demo:"copilot-agent" },
-        { roles:["staff","mgr"], level:1, title:"客先訪問後の記録と次アクション",
+          after:"過去実績と単価表を覚えた見積アシスタントを自分で作り、条件を伝えるとたたき台が出る。",
+          hours:3.0, demo:"l2-bot" },
+        { roles:["staff"], level:1, needs:"office", title:"客先訪問後の記録と共有",
           before:"手元のメモが個人のノートで止まり、共有されない。上司が状況を把握するのに面談が必要。",
-          after:"メモを渡すと議事録・次アクション・関係者への共有文まで整う。管理職は文字で状況を追える。",
-          hours:2.0, tool:"gemini", demo:"gemini-bot" },
-        { roles:["exec"], level:1, title:"受注動向の把握",
+          after:"メモを渡すと議事録・次アクション・共有文まで整う。管理職は文字で状況を追える。",
+          hours:2.0, demo:"l1-office" },
+        { roles:["staff","mgr"], level:3, needs:"office", title:"問い合わせ対応と履歴の共有",
+          before:"納期・仕様の問い合わせに、担当者が都度過去メールを探して返信文を書く。履歴は個人の受信箱に残る。",
+          after:"メール・文書・案件履歴をつないで下書きと記録を一続きにする。担当者は事実確認と送信のみ。",
+          hours:2.5, demo:"l3-link" },
+        { roles:["exec"], level:1, needs:"office", title:"受注動向の把握",
           before:"案件の状況は月次の営業会議まで見えない。気になる案件は個別に聞くしかない。",
           after:"訪問記録と日報の要約から、動きのあった案件と停滞している案件を週次で把握できる。",
-          hours:1.5, tool:"gemini", demo:"gemini-bot" },
+          hours:1.5, demo:"l1-office" },
+        { roles:["staff","mgr"], level:4, needs:"agent", title:"引き合いから見積提出までの流れ",
+          before:"問い合わせの取りこぼしや対応漏れが起き、担当者が休むと止まる。",
+          after:"受信を検知し、案件を登録し、見積下書きまで進めて承認待ちにする。人は承認と例外対応だけ。",
+          hours:3.5, demo:"l4-agent" },
       ]
     },
     {
       id:"plant", label:"生産・製造現場",
       tasks:[
-        { roles:["mgr"], level:1, title:"日々の生産計画の組み替え",
+        { roles:["mgr"], level:1, needs:"office", title:"日々の生産計画の組み替え",
           before:"割り込み受注や設備トラブルのたびに、ホワイトボードと勘で段取りを組み替える。",
-          after:"条件を入れると複数の並べ替え案と影響範囲が出る。判断そのものは人が行うが、選択肢が見える。",
-          hours:3.5, tool:"copilot", demo:"copilot-bot" },
-        { roles:["staff"], level:3, title:"日報・作業記録の入力",
-          before:"紙の日報に手書きし、事務担当が後からシステムへ転記する。二重入力が発生している。",
-          after:"現場で入力できるフォームに置き換え、集計まで自動化。転記作業そのものが無くなる。",
-          hours:0.8, tool:"codex", demo:"codex-agent" },
-        { roles:["mgr","staff"], level:1, title:"技能・段取りノウハウの言語化",
+          after:"条件を渡すと複数の並べ替え案と影響範囲が出る。判断は人が行うが、選択肢が見える。",
+          hours:3.0, demo:"l1-office" },
+        { roles:["staff"], level:2, title:"作業手順の問い合わせ対応",
+          before:"若手が段取りで迷うたびにベテランを探す。ベテランが不在だと手が止まる。",
+          after:"手順書と過去の判断を覚えた段取り相談ボットを現場で作り、まずそこに聞く運用にする。",
+          hours:0.8, demo:"l2-bot" },
+        { roles:["mgr","staff"], level:1, needs:"office", title:"技能ノウハウの言語化",
           before:"ベテランの判断が本人の頭の中にあり、若手はその場で聞くしかない。",
           after:"作業の意図をAIと対話しながら書き起こし、手順書として残す。聞ける相手が増える。",
-          hours:1.2, tool:"gemini", demo:"gemini-bot" },
-        { roles:["exec"], level:1, title:"現場の稼働とトラブルの把握",
+          hours:1.2, demo:"l1-office" },
+        { roles:["staff","mgr"], level:3, needs:"office", title:"日報・作業記録の集計と共有",
+          before:"紙の日報に手書きし、事務担当が後からシステムへ転記する。二重入力が発生している。",
+          after:"入力フォームと表計算をつないで集計まで一続きにする。転記作業そのものが無くなる。",
+          hours:1.0, demo:"l3-link" },
+        { roles:["exec","mgr"], level:4, needs:"agent", title:"現場の異常の早期把握",
           before:"問題が大きくなってから報告が上がる。日々の細かい異常は現場の判断に委ねられている。",
-          after:"日報と記録の要約から、繰り返し起きている事象を早い段階で把握できる。",
-          hours:1.5, tool:"copilot", demo:"copilot-bot" },
+          after:"日報と検査記録を毎朝読み、繰り返し事象を検知して関係者に通知する仕組みに置き換える。",
+          hours:1.5, demo:"l4-agent" },
       ]
     },
     {
       id:"qa", label:"品質保証",
       tasks:[
-        { roles:["staff","mgr"], level:3, title:"検査データのばらつき分析",
-          before:"測定値をExcelに貼り、目視とグラフでばらつきを探す。傾向が見えるまで数時間。",
-          after:"データを渡すと工程別のばらつきと外れ値を出す分析を組み立て、その場で実行して図にする。",
-          hours:3.0, tool:"claudecode", demo:"claude-agent" },
-        { roles:["staff"], level:2, title:"月次品質レポートの作成",
-          before:"不良率を集計し、原因区分ごとにグラフを作り直す。毎月1.5日を要する。",
-          after:"元データから集計・グラフ・前月比コメントまで自動で下書きされる。担当者は考察を書く。",
-          hours:2.5, tool:"copilot", demo:"copilot-bot" },
-        { roles:["mgr"], level:1, title:"是正処置報告書の下書き",
+        { roles:["staff"], level:1, needs:"office", title:"是正処置報告書の下書き",
           before:"顧客提出用の書式に合わせ、経緯と対策を毎回文章化する。表現の統一に神経を使う。",
-          after:"事実を箇条書きで渡すと、書式に沿った報告書の草案が整う。管理職は再発防止策の検討に時間を使える。",
-          hours:1.5, tool:"copilot", demo:"copilot-bot" },
-        { roles:["exec"], level:1, title:"品質リスクの把握",
+          after:"事実を箇条書きで渡すと書式に沿った草案が整う。担当者は内容の妥当性を見る。",
+          hours:1.5, demo:"l1-office" },
+        { roles:["staff","mgr"], level:2, title:"検査データの傾向確認",
+          before:"測定値をExcelに貼り、目視とグラフでばらつきを探す。傾向が見えるまで数時間。",
+          after:"見るべき指標を仕込んだボットにデータを渡すと、工程別のばらつきと外れ値が返ってくる。",
+          hours:3.0, demo:"l2-bot" },
+        { roles:["staff","mgr"], level:3, needs:"office", title:"月次品質レポートの作成と配布",
+          before:"不良率を集計し、原因区分ごとにグラフを作り直す。毎月1.5日を要する。",
+          after:"表計算・文書・チャットをつないで集計からレポート配布まで一続きにする。担当者は考察を書く。",
+          hours:2.5, demo:"l3-link" },
+        { roles:["exec"], level:1, needs:"office", title:"品質リスクの把握",
           before:"不良やクレームの報告は月次で受ける。数字の羅列で、どこが危ういのか判断しづらい。",
           after:"工程別の傾向と悪化している項目を要約で受け取れる。現場に確認すべき点が絞れる。",
-          hours:1.5, tool:"copilot", demo:"copilot-bot" },
+          hours:1.5, demo:"l1-office" },
+        { roles:["staff","mgr"], level:4, needs:"agent", title:"品質データの監視そのもの",
+          before:"月末に集計し、原因区分ごとにグラフを作り直す。異常に気づくのは翌月になる。",
+          after:"検査記録を日次で分析し、基準を外れたら通知、月次レポートまで作る仕組みに置き換える。",
+          hours:3.0, demo:"l4-agent" },
       ]
     },
     {
@@ -1188,88 +1317,129 @@ const CONFIG = {
       tasks:[
         { roles:["staff"], level:2, title:"仕入価格の比較と発注判断",
           before:"複数の見積メールとExcelを行き来し、条件を揃えて比較する。抜けや見落としが起こる。",
-          after:"見積内容を条件ごとに整えた比較表が生成される。担当者は交渉と判断に集中できる。",
-          hours:2.0, tool:"copilot", demo:"copilot-bot" },
-        { roles:["staff","mgr"], level:1, title:"取引先とのやり取りの整理",
+          after:"比較の観点を仕込んだボットに見積を渡すと、条件を揃えた比較表が返ってくる。",
+          hours:2.0, demo:"l2-bot" },
+        { roles:["staff","mgr"], level:1, needs:"office", title:"取引先とのやり取りの整理",
           before:"納期回答や仕様変更の履歴がメールに散在し、経緯を追うのに時間がかかる。",
           after:"スレッドを要約させ、決まったこと・未決事項を一覧化。引き継ぎもそのまま渡せる。",
-          hours:1.5, tool:"copilot", demo:"copilot-bot" },
-        { roles:["mgr"], level:2, title:"調達リスクの点検",
-          before:"代替先の検討は、余裕のあるときにしかできていない。",
-          after:"品目ごとの供給リスクと代替候補の一次調査をAIに任せ、点検を定例化できる。",
-          hours:1.0, tool:"gemini", demo:"gemini-bot" },
-        { roles:["exec"], level:1, title:"仕入コストの推移の把握",
+          hours:1.5, demo:"l1-office" },
+        { roles:["staff","mgr"], level:3, needs:"office", title:"見積の集約と社内共有",
+          before:"届いた見積をExcelに転記し、稟議用に整えてメールで回す。",
+          after:"メール・表計算・文書をつないで比較表と稟議案までを一続きにする。",
+          hours:1.5, demo:"l3-link" },
+        { roles:["exec"], level:1, needs:"office", title:"仕入コストの推移の把握",
           before:"値上げの報告は都度受けるが、全体でどう効いているかは年度末にしか見えない。",
           after:"品目別の単価推移と影響額を整理した形で受け取れる。交渉の優先順位を判断できる。",
-          hours:1.0, tool:"copilot", demo:"copilot-bot" },
+          hours:1.0, demo:"l1-office" },
+        { roles:["staff"], level:4, needs:"office", title:"発注データの取り込み",
+          before:"受注CSVの取り込みが手作業。担当者が休むと止まる。",
+          after:"表計算の自動処理で毎朝取り込み、二重登録を防ぎ、失敗時だけ通知する運用に変える。",
+          hours:3.0, demo:"l4-nocode" },
       ]
     },
     {
       id:"admin", label:"管理部門（経理・人事・総務）",
       tasks:[
-        { roles:["staff"], level:3, title:"請求・支払データの突合",
-          before:"請求書とシステムの数字を目視で照合する。件数が多い月は残業になる。",
-          after:"差分の抽出を自動化し、担当者は例外だけを見る。目視の総量が減る。",
-          hours:3.0, tool:"claudecode", demo:"claude-agent" },
-        { roles:["staff","mgr"], level:2, title:"社内規程・問い合わせ対応",
+        { roles:["staff","mgr"], level:2, title:"社内規程の問い合わせ対応",
           before:"「この場合どうなりますか」に、担当者が規程を読み直して個別回答している。",
-          after:"規程を読み込ませた回答補助を用意し、担当者は最終確認だけを行う。",
-          hours:2.0, tool:"copilot", demo:"copilot-bot" },
-        { roles:["mgr"], level:1, title:"採用・評価の文書作成",
+          after:"就業規則と社内規程を読み込ませた規程QAボットを作り、社員が自分で確認できる状態にする。",
+          hours:2.0, demo:"l2-bot" },
+        { roles:["mgr"], level:1, needs:"office", title:"採用・評価の文書作成",
           before:"求人票や評価コメントを毎回ゼロから書く。表現の粒度が人によって揺れる。",
           after:"要件を渡すと粒度の揃った草案が出る。管理職は内容の妥当性を見る。",
-          hours:1.5, tool:"gemini", demo:"gemini-bot" },
-        { roles:["exec"], level:1, title:"人と数字の途中経過の把握",
+          hours:1.5, demo:"l1-office" },
+        { roles:["staff"], level:3, needs:"office", title:"経費・稟議のチェックと差し戻し",
+          before:"申請を全件目視で確認し、不備があればメールで個別に差し戻す。",
+          after:"表計算とメールをつないでルール違反候補を抽出し、差し戻し文まで用意する。判定は人が行う。",
+          hours:2.0, demo:"l3-link" },
+        { roles:["exec"], level:1, needs:"office", title:"人と数字の途中経過の把握",
           before:"経理・人事の数字は締め後にまとまる。月中の状況は担当者に聞くしかない。",
           after:"月中でも要約で状況を把握でき、判断や手当てのタイミングを早められる。",
-          hours:1.5, tool:"copilot", demo:"copilot-bot" },
+          hours:1.5, demo:"l1-office" },
+        { roles:["staff","mgr"], level:4, needs:"office", title:"請求・支払データの突合",
+          before:"請求書とシステムの数字を目視で照合する。件数が多い月は残業になる。",
+          after:"表計算の自動処理で差分を抽出し、例外だけ担当者に回す。目視の総量が減る。",
+          hours:3.0, demo:"l4-nocode" },
       ]
     },
     {
       id:"it", label:"技術・情報システム",
       tasks:[
-        { roles:["staff"], level:3, title:"古い社内マクロの解読と仕様化",
-          before:"20年前のVBAが動いているが、中身を知る人がいない。触れないまま使い続けている。",
-          after:"コードを読ませて処理の意図と仕様書を起こす。作り直しの判断ができる状態になる。",
-          hours:4.5, tool:"claudecode", demo:"claude-agent" },
-        { roles:["staff","mgr"], level:3, title:"現場向け小規模ツールの開発",
-          before:"「こういう画面が欲しい」に応えられず、Excelの運用でしのいでいる。着手まで数ヶ月。",
-          after:"要望を伝えるとその日のうちに動く試作が出る。現場に見せて直しながら決められる。",
-          hours:4.0, tool:"codex", demo:"codex-agent" },
-        { roles:["staff"], level:3, title:"基幹システムとのデータ連携",
-          before:"受注データの取り込みが手作業のCSV運用。担当者が休むと止まる。",
-          after:"取り込み処理を実装して自動化し、エラー時だけ人が見る運用に変える。",
-          hours:3.5, tool:"codex", demo:"codex-agent" },
-        { roles:["exec"], level:1, title:"システム化要望の優先順位づけ",
+        { roles:["staff"], level:2, title:"社内からの問い合わせ対応",
+          before:"「これどうやるの」という質問が個人宛に集まり、同じ回答を何度も書いている。",
+          after:"社内マニュアルを読み込ませたヘルプデスクボットを作り、一次回答をそこに任せる。",
+          hours:2.0, demo:"l2-bot" },
+        { roles:["exec"], level:1, needs:"office", title:"システム化要望の優先順位づけ",
           before:"現場からの要望が個別に届き、投資の優先順位をつける材料が揃わない。",
           after:"要望を分類し、対象業務・影響範囲・想定効果を整理した一覧を受け取れる。順番を判断できる。",
-          hours:1.5, tool:"copilot", demo:"copilot-bot" },
+          hours:1.5, demo:"l1-office" },
+        { roles:["staff","mgr"], level:3, needs:"office", title:"部門データの集約と可視化",
+          before:"各システムからCSVを落とし、Excelで結合してグラフを作る。担当者しかできない。",
+          after:"表計算と文書をつないで集約から可視化までを一続きにし、他部門でも同じ手順で回せる。",
+          hours:3.0, demo:"l3-link" },
+        { roles:["staff"], level:4, needs:"agent", title:"古い社内マクロの解読と作り直し",
+          before:"20年前のVBAが動いているが、中身を知る人がいない。触れないまま使い続けている。",
+          after:"処理の意図を読み解いて仕様化し、置き換えまで進める。作り直しの判断ができる状態になる。",
+          hours:4.5, demo:"l4-agent" },
+        { roles:["staff","mgr"], level:4, needs:"office", title:"現場向けツールの開発",
+          before:"「こういう画面が欲しい」に応えられず、Excel運用でしのいでいる。着手まで数ヶ月。",
+          after:"ノーコードの自動化で、その日のうちに動く試作が出る。現場に見せて直しながら決められる。",
+          hours:4.0, demo:"l4-nocode" },
       ]
     },
   ],
 
-  /* --- 03 再現デモ ------------------------------------------------------- */
-  /* layer: "base" = 365で到達（チャットボットを作り、部門で回る）             */
-  /*        "core" = 養成講座で到達（業務プロセスをエージェントに設計する）    */
-  /* step.kind: note|prompt|thinking|builder|chat|handoff|flow|runlog|queue    */
-  /*            |stats|doc|bullets|sheet|ai|term|diff                          */
+  /* ======================================================================
+     03 再現デモ — 到達レベル1〜4を1本ずつ
+     ----------------------------------------------------------------------
+     文中の {{...}} は選択したツールに自動で置き換わる。
+       {{officeAI}} Copilot / Gemini     {{officeSuite}} Microsoft 365 / Google Workspace
+       {{sheet}} Excel / スプレッドシート  {{doc}} Word / ドキュメント
+       {{mail}} Outlook / Gmail          {{chat}} Teams / Google Chat
+       {{bot}}  Copilotエージェント / Gem  {{nocode}} Copilot Studio・VBA / GAS
+       {{agentAI}} Claude Code / Codex
+     needs: "office" / "agent" / 省略（汎用AI）
+     step.kind: note|prompt|thinking|doc|bullets|sheet|builder|chat|handoff
+                |flow|auto|queue|stats|kpi|rollout|ai|term|diff
+     ====================================================================== */
   demos: [
-    /* ---------- Layer 1｜365 — 全社員がチャットボットを作れる ---------- */
     {
-      id:"gemini-bot", tool:"gemini", layer:"base", label:"見積アシスタントを作って配る",
-      chrome:"workspace", app:"Gemini", title:"見積アシスタント（精密切削） — 営業部で共有中",
-      why:"365の到達点です。プログラミングなしで10分。作ったら同僚に配れて、担当者が席にいなくても同じ品質で見積のたたき台が出てきます。",
+      id:"l1-office", level:1, needs:"office", label:"実務の下書きを任せる",
+      chrome:"workspace", app:"{{officeAI}}", title:"20260817_客先訪問メモ",
+      why:"レベル1の到達点です。特別な準備なしに、手元のメモが共有できる形になります。365の動画で全社員がここまで来ます。",
       steps:[
-        { kind:"note", text:"営業担当者が、自分の見積業務用のアシスタントを作ります。所要時間は10分ほどです。" },
+        { kind:"note", text:"移動中にスマートフォンで打った箇条書きメモが元データです。" },
+        { kind:"doc", title:"（元のメモ）", body:"8/17 A事業部 田中課長・購買 佐藤さん\n新規ライン用の部品、来期から / 数量まだ未定 3000〜5000/年くらい？\n公差きびしい 図面もらう約束\n値段は今より下げたいと言われた が品質優先とも" },
+        { kind:"prompt", cue:"入力", text:"このメモを社内共有用の議事録にしてください。決まったこと・未確定のこと・次アクション（担当と期限つき）に分けてください。" },
+        { kind:"thinking", text:"議事録の体裁に整えています…" },
+        { kind:"bullets", title:"決まったこと／未確定のこと", items:[
+          "新規ライン向け部品の引き合い。来期からの供給を前提に検討する。",
+          "先方から図面を受領する（公差が厳しい仕様との説明あり）。",
+          "【未確定】年間数量（3,000〜5,000個との口頭情報のみ）。",
+          "【未確定】目標価格の水準（「今より下げたい」の具体値は未提示）。" ]},
+        { kind:"bullets", title:"次アクション", items:[
+          "図面の受領依頼メールを送る — 営業担当 / 8月19日まで",
+          "類似案件の実績から概算見積を用意 — 営業担当 / 8月22日まで",
+          "厳しい公差の実現可否を技術部門に確認 — 営業担当→技術 / 8月25日まで" ]},
+        { kind:"ai", text:"「値段を下げたい」は先方の主観情報なので、社外共有用の資料には転記しない扱いにしています。判断が必要な箇所は【未確定】として残しました。" },
+        { kind:"note", text:"ここまではAIに都度お願いする段階です。次のレベル2では、これを毎回同じ品質で出す仕組みに変えます。" },
+      ]
+    },
+    {
+      id:"l2-bot", level:2, label:"反復作業をボットにする",
+      chrome:"workspace", app:"{{bot}}", title:"見積アシスタント（精密切削） — 営業部で共有中",
+      why:"レベル2の到達点です。毎回お願いするのをやめ、仕組みを一度作って部門で使い回します。プログラミングは使いません。",
+      steps:[
+        { kind:"note", text:"営業担当者が、自分の見積業務用のボットを作ります。所要時間は10分ほどです。" },
         { kind:"prompt", cue:"やりたいこと", text:"図面の条件を伝えたら、過去の実績に沿った見積のたたき台を出してくれるアシスタントを作りたい。根拠も一緒に出してほしい。" },
-        { kind:"builder", title:"カスタムAIの設定（入力するのはこれだけ）", fields:[
+        { kind:"builder", title:"{{bot}} の設定（入力するのはこれだけ）", fields:[
           { k:"名前", v:"見積アシスタント（精密切削）" },
           { k:"役割の指示", v:"あなたは精密切削部品の見積担当です。渡された条件から、材料費・加工工数・検査工数・段取り費に分けて見積のたたき台を作ります。\n必ず各項目の根拠を併記し、類似実績が2件以下の項目は「確度低」と明示してください。\n最終判断は人が行う前提で、断定した金額提示はしません。" },
           { k:"参照する資料（ドラッグするだけ）", files:["過去受注実績_2023-2026.xlsx","材料単価表_最新.xlsx","加工工数マスタ.xlsx","見積書テンプレート.docx"] },
           { k:"公開範囲", v:"営業部（12名）— 全員がすぐ使えます" },
         ]},
         { kind:"thinking", text:"資料を読み込んでいます…" },
-        { kind:"chat", name:"営業部の別の担当者が使っています", turns:[
+        { kind:"chat", name:"作った本人ではなく、営業部の別の担当者が使っています", turns:[
           { who:"user", text:"SUS304、φ18×L45、公差h6、ロット50個、研磨あり。概算見積をお願いします。" },
           { who:"bot", text:"以下のたたき台を作成しました。\n\n・材料費（SUS304 1.4kg）… 2,590円 ／ 直近3ヶ月の平均仕入単価\n・加工工数（旋盤 0.8h）… 4,960円 ／ 類似形状4件の中央値\n・加工工数（研磨 0.5h）… 3,400円 ／【確度低】類似実績2件のみ\n・検査工数（0.3h）… 1,620円 ／ 全数寸法検査の実績\n・段取り費 … 8,500円 ／ 小ロット案件の平均\n\n小計 21,070円／個（ロット50）\n\n研磨工数は実績が2件しかなく、ばらつきが大きい項目です。提出前にご確認ください。" },
         ]},
@@ -1278,249 +1448,169 @@ const CONFIG = {
           { k:"作成された見積", v:"186", u:"件" },
           { k:"1件あたり", v:"52→14", u:"分", hi:true },
           { k:"確度低の指摘", v:"23", u:"件" },
-        ], note:"作った本人が対応しなくても、部門の誰かが使えば同じ品質で出てきます。ここが「配れる」ことの価値です。" },
-        { kind:"ai", text:"「確度低」と指摘された23件は、実績が薄い加工条件です。ここを実績登録していくと、部門の見積の型がそのままアシスタントに溜まっていきます。" },
-        { kind:"note", text:"作ったアシスタントは365のLMSに事例として登録でき、他部門が真似して自分の版を作れます。" },
+        ], note:"作った本人が対応しなくても、部門の誰かが使えば同じ品質で出てきます。これが「仕組みにする」ことの価値です。" },
+        { kind:"ai", text:"確度低と指摘された23件は実績が薄い加工条件です。ここを実績登録していくと、部門の見積の型がそのままボットに溜まっていきます。" },
+        { kind:"note", text:"作ったボットは365のLMSに事例として登録でき、他部門が真似して自分の版を作れます。" },
       ]
     },
     {
-      id:"copilot-bot", tool:"copilot", layer:"base", label:"規程QAボットを作って全社に置く",
-      chrome:"m365", app:"Copilot", title:"就業規則ヘルプ — 全社員が Teams から利用中",
-      why:"365の到達点です。管理部門に集まっていた「この場合どうなりますか」の8割が、担当者を経由せずに片付きます。",
+      id:"l3-link", level:3, needs:"office", label:"業務ツールをつないで回す",
+      chrome:"m365", app:"{{officeAI}}（{{mail}} → {{sheet}} → {{doc}} → {{chat}}）", title:"品質月報 2026年7月 — 集計から配布まで",
+      why:"レベル3の到達点です。1つのアプリの中で完結させず、メール・表計算・文書・チャットをつなぎます。ここから「情報を探す時間」が消え始めます。",
       steps:[
-        { kind:"note", text:"総務担当者が、就業規則の問い合わせに答えるボットを作ります。コードは書きません。" },
-        { kind:"prompt", cue:"やりたいこと", text:"就業規則と申請ルールについて、社員が自分で確認できるボットを作りたい。判断が必要な例外は勝手に答えず、人事に回してほしい。" },
-        { kind:"builder", title:"エージェントの設定（入力するのはこれだけ）", fields:[
-          { k:"名前", v:"就業規則ヘルプ" },
-          { k:"役割の指示", v:"社内の就業規則・申請ルールに関する質問に、規程の該当条文を引用して回答します。\n規程に明記されていない場合は推測で答えず、「人事部にご確認ください」と案内します。\n個人の給与・評価・懲戒に関する質問には回答せず、人事部へ案内します。" },
-          { k:"参照する資料（ドラッグするだけ）", files:["就業規則_2026年4月改定.pdf","休暇申請ガイド.docx","経費精算規程.pdf","在宅勤務規程.pdf"] },
-          { k:"公開範囲", v:"全社員（Teams のチャットから利用）" },
-        ]},
-        { kind:"thinking", text:"資料を索引化しています…" },
-        { kind:"chat", name:"製造部の社員が Teams から質問しています", turns:[
-          { who:"user", text:"子どもの学校行事で半日休みたいのですが、有給を半日で取れますか。" },
-          { who:"bot", text:"取得できます。\n\n就業規則 第32条（年次有給休暇）に、半日単位での取得が認められています。午前（9:00–13:00）または午後（13:00–18:00）のいずれかを選択し、前日までに申請してください。\n\n※ 時間単位（1時間刻み）の取得は現在の規程では認められていません。" },
-          { who:"user", text:"当日の朝に申請するのは無理ですか。" },
-          { who:"bot", text:"規程には「前日までに申請」と記載がありますが、当日申請の取り扱いについては明記がありません。\n\n運用の可否は人事部にご確認ください。（総務・人事部 内線 2210）" },
-        ]},
-        { kind:"stats", title:"設置から1か月の実績", items:[
-          { k:"問い合わせ", v:"312", u:"件" },
-          { k:"ボットで完結", v:"249", u:"件（80%）", hi:true },
-          { k:"人事へ転送", v:"63", u:"件" },
-          { k:"担当者の対応時間", v:"−18", u:"時間 / 月", hi:true },
-        ], note:"転送された63件は、規程に書かれていない判断が必要なものだけです。担当者はそこに集中できます。" },
-        { kind:"ai", text:"規程に書かれていないことを推測で答えない設定にしています。答えられない範囲を先に決めておくことが、社内ボットを安心して全社に置くための条件です。" },
-        { kind:"note", text:"規程が改定されたら、資料を差し替えるだけです。運用は総務担当者だけで続けられます。" },
+        { kind:"note", text:"品質保証の担当者が、毎月1.5日かけている月次レポートの作成をつなぎ直します。" },
+        { kind:"prompt", cue:"入力", text:"{{mail}} に届いた各工程の検査記録を {{sheet}} に集計して、悪化した工程を特定した月報を {{doc}} で作り、{{chat}} の品質保証チャネルに共有して。" },
+        { kind:"thinking", text:"{{mail}} の添付3件を読み、集計しています…" },
+        { kind:"sheet",
+          head:["工程","不良率(7月)","前月比","主因区分","件数"],
+          rows:[
+            ["研磨","1.82%","+0.61pt","寸法外れ","24"],
+            ["旋盤","0.94%","+0.05pt","キズ","31"],
+            ["検査","0.41%","−0.12pt","記録不備","9"],
+            ["組立","0.28%","−0.03pt","部品欠品","4"],
+          ],
+          total:["全工程","0.86%","+0.14pt","—","68"] },
+        { kind:"doc", title:"{{doc}} に生成された月報（抜粋）", body:"■ 7月の総括\n全工程の不良率は0.86%（前月比 +0.14pt）。悪化の主因は研磨工程の寸法外れに集中しています。\n\n■ 注視すべき工程\n研磨：1.82%（+0.61pt）。7月14日以降に増加傾向。設備 M-03 での発生が9件と偏りがあります。\n\n■ 改善が見られた工程\n検査（−0.12pt）・組立（−0.03pt）。ただし全体の悪化を打ち消せていません。\n\n■ 考察（担当記入）\n" },
+        { kind:"handoff", before:{ label:"今（毎月1.5日）", steps:[
+            "メールの添付を開いて保存する","Excelに貼り付けて整形する","工程別に集計する","前月比を計算する",
+            "グラフを作り直す","悪化した工程を探す","月報を書く","チャネルに共有する"] },
+          after:{ label:"つないだ後", steps:[
+            { t:"メールの添付を読み取る", by:"agent" },
+            { t:"表計算に集計して前月比を出す", by:"agent" },
+            { t:"悪化した工程を特定する", by:"agent" },
+            { t:"月報の本文を生成する", by:"agent" },
+            { t:"考察と再発防止策を書く", by:"human" },
+            { t:"チャネルに共有する", by:"agent" }] },
+          summary:"残るのは考察を書く工程だけ。ただし、まだ人が起動する必要があります。" },
+        { kind:"ai", text:"7月14日という変化点は数値上の傾向です。原因の特定には現場の記録との突き合わせが必要なので、考察欄は空けたまま渡しています。" },
+        { kind:"note", text:"ここまでは「人が指示したら一続きで動く」段階です。次のレベル4では、指示すること自体をやめます。" },
       ]
     },
-
-    /* ---------- Layer 2｜養成講座 — 推進人材がエージェントを設計する ---------- */
     {
-      id:"claude-agent", tool:"claudecode", layer:"core", label:"品質監視を毎朝自動で回す",
-      chrome:"terminal", app:"Claude Code", title:"~/quality-agent — 稼働中",
-      why:"養成講座の到達点です。人が起動しなくても毎朝動き、異常があった日だけ人を呼びます。「見に行く仕事」がなくなります。",
+      id:"l4-agent", level:4, needs:"agent", label:"人が起動しなくても回る状態にする",
+      chrome:"terminal", app:"{{agentAI}}", title:"~/quality-agent — 稼働中",
+      why:"レベル4の到達点です。誰も操作していないのに毎朝動き、異常があった日だけ人を呼びます。「見に行く仕事」自体がなくなります。",
       steps:[
-        { kind:"note", text:"品質保証の推進人材が、検査記録の監視を自動で回す仕組みを設計します。養成講座4か月目にあたる内容です。" },
+        { kind:"note", text:"品質保証の推進人材が、レベル3でつないだ流れを「人が起動しない」状態まで持っていきます。養成講座4か月目にあたる内容です。" },
         { kind:"prompt", cue:"設計の依頼", text:"検査記録を毎朝取り込んで工程別のばらつきを分析し、基準を外れたら関係者に通知して、月末には月次レポートまで作るところまで自動にしたい。設備を止めるかどうかの判断は人に残して。" },
-        { kind:"handoff", before:{ label:"今（毎月の作業）", steps:[
-            "検査記録をシステムから出力する","Excelに貼り付けて整形する","工程別に集計する","グラフを作り直す",
-            "ばらつきを目視で探す","悪化した工程を特定する","月次レポートを書く","関係者に共有する"] },
-          after:{ label:"エージェント導入後", steps:[
-            { t:"検査記録を取り込む（毎朝7:00）", by:"agent" },
-            { t:"工程別に集計・分析する", by:"agent" },
+        { kind:"handoff", before:{ label:"レベル3の状態", steps:[
+            "担当者が朝いちで起動する","結果を確認する","悪化工程を探す","関係者に連絡する","考察を書く"] },
+          after:{ label:"レベル4（自動実行）", steps:[
+            { t:"毎朝7:00 に自動で起動する", by:"agent" },
+            { t:"検査記録を取り込み分析する", by:"agent" },
             { t:"基準を外れた工程を検知する", by:"agent" },
-            { t:"担当者と課長に通知する", by:"agent" },
+            { t:"担当者と課長に通知する（異常がない日は送らない）", by:"agent" },
             { t:"設備を止めるかどうか判断する", by:"human" },
             { t:"月次レポートを下書きする", by:"agent" },
             { t:"考察と再発防止策を書く", by:"human" }] },
-          summary:"残るのは、止めるかどうかの判断と考察だけです。" },
+          summary:"起動する・確認する・探す・連絡するが消えます。" },
         { kind:"flow", title:"エージェントの動作設計", steps:[
           { t:"毎朝7:00 — 検査記録を取り込む", d:"前日分の測定データを読み、欠損・重複・文字化けを検査する。異常データは取り込まず記録に残す。" },
           { t:"工程別に分析する", d:"工程・設備・作業者ごとにばらつき（σ）とCpkを算出し、前週との差分を取る。" },
-          { t:"基準判定する", d:"Cpk 1.33 未満、または外れ値が3件以上の工程を抽出する。校正日のデータは判定から除外する。" },
+          { t:"基準判定する", d:"Cpk 1.33 未満、または外れ値が3件以上の工程を抽出する。測定器の校正日のデータは判定から除外する。" },
           { t:"通知する", d:"該当工程の担当者と品質保証課長に、根拠データを添えて通知する。異常がない日は何も送らない。", gate:"人が判断：設備を止めるかどうか" },
           { t:"月末 — 月次レポートを作る", d:"工程別の推移・悪化項目・改善項目をまとめ、考察欄を空けた状態で提出する。", gate:"人が記述：考察と再発防止策" },
         ]},
-        { kind:"runlog", badge:"毎朝 7:00 自動実行", title:"2026-08-18（月）のログ ／ 誰も操作していません", lines:[
-          { time:"07:00:02", text:"スケジュール起動", t:"dim" },
-          { time:"07:00:09", text:"検査記録を取り込み  1,042 行（前日分）", t:"tool" },
-          { time:"07:00:11", text:"欠損3行・重複1行を除外して記録", t:"dim" },
-          { time:"07:00:24", text:"工程別に σ / Cpk を算出  7工程", t:"tool" },
-          { time:"07:00:31", text:"研磨工程  Cpk=0.91（基準1.33未満）／外れ値9件が設備 M-03 に集中", t:"warn" },
-          { time:"07:00:33", text:"旋盤・検査・組立・組付・洗浄・梱包  基準内", t:"dim" },
-          { time:"07:00:38", text:"担当者2名と品質保証課長へ通知を送信（根拠データ添付）", t:"ok" },
-          { time:"07:00:38", text:"完了（36秒）／ 人の対応が必要：1件", t:"ok" },
-        ]},
+        { kind:"auto", badge:"毎朝 7:00 自動実行",
+          note:"ここから先は誰も操作していません。「翌日を実行」を押して、日をまたいで繰り返す様子をご覧ください。",
+          days:[
+            { date:"8/18 月", events:[
+              { at:"07:00:02", text:"スケジュール起動", t:"dim" },
+              { at:"07:00:09", text:"検査記録を取り込み  1,042 行", t:"tool" },
+              { at:"07:00:11", text:"欠損3行・重複1行を除外して記録", t:"dim" },
+              { at:"07:00:24", text:"工程別に σ / Cpk を算出  7工程", t:"tool" },
+              { at:"07:00:31", text:"研磨  Cpk=0.91（基準1.33未満）／外れ値9件が設備 M-03 に集中", t:"warn" },
+              { at:"07:00:38", text:"担当者2名と品質保証課長へ通知を送信", t:"ok" },
+            ], result:{ human:true, label:"通知1件", detail:"研磨工程 Cpk=0.91" } },
+            { date:"8/19 火", events:[
+              { at:"07:00:02", text:"スケジュール起動", t:"dim" },
+              { at:"07:00:10", text:"検査記録を取り込み  987 行", t:"tool" },
+              { at:"07:00:23", text:"工程別に σ / Cpk を算出  7工程  すべて基準内", t:"tool" },
+              { at:"07:00:24", text:"通知対象なし — 何も送信しません", t:"dim" },
+            ], result:{ human:false, label:"異常なし・通知0件", detail:"人の対応は不要" } },
+            { date:"8/20 水", events:[
+              { at:"07:00:02", text:"スケジュール起動", t:"dim" },
+              { at:"07:00:11", text:"検査記録を取り込み  1,108 行", t:"tool" },
+              { at:"07:00:19", text:"測定器の校正日を検出 — 該当データを判定から除外", t:"dim" },
+              { at:"07:00:26", text:"工程別に σ / Cpk を算出  7工程  すべて基準内", t:"tool" },
+              { at:"07:00:27", text:"通知対象なし", t:"dim" },
+            ], result:{ human:false, label:"異常なし・通知0件", detail:"誤検知も抑制" } },
+            { date:"8/21 木", events:[
+              { at:"07:00:02", text:"スケジュール起動", t:"dim" },
+              { at:"07:00:10", text:"検査記録を取り込み  1,015 行", t:"tool" },
+              { at:"07:00:25", text:"旋盤  外れ値3件（基準到達）", t:"warn" },
+              { at:"07:00:33", text:"担当者1名へ通知を送信", t:"ok" },
+            ], result:{ human:true, label:"通知1件", detail:"旋盤 外れ値3件" } },
+            { date:"8/22 金", events:[
+              { at:"07:00:02", text:"スケジュール起動", t:"dim" },
+              { at:"07:00:09", text:"検査記録を取り込み  1,061 行", t:"tool" },
+              { at:"07:00:24", text:"工程別に σ / Cpk を算出  7工程  すべて基準内", t:"tool" },
+              { at:"07:00:25", text:"通知対象なし", t:"dim" },
+            ], result:{ human:false, label:"異常なし・通知0件", detail:"人の対応は不要" } },
+          ],
+          summary:"5営業日のうち、人の対応が必要だったのは2日。残り3日は動いたことにも気づきません。" },
+        { kind:"queue", title:"通知を受けた担当者の判断待ち — ボタンを押してみてください",
+          note:"エージェントは通知までを担い、設備を止めるかどうかは人が判断します。ここが自動化と半自動化の境目です。",
+          items:[
+            { to:"研磨工程 担当者・品質保証課長 宛", subject:"研磨工程 Cpk=0.91（基準1.33未満）", conf:"根拠データ添付・外れ値9件",
+              body:"外れ値9件のうち9件が設備 M-03 に集中しています。\n7月14日以降に増加傾向。材料ロットの切り替えと時期が重なっています。\n\n判断が必要：M-03 を停止して点検するか、次ロットまで様子を見るか。" },
+            { to:"旋盤工程 担当者 宛", subject:"旋盤工程 外れ値3件（基準到達）", conf:"根拠データ添付",
+              body:"Cpk は 1.28 で基準内ですが、外れ値が3件と通知基準に達しました。\n作業者・時間帯の偏りは見られません。\n\n判断が必要：継続監視で足りるか、治具を確認するか。" },
+          ]},
         { kind:"stats", title:"稼働開始から30日の実績", items:[
           { k:"自動実行", v:"30", u:"回（欠損0）" },
           { k:"分析した記録", v:"31,260", u:"行" },
           { k:"人を呼んだ回数", v:"7", u:"回", hi:true },
           { k:"最速の異常検知", v:"−2", u:"日", hi:true },
-        ], note:"30日のうち人が対応したのは7回だけ。異常のない日は通知が来ないため、読み飛ばされません。従来より2日早く異常に気づけています。" },
-        { kind:"ai", text:"「設備を止めるか」は現場の判断が必要なので、通知までで止める設計にしました。通知を毎日送らないことも意図的です。毎日届く通知は読まれなくなります。" },
+        ], note:"30日のうち人が対応したのは7回だけ。異常のない日は通知が来ないため、通知が読み飛ばされません。従来より2日早く異常に気づけています。" },
+        { kind:"ai", text:"設備を止めるかは現場の判断が必要なので、通知までで止める設計にしました。毎日通知を送らないことも意図的です。毎日届く通知は読まれなくなります。" },
         { kind:"note", text:"この設計書・スクリプト・検証結果が養成講座の成果物として会社に残り、365へ登録すると他部門が同じ型で作れます。" },
       ]
     },
     {
-      id:"codex-agent", tool:"codex", layer:"core", label:"受注処理を半自動で回す",
-      chrome:"editor", app:"Codex", title:"order-agent — 稼働中（承認待ち3件）",
-      why:"養成講座の到達点です。「担当者が休むと止まる」業務が、承認だけ人が押す形になります。取りこぼしもなくなります。",
+      id:"l4-nocode", level:4, needs:"office", label:"ノーコードで自動化する",
+      chrome:"m365", app:"{{nocode}}", title:"請求突合の自動化 — 稼働中",
+      why:"レベル4は開発部門がなくても届きます。{{nocode}} で、毎日決まった時刻に動く仕組みを推進人材が自分で組めます。",
       steps:[
-        { kind:"note", text:"情報システムの推進人材が、受注メールから見積下書きまでを進めるエージェントを設計します。" },
-        { kind:"prompt", cue:"設計の依頼", text:"受注や引き合いのメールを検知して、案件を登録し、見積の下書きまで作って営業の承認待ちにしたい。取りこぼしはなくしたいが、承認なしに社外へ送ることは避けたい。" },
-        { kind:"handoff", before:{ label:"今（1件あたり）", steps:[
-            "共有メールを開いて確認する","引き合いか判別する","顧客・品番・数量を読み取る","基幹システムに登録する",
-            "過去実績を探す","金額を積み上げる","返信文を書く","送信する"] },
-          after:{ label:"エージェント導入後", steps:[
-            { t:"共有メールを監視する（常時）", by:"agent" },
-            { t:"引き合い・仕様変更を分類する", by:"agent" },
-            { t:"顧客・品番・数量・希望納期を抽出する", by:"agent" },
-            { t:"基幹システムに登録する（二重登録は防止）", by:"agent" },
-            { t:"過去実績から金額の下書きを作る", by:"agent" },
-            { t:"金額を確認して承認する", by:"human" },
-            { t:"送信する", by:"agent" }] },
-          summary:"人が触るのは、金額の妥当性を見て承認を押すところだけです。" },
-        { kind:"flow", title:"エージェントの動作設計", steps:[
-          { t:"受信を検知する", d:"営業共有メールボックスを常時監視し、引き合い・見積依頼・仕様変更を分類する。判断できないものは処理せず「要確認」に置く。", gate:"人が対応：分類できない案件" },
-          { t:"案件を登録する", d:"顧客・品番・数量・希望納期を抽出し、基幹システムに登録する。受注番号＋明細行番号で二重登録を防ぐ。" },
-          { t:"見積の下書きを作る", d:"過去実績から金額のたたき台を作り、根拠と確度を併記する。確度が低い項目は明示する。" },
-          { t:"承認待ちに積む", d:"担当営業に通知し、承認されるまで社外へは一切送信しない。", gate:"人が判断：金額の妥当性と送信" },
-          { t:"例外を戻す", d:"抽出できない項目や前例のない条件は、理由をつけて人に差し戻す。" },
+        { kind:"note", text:"経理担当の推進人材が、毎月の請求突合を自動化します。コードは数行だけで、社内の標準機能の範囲で動きます。" },
+        { kind:"prompt", cue:"やりたいこと", text:"請求書のデータとシステムの数字を毎晩突合して、差分が出た分だけ翌朝の一覧に載せたい。金額の判断は人がやる。" },
+        { kind:"builder", title:"{{nocode}} の設定", fields:[
+          { k:"動かすタイミング", v:"毎日 22:00（平日のみ）" },
+          { k:"読む場所", v:"共有フォルダの請求データ ＋ 基幹システムの出力" },
+          { k:"やること", v:"請求番号で突合し、金額差・件数差・未計上を抽出する。\n差分がゼロなら何も出力しない。\n1円未満の端数差は無視する。" },
+          { k:"人に渡すもの", v:"翌朝の確認一覧（差分のみ）＋ 3件以上ならチャット通知" },
         ]},
-        { kind:"diff", file:"agent/intake.ts", lines:[
-          { t:"add", text:"+// 社外送信はエージェントの権限から外す。人の承認を経た経路のみ" },
-          { t:"add", text:"+const ALLOWED_ACTIONS = ['erp.createOrder', 'quote.createDraft', 'notify.internal'] as const;" },
-          { t:"ctx", text:" " },
-          { t:"add", text:"+// 受注番号 + 明細行番号で冪等性を担保（再実行しても二重登録しない）" },
-          { t:"add", text:"+const key = `${order.orderNo}-${line.lineNo}`;" },
-          { t:"add", text:"+if (await alreadyImported(key)) { skipped.push(key); continue; }" },
-          { t:"ctx", text:" " },
-          { t:"add", text:"+// 確度が低い、または前例のない条件は人へ差し戻す" },
-          { t:"add", text:"+if (draft.confidence < 0.7 || draft.unmatchedFields.length > 0) {" },
-          { t:"add", text:"+  return escalateToHuman(draft, '前例のない条件が含まれます');" },
-          { t:"add", text:"+}" },
-          { t:"del", text:"-await mailer.sendToCustomer(draft);" },
-        ]},
-        { kind:"runlog", badge:"常時監視・自動実行", title:"2026-08-18（月）午前のログ ／ 誰も操作していません", lines:[
-          { time:"08:41:12", text:"新規メール検知  件名「PX-4820 追加発注のご相談」", t:"tool" },
-          { time:"08:41:15", text:"分類：引き合い（確度 0.94）", t:"dim" },
-          { time:"08:41:18", text:"抽出  顧客／品番 PX-4820／数量 200／希望納期 9/12", t:"dim" },
-          { time:"08:41:22", text:"基幹システムに案件登録  受注番号 R-26081801", t:"ok" },
-          { time:"08:41:29", text:"過去実績12件から見積下書きを作成（根拠併記）", t:"tool" },
-          { time:"08:41:30", text:"承認待ちに追加  担当営業へ通知", t:"ok" },
-          { time:"09:02:44", text:"新規メール検知  件名「材質変更の可否について」→ 前例なし。人へ差し戻し", t:"warn" },
-          { time:"09:14:07", text:"午前の処理  登録6件／下書き5件／差し戻し1件／社外送信 0件", t:"ok" },
-        ]},
-        { kind:"queue", title:"承認待ちキュー — ボタンを押してみてください",
-          note:"エージェントが用意するところまでを担い、社外への送信は人が承認した後に行われます。差し戻すと担当者の手元に戻ります。",
-          items:[
-            { to:"A社 購買部 宛", subject:"PX-4820 追加発注のお見積（200個）", conf:"根拠12件・確度 高",
-              body:"ご相談いただいた200個について、9月12日納品でお受けできます。\n単価 20,480円／個（前回比 −2.8%・数量増による）\n根拠：直近の同一品番12件の実績単価\n※ 検査工程の空き状況は確認済みです。" },
-            { to:"B社 技術部 宛", subject:"仕様変更後の再見積（φ22 / 公差 h5）", conf:"根拠3件・確度 中",
-              body:"公差 h5 への変更に伴い、研磨工程が1工程増えます。\n単価 26,900円／個（変更前比 +14%）\n根拠：類似公差の実績3件（ばらつき大）\n※【確度低】研磨工数は実績が薄いため、確認をお願いします。" },
-            { to:"C社 資材部 宛", subject:"納期前倒しのご回答（8/29 希望）", conf:"生産計画で確認済み",
-              body:"8月29日への前倒しについて、加工完了は8月26日予定です。\n検査工程を含めて8月28日出荷が可能です。\n※ 他案件への影響は生じません。" },
-          ]},
-        { kind:"stats", title:"稼働開始から30日の実績", items:[
-          { k:"自動処理した案件", v:"142", u:"件" },
-          { k:"人が承認した回数", v:"118", u:"回", hi:true },
-          { k:"人へ差し戻し", v:"24", u:"件" },
-          { k:"取りこぼし検知", v:"3", u:"件", hi:true },
-        ], note:"誤登録は0件。人が取りこぼしていた引き合い3件を拾えました。社外送信は承認後のみで0件の事故です。" },
-        { kind:"ai", text:"社外送信をエージェントの権限から外しているため、承認なしに顧客へメールが飛ぶことはありません。どこまで任せ、どこを人が押すか——この線引きの設計が中心です。" },
-        { kind:"note", text:"この線引きを自社の業務ごとに設計できる人材を育てるのが、AI人材養成講座です。" },
-      ]
-    },
-    {
-      id:"gemini-agent", tool:"gemini", layer:"core", label:"日報の集約を自動で回す",
-      chrome:"workspace", app:"Gemini ＋ Apps Script", title:"日報集約エージェント — 稼働中",
-      why:"開発部門がなくても、Google Workspace の標準機能の範囲でエージェントが組めます。転記作業そのものが消えます。",
-      steps:[
-        { kind:"note", text:"生産管理の推進人材が、現場日報の集約を自動で回す仕組みを設計します。" },
-        { kind:"prompt", cue:"設計の依頼", text:"現場が入力した日報を毎日集約して、異常があった日だけ管理職に要点を届けたい。事務担当がやっている転記もなくしたい。" },
-        { kind:"handoff", before:{ label:"今（毎日の作業）", steps:[
-            "紙の日報を回収する","記載漏れを電話で確認する","システムへ転記する","工程別に集計する",
-            "不良率を計算する","異常がないか目で確認する","管理職へ報告メールを書く"] },
-          after:{ label:"エージェント導入後", steps:[
-            { t:"日報フォームの回答を集める（18:30）", by:"agent" },
-            { t:"未提出の班を洗い出す", by:"agent" },
-            { t:"工程別に集計し管理シートへ直接書く", by:"agent" },
-            { t:"読み取れない回答を一覧に残す", by:"agent" },
-            { t:"残った回答を確認する", by:"human" },
-            { t:"異常があった日だけ管理職へ要点を送る", by:"agent" },
-            { t:"現場へ確認して対応する", by:"human" }] },
-          summary:"転記と集計が消え、人が見るのは例外と対応だけになります。" },
-        { kind:"flow", title:"エージェントの動作設計", steps:[
-          { t:"18:30 — 日報フォームの回答を集める", d:"当日分の回答を読み、未提出の班を洗い出す。" },
-          { t:"転記せず集計する", d:"生産数・不良数・停止時間を工程別に集計し、管理シートへ直接書き込む。読み取れない回答は集計に入れず一覧に残す。", gate:"人が確認：読み取れなかった回答" },
-          { t:"異常だけ拾う", d:"不良率が直近2週間の平均を上回った工程、停止30分超の設備を抽出する。" },
-          { t:"要点だけ届ける", d:"異常があった日のみ、管理職に3行の要約と該当日報のリンクを送る。異常がない日は何も送らない。", gate:"人が判断：現場への確認と対応" },
-          { t:"未提出を促す", d:"未提出の班長に個別リマインドを送る（管理職への報告は3日連続時のみ）。" },
-        ]},
-        { kind:"runlog", badge:"毎日 18:30 自動実行", title:"2026-08-18（月）のログ ／ 誰も操作していません", lines:[
-          { time:"18:30:01", text:"スケジュール起動", t:"dim" },
-          { time:"18:30:06", text:"日報の回答を取得  38件 / 40班", t:"tool" },
-          { time:"18:30:07", text:"未提出  第3組立班・第2検査班 → 班長へリマインド送信", t:"dim" },
-          { time:"18:30:15", text:"工程別に集計し管理シートへ書き込み（転記なし）", t:"tool" },
-          { time:"18:30:17", text:"読み取れない回答  1件 → 確認一覧に追加", t:"warn" },
-          { time:"18:30:21", text:"研磨工程の不良率 2.1%（2週平均 1.3% を超過）", t:"warn" },
-          { time:"18:30:24", text:"管理職へ要約3行と該当日報リンクを送信", t:"ok" },
-          { time:"18:30:24", text:"完了（23秒）／ 人の対応が必要：2件", t:"ok" },
-        ]},
-        { kind:"stats", title:"稼働開始から30日の実績", items:[
-          { k:"集約した日報", v:"1,148", u:"件" },
-          { k:"転記作業", v:"0", u:"時間", hi:true },
-          { k:"管理職への通知", v:"7", u:"日 / 30日", hi:true },
-          { k:"提出率", v:"82→96", u:"%" },
-        ], note:"事務担当の転記が月28時間からゼロになりました。管理職に届くのは異常があった7日分だけです。" },
-        { kind:"ai", text:"毎日通知を送ると読まれなくなるため、異常があった日だけに絞りました。「送らない」ことを設計するのも、エージェント設計の一部です。" },
-        { kind:"note", text:"この設計は Google Workspace の標準機能の範囲で動きます。開発部門がなくても、推進人材が自分で運用できます。" },
-      ]
-    },
-    {
-      id:"copilot-agent", tool:"copilot", layer:"core", label:"問い合わせ対応を半自動で回す",
-      chrome:"m365", app:"Copilot Studio", title:"問い合わせ一次対応エージェント — 稼働中（承認待ち2件）",
-      why:"Microsoft 365 の中でエージェントを組む例です。承認をTeamsに残すことで、任せる範囲を管理職が握れます。",
-      steps:[
-        { kind:"note", text:"営業事務の推進人材が、問い合わせの一次対応を回すエージェントを設計します。" },
-        { kind:"prompt", cue:"設計の依頼", text:"納期や仕様の問い合わせに一次回答を出したい。ただし納期の確約は生産管理の確認が必要なので、そこは必ず人を通したい。" },
-        { kind:"handoff", before:{ label:"今（1件あたり）", steps:[
-            "受信を確認する","内容を分類する","過去のやり取りを探す","基幹システムで在庫と納期を照会する",
-            "返信文を書く","上長に確認する","送信する","案件履歴に記録する"] },
-          after:{ label:"エージェント導入後", steps:[
-            { t:"受信を検知して分類する", by:"agent" },
-            { t:"クレーム・分類不能は人へ回す", by:"human" },
-            { t:"生産計画と在庫を照会する", by:"agent" },
-            { t:"確認できた事実だけで下書きを作る", by:"agent" },
-            { t:"Teamsで内容を確認して承認する", by:"human" },
-            { t:"送信して案件履歴に記録する", by:"agent" }] },
-          summary:"探す・照会する・書くが消え、人は承認と例外対応だけになります。" },
-        { kind:"flow", title:"エージェントの動作設計", steps:[
-          { t:"問い合わせを分類する", d:"納期確認・仕様確認・見積依頼・クレームに分類する。クレームと分類できないものは処理せず人へ回す。", gate:"人が対応：クレームと分類不能な案件" },
-          { t:"社内データを確認する", d:"基幹システムの生産計画と在庫を照会し、回答できる範囲を判定する。" },
-          { t:"回答を作る", d:"確認できた事実のみで下書きを作り、確認が必要な箇所は【要確認】として残す。" },
-          { t:"Teamsで承認を取る", d:"担当営業に下書きを提示。承認されるまで送信しない。", gate:"人が判断：納期の確約と送信" },
-          { t:"やり取りを記録する", d:"確定した回答を案件履歴に残し、次回の回答精度に反映する。" },
-        ]},
-        { kind:"runlog", badge:"常時監視・自動実行", title:"2026-08-18（月）午前のログ ／ 誰も操作していません", lines:[
-          { time:"09:12:03", text:"新規問い合わせ検知  件名「PX-4820 の納期について」", t:"tool" },
-          { time:"09:12:05", text:"分類：納期確認（確度 0.96）", t:"dim" },
-          { time:"09:12:11", text:"基幹システム照会  当該ロットは 8/26 加工完了予定", t:"tool" },
-          { time:"09:12:16", text:"下書き作成（確認できた事実のみ・【要確認】1箇所）", t:"tool" },
-          { time:"09:12:17", text:"Teams で担当営業へ承認依頼を送信", t:"ok" },
-          { time:"09:40:52", text:"新規問い合わせ検知  分類：クレーム → 処理せず担当者へ即転送", t:"warn" },
-          { time:"11:05:31", text:"午前の処理  下書き5件／即転送1件／社外送信 0件（承認待ち）", t:"ok" },
-        ]},
-        { kind:"queue", title:"承認待ちキュー — ボタンを押してみてください",
-          note:"確認できた事実だけで下書きし、確約が必要な箇所は【要確認】として人に残します。承認するまで社外へは出ません。",
-          items:[
-            { to:"A社 購買部 宛", subject:"Re: 品番 PX-4820 の納期について", conf:"生産計画で確認済み",
-              body:"標題の件、8月29日への前倒しについてご連絡ありがとうございます。\n\n現在の生産計画を確認しましたところ、当該ロットは8月26日に加工完了予定です。\n\n【要確認：検査工程の空き状況と、前倒し時の他案件への影響】\n\n上記を確認のうえ、本日中に可否をご回答いたします。" },
-            { to:"D社 設計部 宛", subject:"Re: 表面処理の変更について", conf:"過去実績5件",
-              body:"無電解ニッケルめっきへの変更について、対応可能です。\n\n工程が1つ増えるため、標準納期に4営業日を加算いただく想定です。\n\n【要確認：単価への影響（技術部の見積が必要）】" },
-          ]},
-        { kind:"ai", text:"「8月26日に加工完了予定」は基幹システムで確認できた事実なので記載しています。検査工程の空きは確認できないため【要確認】として残し、確約は人が判断する設計です。" },
-        { kind:"note", text:"AIが答えてよい範囲と人が判断する範囲を明示的に分ける。この線引きの設計が養成講座の中心テーマです。" },
+        { kind:"auto", badge:"毎晩 22:00 自動実行",
+          note:"ここから先は誰も操作していません。夜のうちに終わります。「翌日を実行」で数日分をご覧ください。",
+          days:[
+            { date:"8/18 月", events:[
+              { at:"22:00:01", text:"起動（平日スケジュール）", t:"dim" },
+              { at:"22:00:12", text:"請求データ 1,284件 ／ システム出力 1,284件 を読み込み", t:"tool" },
+              { at:"22:00:31", text:"請求番号で突合  一致 1,281件", t:"tool" },
+              { at:"22:00:32", text:"差分 3件（金額差2件・未計上1件）を確認一覧に出力", t:"warn" },
+              { at:"22:00:33", text:"3件以上のためチャット通知を送信", t:"ok" },
+            ], result:{ human:true, label:"確認3件", detail:"翌朝の一覧に掲載" } },
+            { date:"8/19 火", events:[
+              { at:"22:00:01", text:"起動", t:"dim" },
+              { at:"22:00:14", text:"請求データ 1,102件 を読み込み突合", t:"tool" },
+              { at:"22:00:29", text:"差分なし — 出力も通知もしません", t:"dim" },
+            ], result:{ human:false, label:"差分0件", detail:"人の対応は不要" } },
+            { date:"8/20 水", events:[
+              { at:"22:00:01", text:"起動", t:"dim" },
+              { at:"22:00:13", text:"請求データ 1,340件 を読み込み突合", t:"tool" },
+              { at:"22:00:28", text:"端数差 7件を検出 — 1円未満のため除外", t:"dim" },
+              { at:"22:00:30", text:"差分 1件（金額差）を確認一覧に出力", t:"warn" },
+            ], result:{ human:true, label:"確認1件", detail:"通知はなし（3件未満）" } },
+          ],
+          summary:"目視で全件見ていた作業が、差分だけを見る作業に変わります。" },
+        { kind:"stats", title:"稼働開始から1か月の実績", items:[
+          { k:"自動実行", v:"21", u:"回（平日）" },
+          { k:"突合した件数", v:"24,880", u:"件" },
+          { k:"人が見た件数", v:"38", u:"件", hi:true },
+          { k:"残業", v:"−12", u:"時間 / 月", hi:true },
+        ], note:"24,880件のうち人が見たのは38件。月末の残業が12時間減る見込みです。" },
+        { kind:"ai", text:"1円未満の端数差を無視する設定を先に入れています。誤検知が続くと確認一覧そのものが見られなくなるため、「何を無視するか」を決めるのが自動化の要点です。" },
+        { kind:"note", text:"この仕組みは経理担当者が自分で直せます。ルールが変わったら設定を書き換えるだけです。" },
       ]
     },
   ],
@@ -1528,13 +1618,12 @@ const CONFIG = {
   /* --- 04 効果の見立て --------------------------------------------------- */
   roi: {
     weeksPerYear: 47,
-    hourlyRate: 3000,   // 提案資料の試算（時給3,000円）と揃えている
+    hourlyRate: 3000,
     scenarios: [
       { id:"cons", label:"保守的", rate:0.30, note:"一部の関心の高い方から定着する段階" },
       { id:"std",  label:"標準",   rate:0.50, note:"部門ごとに使い方が共有された段階" },
       { id:"amb",  label:"積極",   rate:0.70, note:"日常業務の標準手順に組み込まれた段階" },
     ],
-    /* departments の id と対応させる。hours は「1人あたり週の削減時間（保守見積）」 */
     rows: [
       { dept:"mgmt",  heads:12,  hours:2.0 },
       { dept:"sales", heads:46,  hours:2.5 },
@@ -1561,20 +1650,20 @@ const CONFIG = {
       a:"一度きりの研修で終わらせないことが、このサービスの設計の中心です。法人リスキリング365は動画教材が継続更新され、レベル別ワークショップは参加し放題、相談できるオンラインサロンも付いています。学び続ける場が常にある状態にします。さらにAI人材養成講座で推進人材が実務テーマの成果を出し、その成果物を365へ戻すことで、次の人が真似できる教材になります。学習が単発のイベントではなく、業務の一部として回り続ける構造にしています。" },
     { q:"全社員に配る必要はありますか。使う人だけでよいのでは。",
       a:"使う人だけに配ると、社内に「使う人」と「使わない人」の断層ができます。そうなると推進人材が成果を出しても横に広がらず、結果として投資が回収できません。全社員に基盤を配ることと推進人材を育てることは、順番ではなく同時に進めます。同時だからこそ、推進人材が出した成果をすぐ全社の学習資産として還流できます。365は学習・利用状況が見えるので、次の推進候補もデータで見つかります。" },
-    { q:"全員が04のLv.3まで到達する必要がありますか。",
-      a:"必要ありません。全員を専門家にする設計ではなく、役割を分ける設計です。100名の会社であれば、70名が日常業務で使い（Lv.1〜2）、30名が推進・成果創出を担う（Lv.3）という形が基本です。この2つは段階ではなく、同時に立ち上げる役割分担です。大切なのは人数比そのものではなく、成果が全社に還る導線が通っていることです。" },
+    { q:"全員がレベル4まで到達する必要がありますか。",
+      a:"必要ありません。全員を専門家にする設計ではなく、役割を分ける設計です。100名の会社であれば、70名が日常業務で使い（レベル1〜2）、30名が推進・成果創出を担う（レベル3〜4）という形が基本です。この2つは段階ではなく、同時に立ち上げる役割分担です。大切なのは人数比そのものではなく、成果が全社に還る導線が通っていることです。" },
     { q:"推進人材に選ぶ社員が思い当たりません。",
       a:"AIに詳しい人を探す必要はありません。選抜の軸は技術経験ではなく、業務理解・実行力・共有力・成果志向です。現場の課題を言葉にでき、小さく試して前に進め、周囲を巻き込める方が適しています。候補が固まっていなくても構いません。全社基盤の立ち上げと並行して進めるため、365の学習・利用データから次の候補者が浮かび上がってきます。" },
-    { q:"05のデモのようなことを、本当に自社の社員ができるようになりますか。",
-      a:"前半のチャットボット作成は、プログラミングを使いません。指示文を書き、参照する資料を指定するだけです。365の動画とワークショップで、事務職の方でも到達している範囲です。後半のエージェント設計は6か月の養成講座で、実務テーマに沿って伴走しながら進めます。講座終了時には学習履歴ではなく、業務棚卸し表・実装成果・効果測定・横展開パッケージという、実務で検証した成果が会社に残ります。" },
+    { q:"レベル4のデモのようなことを、本当に自社の社員ができるようになりますか。",
+      a:"レベル2のボット作成はプログラミングを使いません。指示文を書き、参照する資料を指定するだけです。レベル4も、開発部門がない企業ではノーコードの自動化から入ります（デモの後半がその例です）。エージェント設計まで踏み込む場合は6か月の養成講座で、実務テーマに沿って伴走しながら進めます。講座終了時には学習履歴ではなく、業務棚卸し表・実装成果・効果測定・横展開パッケージという、実務で検証した成果が会社に残ります。" },
+    { q:"ツールはどう選べばよいのでしょうか。",
+      a:"選んでいただくのは2つだけです。オフィスソフトの中で使うAIを Copilot（Microsoft 365）と Gemini（Google Workspace）のどちらにするか。そして、業務プロセスを自動化するときのエージェント設計ツールを Claude Code と Codex のどちらにするか。前者は既にお使いのグループウェアに合わせるのが基本です。ChatGPT・Claude は汎用の生成AIとして、選択に関わらず学習範囲に含まれます。" },
     { q:"社外のAIに、図面や取引先の情報を入れて大丈夫なのでしょうか。",
       a:"法人向けプランでは、入力した内容がAIの学習に使われない設定が標準です。そのうえで「入れてよい情報／だめな情報」の線引きを社内ルールとして決める必要があります。365にはAIセキュリティの学習コンテンツと、自社版ガイドラインの策定支援が含まれています。技術的な設定と運用ルールの両方が揃って初めて安全になる、という考え方です。" },
     { q:"うちの社員は忙しくて、学習の時間が取れません。",
       a:"日常利用層に求めるのは、まとまった研修時間ではありません。動画は短く分かれており、ワークショップは任意参加です。まず自分の業務に直結する1つを試すところから始まります。推進人材には6か月で一定の時間を確保していただく必要があるため、対象者の選定と時間の確保は貴社にお願いする役割としてお伝えしています。" },
     { q:"導入すると、社内の負担はどれくらいになりますか。",
       a:"教材の更新、ワークショップの運営、利用促進、実装の伴走、データの可視化はデジライズが担います。貴社にお願いするのは、経営テーマの提示、対象者の選定、現場調整の3つです。専任者を置く必要はありませんが、意思決定できる方が窓口になっていただけると進みが早くなります。" },
-    { q:"効果はどのくらいの期間で出ますか。",
-      a:"日常業務の下書き・要約・調査は1〜2週間で体感できることが多いです。チャットボットを作って配る段階は1〜3か月、業務プロセスをエージェントに設計する段階は3〜6か月を見ていただきます。04の試算を控えめな水準で置いているのは、この最初の段階だけでも投資に見合うことをご確認いただくためです。" },
     { q:"04の数字は、どこまで信じてよいものですか。",
       a:"公開情報からの想定であり、実データではありません。前提はすべて画面上に開示しています。目的は「金額を確定させること」ではなく「桁が合っているか」「どの部門から着手する価値が大きいか」をご判断いただくことです。実データをお預かりできれば、精度の高い試算をお出しできます。" },
   ],
@@ -1582,14 +1671,13 @@ const CONFIG = {
   /* --- 06 次のステップ --------------------------------------------------- */
   next: {
     steps: [
-      { n:"STEP 1", when:"本日", h:"イメージのすり合わせ", p:"02の業務変化と03のデモをご覧いただき、実態とのズレをご指摘ください。ここが合っていれば先に進めます。" },
-      { n:"STEP 2", when:"1〜2週間後", h:"ご提案資料でのご説明", p:"対象部門・進め方・スケジュール・投資額を具体化したご提案書をお持ちします。" },
+      { n:"STEP 1", when:"本日", h:"イメージのすり合わせ", p:"02の到達レベルと03のデモをご覧いただき、実態とのズレをご指摘ください。ここが合っていれば先に進めます。" },
+      { n:"STEP 2", when:"1〜2週間後", h:"ご提案資料でのご説明", p:"対象人数・推進中核の人数・スケジュール・投資額・公的支援の適用可否を具体化したご提案書をお持ちします。" },
       { n:"STEP 3", when:"ご判断後", h:"2層を同時に立ち上げる", p:"365を全社に配ると同時に、推進中核の養成講座も開始します。推進人材が出した成果は365へ戻し、全社の学習資産にします。" },
     ],
     stance: "私たちは「AIを導入すること」を目的にしていません。全社員が日常で使える基盤と、業務を変えるリーダーの育成を同時に立ち上げ、成果が組織に還り続ける流れをつくることが役割です。本日の内容にズレがあれば、遠慮なくお聞かせください。",
   },
 };
-
 /* ============================================================================
    ここから下は描画ロジック（編集不要）
    ========================================================================== */
@@ -1601,30 +1689,33 @@ const CONFIG = {
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const nf = new Intl.NumberFormat("ja-JP");
 
-  const TOOL_META = {
-    gemini:     { name:"Gemini",      suite:"Google Workspace" },
-    copilot:    { name:"Copilot",     suite:"Microsoft 365" },
-    claudecode: { name:"Claude Code", suite:"開発・データ処理" },
-    codex:      { name:"Codex",       suite:"開発・システム連携" },
+  /* --- ツールの前提と2つの選択 ------------------------------------------ */
+  const OFFICE = {
+    copilot:{ ai:"Copilot", suite:"Microsoft 365", sheet:"Excel", doc:"Word", mail:"Outlook",
+              chat:"Teams", bot:"Copilot エージェント", nocode:"Copilot Studio ＋ VBA" },
+    gemini: { ai:"Gemini",  suite:"Google Workspace", sheet:"スプレッドシート", doc:"ドキュメント", mail:"Gmail",
+              chat:"Google Chat", bot:"Gem", nocode:"GAS（Apps Script）" },
   };
-  const LAYER_META = {
-    base: { badge:"badge-base", tag:"LAYER 1 ｜ 365",      txt:"法人リスキリング365で、全社員がここまで到達します（チャットボットを作る）" },
-    core: { badge:"badge-core", tag:"LAYER 2 ｜ 養成講座", txt:"AI人材養成講座で、推進人材がここまで到達します（エージェントを設計する）" },
+  const AGENT = { claudecode:{ ai:"Claude Code" }, codex:{ ai:"Codex" } };
+  const OF = OFFICE[CONFIG.choices.office] || OFFICE.copilot;
+  const AG = AGENT[CONFIG.choices.agent]   || AGENT.claudecode;
+  const TOKENS = {
+    officeAI:OF.ai, officeSuite:OF.suite, sheet:OF.sheet, doc:OF.doc, mail:OF.mail,
+    chat:OF.chat, bot:OF.bot, nocode:OF.nocode, agentAI:AG.ai,
   };
-  const activeTools = CONFIG.tools.filter(t => TOOL_META[t]);
-  const toolLabel = id => TOOL_META[id] ? `${TOOL_META[id].name}（${TOOL_META[id].suite}）` : id;
+  const T = v => typeof v === "string" ? v.replace(/\{\{(\w+)\}\}/g, (m,k) => TOKENS[k] ?? m) : v;
+  /** カード・デモがどのツールで届くかの表示名 */
+  const toolNameOf = needs => needs === "office" ? OF.ai : needs === "agent" ? AG.ai : "ChatGPT・Claude";
 
-  /* --- ブランドカラー注入 ---------------------------------------------- */
   document.documentElement.style.setProperty("--brand-src", CONFIG.brand.color);
 
-  /* --- アイコン --------------------------------------------------------- */
   const ICON = {
     sparkle: `<svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.2l1.5 3.9L13.4 6.6 9.5 8.1 8 12 6.5 8.1 2.6 6.6 6.5 5.1 8 1.2Z" fill="currentColor"/><path d="M12.8 10.6l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7.7-1.8Z" fill="currentColor" opacity=".55"/></svg>`,
     caret:   `<svg width="13" height="13" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 6l4.5 4.5L12.5 6" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
     bot:     `<svg width="13" height="13" viewBox="0 0 16 16" aria-hidden="true"><rect x="2.5" y="5" width="11" height="8" rx="2.4" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M8 2.2v2.6M5.8 8.6h.01M10.2 8.6h.01" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>`,
   };
 
-  /* --- ヒーロー / 固定文言 --------------------------------------------- */
+  /* --- 固定文言 --------------------------------------------------------- */
   const c = CONFIG.company;
   $("#heroEyebrow").textContent = c.eyebrow;
   $("#heroTitle").innerHTML     = c.title;
@@ -1634,10 +1725,7 @@ const CONFIG = {
   $("#premiseTitle").textContent = CONFIG.premise.title;
   $("#premiseSub").textContent   = CONFIG.premise.sub;
   $("#stanceText").textContent   = CONFIG.next.stance;
-  $("#topBadge").textContent     = "公開情報にもとづく想定シミュレーション";
-
   c.profile.forEach(p => $("#heroProfile").append(el("li", null, p)));
-
   CONFIG.premise.facts.forEach(f => {
     const n = el("div","fact");
     n.append(el("h3",null,f.h), el("p",null,f.p), el("p","src",f.src));
@@ -1647,110 +1735,96 @@ const CONFIG = {
   /* --- 進行レール ------------------------------------------------------- */
   const SECTIONS = [
     { id:"sec-premise", n:"01", label:"前提の確認" },
-    { id:"sec-map",     n:"02", label:"業務変化マップ" },
+    { id:"sec-map",     n:"02", label:"到達レベル" },
     { id:"sec-demo",    n:"03", label:"再現デモ" },
     { id:"sec-roi",     n:"04", label:"効果の見立て" },
     { id:"sec-qa",      n:"05", label:"想定Q&A" },
     { id:"sec-next",    n:"06", label:"次のステップ" },
   ];
   SECTIONS.forEach(s => {
-    const li = el("li");
-    const a = el("a"); a.href = "#"+s.id; a.dataset.sec = s.id;
+    const li = el("li"), a = el("a");
+    a.href="#"+s.id; a.dataset.sec=s.id;
     a.append(el("span","n",s.n), el("span",null,s.label));
     li.append(a); $("#railList").append(li);
-
-    const m = el("a", null, s.n+" "+s.label); m.href = "#"+s.id; m.dataset.sec = s.id;
+    const m = el("a", null, s.n+" "+s.label); m.href="#"+s.id; m.dataset.sec=s.id;
     $("#railMobile").append(m);
   });
 
-  /* --- 02 到達レベルと業務変化マップ ------------------------------------ */
+  /* --- 02 到達レベルのはしご ------------------------------------------- */
   const levelOf = lv => CONFIG.levels.find(l => l.lv===lv) || CONFIG.levels[0];
   CONFIG.levels.forEach(l => {
-    const li = el("li",`rung rung-${l.lv}`);
-    li.append(el("span","lv",`LEVEL ${l.lv}`), el("h3",null,l.name), el("p",null,l.desc), el("span","via",`▸ ${l.via}`));
+    const li = el("li", l.lv>=3 ? "rung rung-core" : "rung");
+    li.append(el("span","lv",`レベル ${l.lv}`), el("h3",null,l.name), el("p",null,l.desc),
+              el("span","tls",l.tools), el("span","via",`▸ ${l.via}`));
     $("#ladder").append(li);
   });
   $("#ladderNote").innerHTML = CONFIG.levelsNote;
 
+  /* --- 02 業務変化マップ ------------------------------------------------ */
   const depts = CONFIG.departments;
   const roles = CONFIG.roles;
-  let curDept = depts[0].id;
-  let curRole = roles[0].id;
+  const deptById = id => depts.find(d => d.id===id);
+  const roleLabel = id => (roles.find(r=>r.id===id)||{}).label || id;
+  let curDept = depts[0].id, curRole = roles[0].id;
 
   depts.forEach(d => {
     const b = el("button","chip",d.label);
-    b.type="button"; b.dataset.dept=d.id; b.setAttribute("aria-pressed", String(d.id===curDept));
+    b.type="button"; b.dataset.dept=d.id;
     b.addEventListener("click", () => { curDept=d.id; syncPicker(); renderTasks(); });
     $("#deptChips").append(b);
   });
   roles.forEach(r => {
     const b = el("button",null,r.label);
-    b.type="button"; b.dataset.role=r.id; b.setAttribute("aria-pressed", String(r.id===curRole));
+    b.type="button"; b.dataset.role=r.id;
     b.addEventListener("click", () => { curRole=r.id; syncPicker(); renderTasks(); });
     $("#roleSeg").append(b);
   });
   function syncPicker(){
-    $("#deptChips").querySelectorAll("button").forEach(b =>
-      b.setAttribute("aria-pressed", String(b.dataset.dept===curDept)));
-    $("#roleSeg").querySelectorAll("button").forEach(b =>
-      b.setAttribute("aria-pressed", String(b.dataset.role===curRole)));
-  }
-
-  const deptById = id => depts.find(d => d.id===id);
-  const roleLabel = id => (roles.find(r=>r.id===id)||{}).label || id;
-
-  function visibleTasks(){
-    const d = deptById(curDept);
-    if(!d) return [];
-    return d.tasks.filter(t => t.roles.includes(curRole) && activeTools.includes(t.tool));
+    $("#deptChips").querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.dept===curDept)));
+    $("#roleSeg").querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.role===curRole)));
   }
 
   function renderTasks(){
-    const list = $("#taskList");
-    list.textContent = "";
-    const tasks = visibleTasks();
+    const list = $("#taskList"); list.textContent = "";
+    const d = deptById(curDept);
+    const tasks = d.tasks.filter(t => t.roles.includes(curRole));
     const hours = tasks.reduce((s,t)=>s+(t.hours||0),0);
+    const top = tasks.length ? Math.max(...tasks.map(t=>t.level)) : 0;
 
-    $("#mapSummary").textContent = "";
-    const sum = $("#mapSummary");
+    const sum = $("#mapSummary"); sum.textContent = "";
     sum.append(
-      el("span",null,`${deptById(curDept).label} × ${roleLabel(curRole)}`),
+      el("span",null,`${d.label} × ${roleLabel(curRole)}`),
       Object.assign(el("span"),{innerHTML:`該当業務 <strong>${tasks.length}</strong> 件`}),
       Object.assign(el("span"),{innerHTML:`1人あたり週 <strong>${hours.toFixed(1)}</strong> 時間の削減見込み`}),
-      tasks.length ? Object.assign(el("span"),{innerHTML:`到達レベル <strong>Lv.${Math.max(...tasks.map(t=>t.level))}</strong>`}) : el("span")
+      top ? Object.assign(el("span"),{innerHTML:`到達レベル <strong>Lv.${top}</strong>`}) : el("span")
     );
 
     if(!tasks.length){
       list.append(el("p","empty","この組み合わせの業務は、今回の想定には含めていません。他の部門・職位をお試しください。"));
       return;
     }
-
     tasks.forEach(t => {
       const card = el("div","task");
-
       const hd = el("div","task-hd");
-      hd.append(el("h3",null,t.title));
+      hd.append(el("h3",null,T(t.title)));
       const tags = el("div","task-tags");
       const L = levelOf(t.level);
-      tags.append(el("span", t.level===3 ? "tag lv lv3" : "tag lv", `Lv.${t.level} ${L.name}`));
+      tags.append(el("span", t.level>=3 ? "tag lv lv-core" : "tag lv", `Lv.${t.level} ${L.name}`));
       tags.append(el("span","tag via", L.via));
-      tags.append(el("span","tag tool", TOOL_META[t.tool].name));
+      tags.append(el("span","tag tool", toolNameOf(t.needs)));
       hd.append(tags);
 
       const ba = el("div","ba");
-      const b = el("div","before");
-      b.append(el("h4",null,"今の手順"), el("p",null,t.before));
-      const a = el("div","after");
-      a.append(el("h4",null,"到達後"), el("p",null,t.after));
+      const b = el("div","before"); b.append(el("h4",null,"今の手順"), el("p",null,T(t.before)));
+      const a = el("div","after");  a.append(el("h4",null,"到達後"),   el("p",null,T(t.after)));
       ba.append(b,a);
 
       const ft = el("div","task-ft");
       const save = el("span","save");
       save.append(el("span","v",t.hours.toFixed(1)), el("span",null,"時間 / 週・人"));
       ft.append(save);
-
-      const demo = CONFIG.demos.find(d => d.id===t.demo);
-      if(demo && activeTools.includes(demo.tool)){
+      const demo = CONFIG.demos.find(x => x.id===t.demo);
+      if(demo){
         const btn = el("button","btn","▶ この業務のデモを見る");
         btn.type="button";
         btn.addEventListener("click", () => {
@@ -1759,30 +1833,27 @@ const CONFIG = {
         });
         ft.append(btn);
       }
-
       card.append(hd, ba, ft);
       list.append(card);
     });
   }
 
   /* --- 03 デモ ---------------------------------------------------------- */
-  const demos = CONFIG.demos.filter(d => activeTools.includes(d.tool));
+  const demos = CONFIG.demos.slice().sort((a,b)=>a.level-b.level);
   let curDemo = demos[0] || null;
-  let stepIdx = 0;
-  let timers = [];
+  let stepIdx = 0, timers = [], gateWait = false, autoPending = false;
+  const clearTimers = () => { timers.forEach(clearTimeout); timers = []; };
 
-  function clearTimers(){ timers.forEach(clearTimeout); timers = []; }
-
-  ["base","core"].forEach(layer => {
-    const inLayer = demos.filter(d => d.layer===layer);
-    if(!inLayer.length) return;
-    const M = LAYER_META[layer];
+  CONFIG.levels.forEach(L => {
+    const inLv = demos.filter(d => d.level===L.lv);
+    if(!inLv.length) return;
     const g  = el("div","demo-group");
     const hd = el("div","demo-group-hd");
-    hd.append(Object.assign(el("span",`badge ${M.badge}`),{textContent:M.tag}), el("span","txt",M.txt));
+    hd.append(Object.assign(el("span",`badge ${L.lv>=3 ? "badge-core" : "badge-base"}`),{textContent:`レベル ${L.lv}`}),
+              el("span","txt",`${L.name} — ${L.via}で到達`));
     const row = el("div","chips");
-    inLayer.forEach(d => {
-      const b = el("button","chip",`${TOOL_META[d.tool].name}：${d.label}`);
+    inLv.forEach(d => {
+      const b = el("button","chip",`${toolNameOf(d.needs)}：${T(d.label)}`);
       b.type="button"; b.dataset.demo=d.id;
       b.addEventListener("click", () => selectDemo(d.id, true));
       row.append(b);
@@ -1798,126 +1869,215 @@ const CONFIG = {
     $("#demoBar").querySelectorAll("button[data-demo]").forEach(b =>
       b.setAttribute("aria-pressed", String(b.dataset.demo===id)));
     resetDemo();
-    if(autorun) advance();
+    if(autorun) manualNext();
   }
 
   function resetDemo(){
     clearTimers();
-    stepIdx = 0;
-    const d = curDemo;
-    const dev = $("#device");
+    stepIdx = 0; gateWait = false; autoPending = false;
+    const d = curDemo, dev = $("#device");
     dev.classList.toggle("dark", d.chrome==="terminal" || d.chrome==="editor");
-    $("#devApp").innerHTML = `${d.chrome==="workspace"||d.chrome==="m365" ? ICON.sparkle : ""}<span>${d.app}</span>`;
-    $("#devTitle").textContent = d.title;
-    $("#devCaption").textContent = `${toolLabel(d.tool)}／再現イメージ`;
-    $("#devStage").textContent = "";
-    $("#demoWhy").textContent = d.why || "";
+    $("#devApp").innerHTML = `${d.chrome==="workspace"||d.chrome==="m365" ? ICON.sparkle : ""}<span>${T(d.app)}</span>`;
+    $("#devTitle").textContent   = T(d.title);
+    $("#devCaption").textContent = `${toolNameOf(d.needs)}／再現イメージ`;
+    $("#devStage").textContent   = "";
+    $("#demoWhy").textContent    = T(d.why || "");
     const dots = $("#devSteps"); dots.textContent = "";
     d.steps.forEach(() => dots.append(el("i")));
-    const next = $("#devNext");
-    next.disabled = false;
-    next.textContent = "▶ 実行する";
-    const hint = el("p","empty","下の「実行する」を押すと、実際の操作と同じ順番で進みます。");
-    $("#devStage").append(hint);
+    $("#devStage").append(el("p","empty","「次へ」を1回ずつ押して進めてください。実際の操作と同じ順番で画面が進みます。"));
+    syncFoot();
+  }
+  const markSteps = () => $("#devSteps").querySelectorAll("i").forEach((n,i) => n.classList.toggle("on", i < stepIdx));
+
+  function syncFoot(){
+    const done = stepIdx >= curDemo.steps.length;
+    const n = $("#devNext");
+    n.textContent = done ? "完了" : (stepIdx ? "次へ ▸" : "▶ 実行する");
+    n.disabled = done || autoPending;
+    $("#devGate").hidden = !gateWait && !autoPending;
+    $("#devGate").querySelector("span").textContent =
+      autoPending ? "パネル内の「翌日を実行」を押してください" : "人の判断を待っています";
   }
 
-  function markSteps(){
-    $("#devSteps").querySelectorAll("i").forEach((n,i) => n.classList.toggle("on", i < stepIdx));
-  }
-
-  function advance(){
+  /** 1ステップだけ描画して index を進める */
+  function renderNext(onDone){
     const d = curDemo;
-    if(!d || stepIdx >= d.steps.length) return;
+    if(stepIdx >= d.steps.length) return null;
     if(stepIdx === 0) $("#devStage").textContent = "";
-
     const step = d.steps[stepIdx];
-    stepIdx++;
-    markSteps();
-
-    const node = renderStep(step, d);
+    stepIdx++; markSteps();
+    const node = renderStep(step, d, onDone);
     if(node) $("#devStage").append(node);
-
-    const next = $("#devNext");
-    if(stepIdx >= d.steps.length){
-      next.textContent = "完了";
-      next.disabled = true;
-    } else {
-      next.textContent = "次へ ▸";
-    }
-
-    /* thinking は自動で次へ進める（待ちの体験を再現） */
-    if(step.kind === "thinking" && stepIdx < d.steps.length){
-      next.disabled = true;
-      timers.push(setTimeout(() => {
-        const t = $("#devStage").querySelector(".thinking:last-of-type");
-        if(t) t.remove();
-        $("#devNext").disabled = false;
-        advance();
-      }, reduceMotion ? 400 : 1100));
-    }
     $("#devStage").scrollTop = $("#devStage").scrollHeight;
+    return step;
   }
+
+  function dropSpinner(){
+    const t = $("#devStage").querySelector(".thinking:last-of-type");
+    if(t) t.remove();
+  }
+
+  /** 「次へ」1回で1ステップだけ進める。thinking のみ、待ちを見せてから続ける */
+  function manualNext(){
+    const step = renderNext(() => syncFoot());
+    if(!step) return;
+    if(step.kind === "queue") gateWait = true;
+    if(step.kind === "thinking"){
+      $("#devNext").disabled = true;
+      timers.push(setTimeout(() => {
+        dropSpinner();
+        const nx = renderNext(() => syncFoot());
+        if(nx && nx.kind === "queue") gateWait = true;
+        syncFoot();
+      }, reduceMotion ? 300 : 1100));
+      return;
+    }
+    syncFoot();
+  }
+
+  $("#devReset").addEventListener("click", resetDemo);
+  $("#devNext").addEventListener("click", manualNext);
 
   function type(node, text){
     if(reduceMotion){ node.textContent = text; return; }
-    node.textContent = "";
-    let i = 0;
-    const chunk = Math.max(1, Math.round(text.length / 44));
-    const tick = () => {
-      i = Math.min(text.length, i + chunk);
-      node.textContent = text.slice(0, i);
-      if(i < text.length) timers.push(setTimeout(tick, 18));
+    node.textContent = ""; let i=0;
+    const chunk = Math.max(1, Math.round(text.length / 40));
+    const step = () => {
+      i = Math.min(text.length, i+chunk);
+      node.textContent = text.slice(0,i);
+      if(i < text.length) timers.push(setTimeout(step, 16));
     };
-    tick();
+    step();
   }
 
-  function renderStep(s, d){
+  /* --- 稼働タイムライン：ボタンで1日ずつ進める --------------------------- */
+  /* 「翌日を実行」を押すごとに1日分が流れる。誰も操作していないのに動き、       */
+  /* 日をまたいで繰り返すことを、説明しながら見せられる速さにしている。          */
+  function buildAuto(s, onDone){
+    const wrap = el("div"); wrap.style.display="flex"; wrap.style.flexDirection="column"; wrap.style.gap=".45rem";
+    const n = el("div","autorun");
+    const hd = el("div","autorun-hd");
+    const auto = el("span","auto"); auto.append(el("i"), el("span",null,T(s.badge||"自動実行")));
+    hd.append(auto);
+    if(s.note) hd.append(el("span","autorun-note",T(s.note)));
+    const strip = el("div","daystrip");
+    strip.append(el("span","lb","DAYS"));
+    const chips = s.days.map(d => { const ch = el("span","daychip",d.date); strip.append(ch); return ch; });
+    const body = el("div","autorun-body");
+    const bar  = el("div","autorun-run");
+    const btn  = el("button","btn btn-primary"); btn.type = "button";
+    const hint = el("span","autorun-hint");
+    bar.append(btn, hint);
+    const foot = el("div","autorun-foot"); foot.hidden = true;
+    const humanDays = s.days.filter(d => d.result.human).length;
+    foot.append(
+      Object.assign(el("span"),{innerHTML:`自動実行 <strong>${s.days.length}</strong> 日`}),
+      Object.assign(el("span"),{innerHTML:`人の対応が必要だった日 <strong>${humanDays}</strong> 日`}),
+      el("span",null,T(s.summary||""))
+    );
+    n.append(hd, strip, body, bar, foot);
+    wrap.append(n);
+
+    let di = 0, busy = false;
+    autoPending = true;
+    const label = () => {
+      const left = s.days.length - di;
+      btn.textContent = di === 0 ? `▶ ${s.days[0].date} を実行する`
+                      : left > 0 ? `▶ 翌日を実行する（残り ${left} 日）` : "✓ すべて完了";
+      hint.textContent = di === 0 ? "押すと、誰も操作していない状態で動きます。"
+                       : left > 0 ? "誰も触っていません。翌日も同じように動きます。" : "";
+      btn.disabled = busy || di >= s.days.length;
+    };
+    const runDay = () => {
+      if(di >= s.days.length) return;
+      busy = true; label();
+      const day = s.days[di];
+      chips.forEach((ch,i) => { if(i===di) ch.classList.add("now"); });
+      body.textContent = "";
+      let ei = 0;
+      const EV = reduceMotion ? 0 : 260;
+      const runEv = () => {
+        if(ei >= day.events.length){
+          const r = el("div","dayres "+(day.result.human ? "human" : "ok"));
+          r.append(el("span",null,(day.result.human ? "⌘ 人の対応が必要" : "✓ 対応不要") + " — " + T(day.result.label)));
+          if(day.result.detail) r.append(el("span",null,T(day.result.detail)));
+          body.append(r);
+          chips[di].classList.remove("now");
+          chips[di].classList.add(day.result.human ? "human" : "done");
+          di++; busy = false; label();
+          if(di >= s.days.length){ foot.hidden = false; autoPending = false; onDone && onDone(); }
+          return;
+        }
+        const ev = day.events[ei++];
+        const ln = el("div","ev "+(ev.t||""));
+        ln.append(el("span","tm",ev.at), el("span","tx",T(ev.text)));
+        body.append(ln);
+        body.scrollTop = body.scrollHeight;
+        timers.push(setTimeout(runEv, EV));
+      };
+      runEv();
+    };
+    btn.addEventListener("click", () => { if(!busy) runDay(); });
+    label();
+    return wrap;
+  }
+
+  function renderStep(s, d, onDone){
     switch(s.kind){
-      case "note": {
-        return el("p","note-line",s.text);
-      }
+      case "note": return el("p","note-line",T(s.text));
       case "prompt": {
         const n = el("div","prompt-line");
-        n.append(el("span","cue",(s.cue||"入力")+" ▸"));
-        const t = el("span"); n.append(t); type(t, s.text);
+        n.append(el("span","cue",T(s.cue||"入力")+" ▸"));
+        const t = el("span"); n.append(t); type(t, T(s.text));
         return n;
       }
       case "thinking": {
         const n = el("div","thinking");
-        n.append(el("span","spin"), el("span",null,s.text||"処理しています…"));
+        n.append(el("span","spin"), el("span",null,T(s.text||"処理しています…")));
         return n;
       }
       case "ai": {
         const n = el("div","ai-panel");
         const who = el("div","who");
-        who.innerHTML = ICON.sparkle + `<span>${TOOL_META[d.tool].name} の応答</span>`;
-        const p = el("p"); n.append(who,p); type(p, s.text);
+        who.innerHTML = ICON.sparkle + `<span>${toolNameOf(d.needs)} の応答</span>`;
+        const p = el("p"); n.append(who,p); type(p, T(s.text));
         return n;
       }
       case "doc": {
         const n = el("div","doc");
-        if(s.title) n.append(el("p","doc-title",s.title));
+        if(s.title) n.append(el("p","doc-title",T(s.title)));
         const p = el("p"); p.style.whiteSpace="pre-wrap"; n.append(p);
-        type(p, s.body);
+        type(p, T(s.body));
         return n;
       }
       case "bullets": {
         const n = el("div","doc");
-        if(s.title) n.append(el("p","doc-title",s.title));
+        if(s.title) n.append(el("p","doc-title",T(s.title)));
         const ul = el("ul","bullets");
-        s.items.forEach(i => ul.append(el("li",null,i)));
+        s.items.forEach(i => ul.append(el("li",null,T(i))));
         n.append(ul);
         return n;
+      }
+      case "sheet": {
+        const wrap = el("div","sheet-wrap"), tb = el("table","sheet");
+        const thead = el("thead"), tr = el("tr");
+        s.head.forEach(h => { const th=el("th",null,T(h)); th.scope="col"; tr.append(th); });
+        thead.append(tr); tb.append(thead);
+        const body = el("tbody");
+        s.rows.forEach(r => { const row=el("tr"); r.forEach(v=>row.append(el("td",null,T(v)))); body.append(row); });
+        if(s.total){ const row=el("tr","total"); s.total.forEach(v=>row.append(el("td",null,T(v)))); body.append(row); }
+        tb.append(body); wrap.append(tb);
+        return wrap;
       }
       case "builder": {
         const n = el("div","builder");
         const hd = el("div","builder-hd");
-        hd.innerHTML = ICON.bot + `<span>${s.title||"設定"}</span>`;
+        hd.innerHTML = ICON.bot + `<span>${T(s.title||"設定")}</span>`;
         const body = el("div","builder-body");
         s.fields.forEach(f => {
           const fd = el("div","field");
-          fd.append(el("span","k",f.k));
-          if(f.v) fd.append(el("span","v",f.v));
+          fd.append(el("span","k",T(f.k)));
+          if(f.v) fd.append(el("span","v",T(f.v)));
           if(f.files){
             const fl = el("div","files");
             f.files.forEach(x => fl.append(el("span",null,x)));
@@ -1930,135 +2090,136 @@ const CONFIG = {
       }
       case "chat": {
         const n = el("div","chat");
-        if(s.name) n.append(el("span","bub-name",`▸ ${s.name}`));
-        s.turns.forEach(t => n.append(el("div", t.who==="user" ? "bub bub-user" : "bub bub-bot", t.text)));
-        return n;
-      }
-      case "runlog": {
-        const wrap = el("div"); wrap.style.display="flex"; wrap.style.flexDirection="column"; wrap.style.gap=".45rem";
-        const n = el("div","runlog");
-        const hd = el("div","runlog-hd");
-        const auto = el("span","auto"); auto.append(el("i"), el("span",null,s.badge||"自動実行"));
-        hd.append(auto);
-        if(s.title) hd.append(el("span","ttl",s.title));
-        const body = el("div","runlog-body");
-        s.lines.forEach((l,i) => {
-          const ln = el("div","ln "+(l.t||""));
-          ln.style.animationDelay = (reduceMotion ? 0 : i*0.11)+"s";
-          ln.append(el("span","tm",l.time), el("span","tx",l.text));
-          body.append(ln);
-        });
-        n.append(hd,body); wrap.append(n);
-        return wrap;
-      }
-      case "queue": {
-        const n = el("div","queue");
-        const hd = el("div","queue-hd");
-        const cnt = el("span","cnt");
-        hd.append(el("span","ttl",s.title||"承認待ち"), cnt);
-        n.append(hd);
-        const total = s.items.length;
-        let done = 0;
-        const sync = () => { cnt.textContent = `処理済み ${done} / ${total}`; };
-        s.items.forEach(it => {
-          const row = el("div","qrow");
-          const top = el("div","top");
-          top.append(el("span","to",it.to), el("span","sub",it.subject));
-          row.append(top, el("p","body",it.body));
-          const ft = el("div","foot");
-          if(it.conf) ft.append(el("span","conf",it.conf));
-          const ok = el("button","qbtn ok","✓ 承認して送信");
-          const no = el("button","qbtn no","差し戻す");
-          ok.type="button"; no.type="button";
-          const state = el("span","state");
-          const settle = (kind,label) => {
-            row.dataset.state = kind; state.textContent = label; done++; sync();
-          };
-          ok.addEventListener("click", () => settle("ok","✓ 承認して送信しました"));
-          no.addEventListener("click", () => settle("no","↩ 担当者へ差し戻しました"));
-          ft.append(ok,no,state);
-          row.append(ft);
-          n.append(row);
-        });
-        sync();
-        if(s.note) n.append(el("p","queue-note",s.note));
+        if(s.name) n.append(el("span","bub-name",`▸ ${T(s.name)}`));
+        s.turns.forEach(t => n.append(el("div", t.who==="user" ? "bub bub-user" : "bub bub-bot", T(t.text))));
         return n;
       }
       case "handoff": {
         const wrap = el("div","handoff");
         const mk = (data, isAfter) => {
-          const c = el("div", isAfter ? "hcol aft" : "hcol");
-          c.append(el("div","hcol-hd",data.label));
+          const col = el("div", isAfter ? "hcol aft" : "hcol");
+          col.append(el("div","hcol-hd",T(data.label)));
           const ol = el("ol");
           data.steps.forEach(st => {
-            const t  = typeof st === "string" ? st : st.t;
-            const by = typeof st === "string" ? "human" : (st.by||"human");
+            const txt = typeof st === "string" ? st : st.t;
+            const by  = typeof st === "string" ? "human" : (st.by||"human");
             const li = el("li", by==="human" ? "human" : null);
-            li.append(el("span",`by by-${by}`, by==="human" ? "人" : "AI"), el("span",null,t));
+            li.append(el("span",`by by-${by}`, by==="human" ? "人" : "AI"), el("span",null,T(txt)));
             ol.append(li);
           });
-          c.append(ol);
-          return c;
+          col.append(ol);
+          return col;
         };
         wrap.append(mk(s.before,false), mk(s.after,true));
-        const hBefore = s.before.steps.length;
-        const hAfter  = s.after.steps.filter(x => (typeof x === "string" ? "human" : (x.by||"human"))==="human").length;
+        const hb = s.before.steps.length;
+        const ha = s.after.steps.filter(x => (typeof x==="string" ? "human" : (x.by||"human"))==="human").length;
         const sum = el("p","handoff-sum");
         sum.append(
-          Object.assign(el("span"),{innerHTML:`人が手を動かす工程 <strong>${hBefore}</strong> → <strong>${hAfter}</strong>`}),
-          el("span",null, s.summary || "残るのは判断が必要な工程だけです。")
+          Object.assign(el("span"),{innerHTML:`人が手を動かす工程 <strong>${hb}</strong> → <strong>${ha}</strong>`}),
+          el("span",null,T(s.summary || "残るのは判断が必要な工程だけです。"))
         );
         wrap.append(sum);
-        return wrap;
-      }
-      case "stats": {
-        const wrap = el("div"); wrap.style.display="flex"; wrap.style.flexDirection="column"; wrap.style.gap=".45rem";
-        if(s.title) wrap.append(el("p","eyebrow",s.title));
-        const g = el("div","stats");
-        s.items.forEach(it => {
-          const t = el("div", it.hi ? "stat-tile hi" : "stat-tile");
-          t.append(el("span","k",it.k), el("span","v",it.v), el("span","u",it.u||""));
-          g.append(t);
-        });
-        wrap.append(g);
-        if(s.note) wrap.append(el("p","note-line",s.note));
         return wrap;
       }
       case "flow": {
         const wrap = el("div");
         wrap.style.display="flex"; wrap.style.flexDirection="column"; wrap.style.gap=".45rem";
-        if(s.title) wrap.append(el("p","eyebrow",s.title));
+        if(s.title) wrap.append(el("p","eyebrow",T(s.title)));
         const n = el("div","flow");
         s.steps.forEach((st,i) => {
           const row = el("div","flow-step");
           row.append(el("span","no",String(i+1)));
           const txt = el("div","txt");
-          txt.append(el("span","t",st.t), el("span","d",st.d));
-          if(st.gate) txt.append(el("span","gate",`⌘ ${st.gate}`));
+          txt.append(el("span","t",T(st.t)), el("span","d",T(st.d)));
+          if(st.gate) txt.append(el("span","gate",`⌘ ${T(st.gate)}`));
           row.append(txt);
           n.append(row);
         });
         wrap.append(n);
         return wrap;
       }
-      case "sheet": {
-        const wrap = el("div","sheet-wrap");
-        const tb = el("table","sheet");
-        const thead = el("thead"), tr = el("tr");
-        s.head.forEach(h => { const th=el("th",null,h); th.scope="col"; tr.append(th); });
-        thead.append(tr); tb.append(thead);
-        const body = el("tbody");
-        s.rows.forEach(r => {
-          const row = el("tr");
-          r.forEach(v => row.append(el("td",null,v)));
-          body.append(row);
+      case "auto": return buildAuto(s, onDone);
+      case "queue": {
+        const n = el("div","queue");
+        const hd = el("div","queue-hd"), cnt = el("span","cnt");
+        hd.append(el("span","ttl",T(s.title||"承認待ち")), cnt);
+        n.append(hd);
+        const total = s.items.length;
+        let done = 0;
+        const sync = () => {
+          cnt.textContent = `処理済み ${done} / ${total}`;
+          if(done === total) gateWait = false;
+          syncFoot();
+        };
+        s.items.forEach(it => {
+          const row = el("div","qrow");
+          const top = el("div","top");
+          top.append(el("span","to",T(it.to)), el("span","sub",T(it.subject)));
+          row.append(top, el("p","body",T(it.body)));
+          const ft = el("div","foot");
+          if(it.conf) ft.append(el("span","conf",T(it.conf)));
+          const ok = el("button","qbtn ok","✓ 承認して進める");
+          const no = el("button","qbtn no","差し戻す");
+          ok.type="button"; no.type="button";
+          const state = el("span","state");
+          const settle = (kind,label) => { row.dataset.state=kind; state.textContent=label; done++; sync(); };
+          ok.addEventListener("click", () => settle("ok","✓ 承認しました"));
+          no.addEventListener("click", () => settle("no","↩ 担当者へ差し戻しました"));
+          ft.append(ok,no,state);
+          row.append(ft);
+          n.append(row);
         });
-        if(s.total){
-          const row = el("tr","total");
-          s.total.forEach(v => row.append(el("td",null,v)));
-          body.append(row);
-        }
-        tb.append(body); wrap.append(tb);
+        sync();
+        if(s.note) n.append(el("p","queue-note",T(s.note)));
+        return n;
+      }
+      case "stats": {
+        const wrap = el("div"); wrap.style.display="flex"; wrap.style.flexDirection="column"; wrap.style.gap=".45rem";
+        if(s.title) wrap.append(el("p","eyebrow",T(s.title)));
+        const g = el("div","stats");
+        s.items.forEach(it => {
+          const t = el("div", it.hi ? "stat-tile hi" : "stat-tile");
+          t.append(el("span","k",T(it.k)), el("span","v",T(it.v)), el("span","u",T(it.u||"")));
+          g.append(t);
+        });
+        wrap.append(g);
+        if(s.note) wrap.append(el("p","note-line",T(s.note)));
+        return wrap;
+      }
+      case "kpi": {
+        const wrap = el("div"); wrap.style.display="flex"; wrap.style.flexDirection="column"; wrap.style.gap=".45rem";
+        if(s.title) wrap.append(el("p","eyebrow",T(s.title)));
+        const g = el("div","kpi-cmp");
+        s.items.forEach(it => {
+          const n = el("div","kpi-item");
+          const row = el("div","row");
+          row.append(el("span","b",T(it.before)), el("span","ar","→"), el("span","a",T(it.after)));
+          n.append(el("span","k",T(it.k)), row);
+          if(it.delta) n.append(el("span","d",T(it.delta)));
+          g.append(n);
+        });
+        wrap.append(g);
+        if(s.note) wrap.append(el("p","note-line",T(s.note)));
+        return wrap;
+      }
+      case "rollout": {
+        const wrap = el("div"); wrap.style.display="flex"; wrap.style.flexDirection="column"; wrap.style.gap=".45rem";
+        if(s.title) wrap.append(el("p","eyebrow",T(s.title)));
+        const g = el("div","rollout");
+        s.items.forEach(it => {
+          const row = el("div","ro-row");
+          const nm = el("div","nm"); nm.append(document.createTextNode(T(it.dept)));
+          if(it.note) nm.append(Object.assign(el("small"),{textContent:T(it.note)}));
+          const bar = el("div","ro-bar"), fill = el("i");
+          fill.style.width = Math.max(0,Math.min(100,it.pct))+"%";
+          bar.append(fill);
+          const st = el("span","ro-state "+(it.pct>=100?"ro-done":it.pct>0?"ro-wip":"ro-todo"),
+                       it.pct>=100?"展開済み":it.pct>0?"進行中":"未着手");
+          row.append(nm,bar,st);
+          g.append(row);
+        });
+        wrap.append(g);
+        if(s.note) wrap.append(el("p","note-line",T(s.note)));
         return wrap;
       }
       case "term": {
@@ -2068,23 +2229,17 @@ const CONFIG = {
           const n = el("div","term-line "+(l.t||"plain"));
           if(l.t === "cmd"){
             n.append(Object.assign(el("span","ps"),{textContent:"$ "}));
-            const t = el("span"); n.append(t); type(t, l.text);
-          } else {
-            n.textContent = l.text;
-          }
+            const t = el("span"); n.append(t); type(t, T(l.text));
+          } else { n.textContent = T(l.text); }
           box.append(n);
         });
         return box;
       }
       case "diff": {
         const n = el("div","diff");
-        n.append(el("div","diff-hd", s.file));
+        n.append(el("div","diff-hd", T(s.file)));
         const pre = el("pre");
-        s.lines.forEach(l => {
-          const ln = el("span","ln "+(l.t||"ctx"));
-          ln.textContent = l.text;
-          pre.append(ln);
-        });
+        s.lines.forEach(l => { const ln=el("span","ln "+(l.t||"ctx")); ln.textContent=T(l.text); pre.append(ln); });
         n.append(pre);
         return n;
       }
@@ -2092,25 +2247,20 @@ const CONFIG = {
     }
   }
 
-  $("#devNext").addEventListener("click", advance);
-  $("#devReset").addEventListener("click", () => { resetDemo(); });
-
   /* --- 04 効果の見立て -------------------------------------------------- */
   const roi = CONFIG.roi;
-  let scenIdx = 0;
-  let rate = roi.hourlyRate;
-
+  let scenIdx = 0, rate = roi.hourlyRate;
   roi.scenarios.forEach((s,i) => {
     const b = el("button",null,s.label);
-    b.type="button"; b.dataset.i=String(i);
-    b.setAttribute("aria-pressed", String(i===scenIdx));
+    b.type="button";
     b.addEventListener("click", () => { scenIdx=i; $("#ctlAdopt").value=String(i); renderRoi(); });
     $("#adoptSeg").append(b);
   });
   $("#ctlAdopt").max = String(roi.scenarios.length-1);
-  $("#ctlAdopt").addEventListener("input", e => { scenIdx = +e.target.value; renderRoi(); });
+  $("#ctlAdopt").addEventListener("input", e => { scenIdx=+e.target.value; renderRoi(); });
   $("#ctlRate").value = String(rate);
-  $("#ctlRate").addEventListener("input", e => { rate = +e.target.value; renderRoi(); });
+  $("#ctlRate").addEventListener("input", e => { rate=+e.target.value; renderRoi(); });
+  roi.assumptions.forEach(a => $("#roiAssume").append(el("li",null,a)));
 
   const totalHeads = roi.rows.reduce((s,r)=>s+r.heads,0);
   const potentialByRow = roi.rows.map(r => r.heads * r.hours * roi.weeksPerYear);
@@ -2118,14 +2268,10 @@ const CONFIG = {
 
   function renderRoi(){
     const sc = roi.scenarios[scenIdx];
-    const hours = potentialTotal * sc.rate;
-    const yen = hours * rate;
-
-    $("#adoptSeg").querySelectorAll("button").forEach((b,i) =>
-      b.setAttribute("aria-pressed", String(i===scenIdx)));
+    const hours = potentialTotal * sc.rate, yen = hours * rate;
+    $("#adoptSeg").querySelectorAll("button").forEach((b,i)=>b.setAttribute("aria-pressed",String(i===scenIdx)));
     $("#ctlAdoptVal").textContent = `${sc.label}（定着 ${Math.round(sc.rate*100)}%）`;
     $("#ctlRateVal").textContent  = `${nf.format(rate)} 円 / 時`;
-
     $("#roiHours").textContent   = nf.format(Math.round(hours));
     $("#roiYen").textContent     = `約 ${nf.format(Math.round(yen/10000))} 万円 / 年`;
     $("#roiPerWeek").textContent = `${(hours / roi.weeksPerYear / totalHeads).toFixed(1)} 時間`;
@@ -2135,16 +2281,10 @@ const CONFIG = {
     const tbody = $("#roiRows"); tbody.textContent = "";
     const max = Math.max(...potentialByRow);
     roi.rows.forEach((r,i) => {
-      const d = deptById(r.dept);
-      const tr = el("tr");
-      tr.append(
-        el("td",null, d ? d.label : r.dept),
-        el("td",null, nf.format(r.heads)),
-        el("td",null, r.hours.toFixed(1)),
-        el("td",null, nf.format(Math.round(potentialByRow[i]*sc.rate)))
-      );
-      const cell = el("td");
-      const bar = el("span","bar");
+      const d = deptById(r.dept), tr = el("tr");
+      tr.append(el("td",null, d ? d.label : r.dept), el("td",null,nf.format(r.heads)),
+                el("td",null,r.hours.toFixed(1)), el("td",null,nf.format(Math.round(potentialByRow[i]*sc.rate))));
+      const cell = el("td"), bar = el("span","bar");
       bar.style.width = Math.round(potentialByRow[i]/max*100)+"%";
       cell.append(bar); tr.append(cell);
       tbody.append(tr);
@@ -2152,21 +2292,19 @@ const CONFIG = {
     $("#roiHeadsTotal").textContent = nf.format(totalHeads);
     $("#roiHoursTotal").textContent = nf.format(Math.round(hours));
 
-    $("#heroHours").textContent = nf.format(Math.round(potentialTotal * roi.scenarios[0].rate));
-    $("#heroYen").textContent   = `約 ${nf.format(Math.round(potentialTotal*roi.scenarios[0].rate*roi.hourlyRate/10000))} 万円`;
-    $("#heroHeads").textContent = `${nf.format(totalHeads)} 名`;
-    $("#heroKpiSub").textContent = `定着 ${Math.round(roi.scenarios[0].rate*100)}%・時間単価 ${nf.format(roi.hourlyRate)}円で計算した、02の業務のみの積み上げです。前提は04で変更できます。`;
+    const base = roi.scenarios[0];
+    $("#heroHours").textContent  = nf.format(Math.round(potentialTotal * base.rate));
+    $("#heroYen").textContent    = `約 ${nf.format(Math.round(potentialTotal*base.rate*roi.hourlyRate/10000))} 万円`;
+    $("#heroHeads").textContent  = `${nf.format(totalHeads)} 名`;
+    $("#heroKpiSub").textContent = `定着 ${Math.round(base.rate*100)}%・時間単価 ${nf.format(roi.hourlyRate)}円で計算した、02の業務のみの積み上げです。前提は04で変更できます。`;
   }
-
-  roi.assumptions.forEach(a => $("#roiAssume").append(el("li",null,a)));
 
   /* --- 05 Q&A ----------------------------------------------------------- */
   CONFIG.qa.forEach((item,i) => {
-    const d = el("details","q");
-    const s = el("summary");
-    s.append(el("span","q-mark", "Q"+String(i+1).padStart(2,"0")), el("span",null,item.q));
+    const d = el("details","q"), s = el("summary");
+    s.append(el("span","q-mark","Q"+String(i+1).padStart(2,"0")), el("span",null,T(item.q)));
     const car = el("span","caret"); car.innerHTML = ICON.caret; s.append(car);
-    d.append(s, el("div","q-body",item.a));
+    d.append(s, el("div","q-body",T(item.a)));
     $("#qaList").append(d);
   });
 
@@ -2178,6 +2316,7 @@ const CONFIG = {
   });
 
   /* --- 初期描画 --------------------------------------------------------- */
+  syncPicker();
   renderTasks();
   if(curDemo) selectDemo(curDemo.id, false);
   renderRoi();
@@ -2197,4 +2336,5 @@ const CONFIG = {
   }, { rootMargin:"-25% 0px -65% 0px" });
   SECTIONS.forEach(s => { const n=document.getElementById(s.id); if(n) spy.observe(n); });
 })();
+
 </script>
