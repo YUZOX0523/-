@@ -37,6 +37,11 @@
 
   --brand:var(--brand-src);
   --brand-deep:color-mix(in oklab, var(--brand-src) 78%, #000);
+  /* ベタ塗りの地色と、その上に乗る文字色。--brand-deep は暗テーマで明色になるため、
+     ベタ塗り用途には必ずこの2つを使う（白文字が潰れるのを防ぐ） */
+  --brand-solid:color-mix(in oklab, var(--brand-src) 78%, #000);
+  --brand-on:#fff;
+  --warn-on:#fff;
   --brand-wash:color-mix(in oklab, var(--brand-src) 7%, #fff);
   --brand-wash-2:color-mix(in oklab, var(--brand-src) 14%, #fff);
   --brand-edge:color-mix(in oklab, var(--brand-src) 32%, #E3E5EC);
@@ -78,6 +83,9 @@
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --brand:color-mix(in oklab, var(--brand-src) 58%, #fff);
+    --brand-solid:color-mix(in oklab, var(--brand-src) 55%, #fff);
+    --brand-on:#0D0F14;
+    --warn-on:#0D0F14;
     --brand-deep:color-mix(in oklab, var(--brand-src) 34%, #fff);
     --brand-wash:color-mix(in oklab, var(--brand-src) 16%, #171A21);
     --brand-wash-2:color-mix(in oklab, var(--brand-src) 26%, #171A21);
@@ -103,6 +111,9 @@
 }
 :root[data-theme="dark"]{
   --brand:color-mix(in oklab, var(--brand-src) 58%, #fff);
+  --brand-solid:color-mix(in oklab, var(--brand-src) 55%, #fff);
+  --brand-on:#0D0F14;
+  --warn-on:#0D0F14;
   --brand-deep:color-mix(in oklab, var(--brand-src) 34%, #fff);
   --brand-wash:color-mix(in oklab, var(--brand-src) 16%, #171A21);
   --brand-wash-2:color-mix(in oklab, var(--brand-src) 26%, #171A21);
@@ -293,7 +304,7 @@ h1 .hl{
   border:1px solid var(--line);background:var(--surface);
   border-radius:999px;padding:.22rem .8rem;white-space:nowrap;
 }
-.rail-mobile a[aria-current="true"]{color:#fff;background:var(--brand-deep);border-color:var(--brand-deep)}
+.rail-mobile a[aria-current="true"]{color:var(--brand-on);background:var(--brand-solid);border-color:var(--brand-solid)}
 @media (min-width:1040px){.rail-mobile{display:none}}
 
 /* ===== 7. セクション ========================================== */
@@ -345,7 +356,7 @@ h1 .hl{
 }
 .chip:hover{border-color:var(--line-strong);color:var(--ink)}
 .chip[aria-pressed="true"]{
-  background:var(--brand-deep);border-color:var(--brand-deep);color:#fff;font-weight:600;
+  background:var(--brand-solid);border-color:var(--brand-solid);color:var(--brand-on);font-weight:600;
 }
 .seg{display:inline-flex;background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px}
 .seg button{
@@ -376,7 +387,7 @@ h1 .hl{
 }
 .tag.tool{border-color:var(--brand-edge);color:var(--brand-deep);background:var(--brand-wash)}
 .tag.lv{background:var(--brand-wash-2);border-color:var(--brand-edge);color:var(--brand-deep);font-weight:600}
-.tag.lv-core{background:var(--brand-deep);border-color:var(--brand-deep);color:#fff}
+.tag.lv-core{background:var(--brand-solid);border-color:var(--brand-solid);color:var(--brand-on)}
 .tag.via{border-style:dashed}
 /* 到達レベルのはしご */
 .ladder{display:grid;gap:.6rem;grid-template-columns:1fr}
@@ -388,7 +399,7 @@ h1 .hl{
 .rung p{font-size:.8125rem;color:var(--ink-2);line-height:1.7}
 .rung .via{font-size:.6875rem;font-family:var(--f-mono);letter-spacing:.04em;color:var(--brand-deep);margin-top:.15rem}
 .rung .tls{font-size:.625rem;font-family:var(--f-mono);color:var(--ink-3);line-height:1.5;margin-top:.15rem}
-.rung-core{background:var(--brand-deep);border-color:var(--brand-deep);color:#fff}
+.rung-core{background:var(--brand-solid);border-color:var(--brand-solid);color:var(--brand-on)}
 .rung-core .lv{color:rgba(255,255,255,.72)}
 .rung-core p{color:rgba(255,255,255,.85)}
 .rung-core .tls{color:rgba(255,255,255,.62)}
@@ -423,9 +434,15 @@ h1 .hl{
 }
 .btn:hover{border-color:var(--brand);background:var(--brand-wash)}
 .btn:active{transform:translateY(1px)}
-.btn-primary{background:var(--brand-deep);border-color:var(--brand-deep);color:#fff}
-.btn-primary:hover{background:var(--brand);border-color:var(--brand);color:#fff}
-.btn-primary[disabled]{opacity:.45;cursor:not-allowed}
+.btn-primary{background:var(--brand-solid);border-color:var(--brand-solid);color:var(--brand-on)}
+.btn-primary:hover{background:var(--brand);border-color:var(--brand);color:var(--brand-on)}
+.btn-primary[disabled]{
+  cursor:not-allowed;
+  background:var(--surface-2);
+  border-color:var(--line-strong);
+  color:var(--ink-3);
+}
+.btn-primary[disabled]:hover{background:var(--surface-2);border-color:var(--line-strong);color:var(--ink-3)}
 .gate-hint{
   display:inline-flex;align-items:center;gap:.4rem;font-size:.75rem;font-weight:700;color:var(--warn);
   background:color-mix(in oklab,var(--warn) 12%,var(--surface));
@@ -443,7 +460,7 @@ h1 .hl{
 .demo-group-hd{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
 .demo-group-hd .badge{font-family:var(--f-mono);font-size:.625rem;letter-spacing:.1em;padding:.12rem .5rem;border-radius:4px;font-weight:600}
 .badge-base{background:var(--brand-wash-2);color:var(--brand-deep);border:1px solid var(--brand-edge)}
-.badge-core{background:var(--brand-deep);color:#fff}
+.badge-core{background:var(--brand-solid);color:var(--brand-on)}
 .demo-group-hd .txt{font-size:.8125rem;color:var(--ink-2)}
 .disclaim{
   display:inline-flex;align-items:center;gap:.4rem;
@@ -459,6 +476,34 @@ h1 .hl{
   background:var(--surface);
 }
 .device.dark{background:#12141A;border-color:#2C313C}
+/* 常時ダークの端末フレーム内は、トークン自体をダークに置き換える。
+   これをしないと、明るいテーマのページで「白系の地色 × 白系の文字」になり潰れる。 */
+.device.dark{
+  --surface:#1B1F27;
+  --surface-2:#12141A;
+  --line:#2C313C;
+  --line-strong:#3B4250;
+  --ink:#EDEFF4;
+  --ink-2:#B6BDC9;
+  --ink-3:#79808E;
+  --good:#4FC38C;
+  --good-wash:rgba(79,195,140,.13);
+  --warn:#D8A03A;
+  --crit:#E8796B;
+  --crit-wash:rgba(232,121,107,.13);
+  --paper:#0D0F14;
+  --brand:color-mix(in oklab, var(--brand-src) 58%, #fff);
+  --brand-deep:color-mix(in oklab, var(--brand-src) 34%, #fff);
+  --brand-solid:color-mix(in oklab, var(--brand-src) 55%, #fff);
+  --brand-on:#0D0F14;
+  --warn-on:#0D0F14;
+  --brand-wash:color-mix(in oklab, var(--brand-src) 16%, #171A21);
+  --brand-wash-2:color-mix(in oklab, var(--brand-src) 26%, #171A21);
+  --brand-edge:color-mix(in oklab, var(--brand-src) 42%, #2A2F3A);
+  --shadow-1:0 1px 2px rgba(0,0,0,.5), 0 4px 14px -6px rgba(0,0,0,.6);
+}
+/* トークンでは拾えない箇所の補正 */
+.device.dark .handoff-sum{color:var(--ink-2)}
 .dev-chrome{
   display:flex;align-items:center;gap:.6rem;
   padding:.55rem .9rem;border-bottom:1px solid var(--line);
@@ -525,16 +570,6 @@ h1 .hl{
 .device.dark .ro-row{background:#1B1F27;border-color:#2C313C}
 .device.dark .ro-bar{background:#12141A}
 .device.dark .kpi-item{background:#1B1F27;border-color:#2C313C}
-.device.dark .runlog{background:#12141A;border-color:#2C313C}
-.device.dark .runlog-hd{border-bottom-color:#2C313C}
-.device.dark .runlog-hd .auto{background:rgba(79,195,140,.14);color:#4FC38C}
-.device.dark .runlog-hd .auto i{background:#4FC38C}
-.device.dark .runlog-hd .ttl{color:#8B93A3}
-.device.dark .runlog-body .tm{color:#666D7A}
-.device.dark .runlog-body .tx{color:#B6BDC9}
-.device.dark .runlog-body .ln.tool .tx{color:#8FB8FF}
-.device.dark .runlog-body .ln.ok .tx{color:#4FC38C}
-.device.dark .runlog-body .ln.dim .tx{color:#79808E}
 .device.dark .queue{background:#1B1F27;border-color:#3B4250}
 .device.dark .queue-hd{background:rgba(255,255,255,.06);border-bottom-color:#3B4250}
 .device.dark .queue-hd .ttl{color:#C3CAD6}
@@ -599,7 +634,7 @@ h1 .hl{
 .chat{display:flex;flex-direction:column;gap:.5rem}
 .bub-name{font-family:var(--f-mono);font-size:.625rem;letter-spacing:.08em;color:var(--ink-3);align-self:flex-start;margin-bottom:-.2rem}
 .bub{max-width:86%;padding:.6rem .85rem;border-radius:12px;font-size:.875rem;line-height:1.75;white-space:pre-wrap}
-.bub-user{align-self:flex-end;background:var(--brand-deep);color:#fff;border-bottom-right-radius:3px}
+.bub-user{align-self:flex-end;background:var(--brand-solid);color:var(--brand-on);border-bottom-right-radius:3px}
 .bub-bot{align-self:flex-start;background:var(--surface-2);color:var(--ink);border:1px solid var(--line);border-bottom-left-radius:3px}
 
 /* 自動実行タイムライン（勝手に動き続ける／日をまたいで繰り返す） */
@@ -613,7 +648,7 @@ h1 .hl{
   border:1px solid var(--line);color:var(--ink-3);background:var(--surface);white-space:nowrap;
   transition:background .2s, color .2s, border-color .2s;
 }
-.daychip.now{border-color:var(--brand);color:#fff;background:var(--brand-deep);font-weight:700}
+.daychip.now{border-color:var(--brand);color:var(--brand-on);background:var(--brand-solid);font-weight:700}
 .daychip.done{border-color:color-mix(in oklab,var(--good) 40%,var(--line));color:var(--good);background:var(--good-wash)}
 .daychip.human{border-color:color-mix(in oklab,var(--warn) 45%,var(--line));color:var(--warn);background:color-mix(in oklab,var(--warn) 10%,var(--surface));font-weight:700}
 .autorun-body{padding:.5rem 0;min-height:132px;font-family:var(--f-mono);font-size:.75rem;line-height:1.75;max-height:210px;overflow-y:auto}
@@ -666,29 +701,6 @@ h1 .hl{
 .kpi-item .a{color:var(--brand-deep);font-size:1.25rem;font-weight:600;letter-spacing:-.02em}
 .kpi-item .d{font-size:.6875rem;font-weight:700;color:var(--good);font-family:var(--f-mono)}
 
-/* 稼働ログ（自動実行されている実感） */
-.runlog{border:1px solid var(--line);border-radius:var(--r-s);background:var(--surface-2);overflow:hidden}
-.runlog-hd{display:flex;align-items:center;gap:.5rem;padding:.45rem .8rem;border-bottom:1px solid var(--line);flex-wrap:wrap}
-.runlog-hd .auto{
-  display:inline-flex;align-items:center;gap:.35rem;font-family:var(--f-mono);font-size:.625rem;
-  letter-spacing:.08em;font-weight:700;color:var(--good);
-  background:var(--good-wash);border-radius:999px;padding:.1rem .5rem;
-}
-.runlog-hd .auto i{width:6px;height:6px;border-radius:50%;background:var(--good);display:block;animation:pulse 1.8s ease-in-out infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
-@media (prefers-reduced-motion: reduce){.runlog-hd .auto i{animation:none}}
-.runlog-hd .ttl{font-size:.75rem;color:var(--ink-2);font-family:var(--f-mono)}
-.runlog-body{padding:.55rem 0;font-family:var(--f-mono);font-size:.75rem;line-height:1.75}
-.runlog-body .ln{display:flex;gap:.7rem;padding:.1rem .8rem;animation:logIn .32s ease both}
-@keyframes logIn{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:none}}
-@media (prefers-reduced-motion: reduce){.runlog-body .ln{animation:none}}
-.runlog-body .tm{flex:none;color:var(--ink-3);font-variant-numeric:tabular-nums}
-.runlog-body .tx{color:var(--ink-2)}
-.runlog-body .ln.tool .tx{color:var(--brand-deep)}
-.runlog-body .ln.ok .tx{color:var(--good);font-weight:600}
-.runlog-body .ln.warn .tx{color:var(--warn)}
-.runlog-body .ln.dim .tx{color:var(--ink-3)}
-
 /* 承認待ちキュー（半自動化：AIが用意し、人が承認する） */
 .queue{border:1px solid var(--brand-edge);border-radius:var(--r-s);background:var(--surface);overflow:hidden}
 .queue-hd{display:flex;align-items:center;justify-content:space-between;gap:.6rem;padding:.5rem .85rem;background:var(--brand-wash);border-bottom:1px solid var(--brand-edge);flex-wrap:wrap}
@@ -728,8 +740,8 @@ h1 .hl{
   flex:none;font-family:var(--f-mono);font-size:.5625rem;letter-spacing:.06em;font-weight:700;
   border-radius:3px;padding:.05rem .3rem;margin-top:.15rem;min-width:26px;text-align:center;
 }
-.by-human{background:var(--warn);color:#fff}
-.by-agent{background:var(--brand-deep);color:#fff}
+.by-human{background:var(--warn);color:var(--warn-on)}
+.by-agent{background:var(--brand-solid);color:var(--brand-on)}
 .hcol li.human{background:color-mix(in oklab, var(--warn) 7%, var(--surface))}
 .handoff-sum{
   grid-column:1/-1;display:flex;flex-wrap:wrap;gap:.4rem 1.2rem;align-items:baseline;
@@ -1193,9 +1205,9 @@ const CONFIG = {
   levelsNote: "レベル1〜2（全社員）とレベル3〜4（推進中核）は、<strong>順番ではなく同時に立ち上げます</strong>。全社基盤だけでは業務が変わらず、推進人材だけでは成果が横に広がらないためです。",
   levels: [
     { lv:1, name:"基礎機能マスター", desc:"生成AIの基本機能を理解し、適切に使いこなせる。",
-      tools:"ChatGPT・Gemini・Copilot・Claude", via:"法人リスキリング365" },
+      tools:"Copilot・Gemini", via:"法人リスキリング365" },
     { lv:2, name:"ルーティンワーク効率化", desc:"反復作業をAIで効率化し、生産性を向上させる。",
-      tools:"GPTs・Gems・チャットボット", via:"法人リスキリング365" },
+      tools:"Copilot・Gemini（チャットボット作成）", via:"法人リスキリング365" },
     { lv:3, name:"業務ツール連携", desc:"業務ツールと連携し、情報の活用と共有を加速する。",
       tools:"Word・Excel・Google Workspace", via:"AI人材養成講座" },
     { lv:4, name:"簡易コーディング・ワークフロー自動化", desc:"コードと自動化で、業務プロセスを最適化する。",
@@ -1219,11 +1231,11 @@ const CONFIG = {
           before:"各部門から届くExcelを担当者が手作業で統合し、グラフを作り直す。数字が固まるのは会議の前日。",
           after:"表計算のAIに前月比・要因コメントまで下書きさせ、担当者は数字の確認と判断の言葉づくりに時間を使う。",
           hours:4.0, demo:"l1-office" },
-        { roles:["exec"], level:2, title:"経営判断のための情報収集",
+        { roles:["exec"], level:2, needs:"office", title:"経営判断のための情報収集",
           before:"気になる業界動向を都度検索。整理はできておらず、判断は経験と勘に依存する。",
           after:"論点と出典の条件を仕込んだ調査用チャットボットを用意し、毎回同じ品質の一次調査が出てくる。",
           hours:2.5, demo:"l2-bot" },
-        { roles:["mgr"], level:2, title:"稟議・社内通達の作成",
+        { roles:["mgr"], level:2, needs:"office", title:"稟議・社内通達の作成",
           before:"過去文書を探して体裁を真似る。書き出しに時間がかかり、差し戻しも多い。",
           after:"自社の書式と過去の稟議を覚えたボットに要点を渡すと、体裁の整った草案が出る。",
           hours:1.5, demo:"l2-bot" },
@@ -1240,7 +1252,7 @@ const CONFIG = {
     {
       id:"sales", label:"営業・受注",
       tasks:[
-        { roles:["staff","mgr"], level:2, title:"図面ベースの見積作成",
+        { roles:["staff","mgr"], level:2, needs:"office", title:"図面ベースの見積作成",
           before:"類似案件を過去ファイルから探し、単価と工数を転記して積み上げる。1件あたり40〜60分。",
           after:"過去実績と単価表を覚えた見積アシスタントを自分で作り、条件を伝えるとたたき台が出る。",
           hours:3.0, demo:"l2-bot" },
@@ -1269,7 +1281,7 @@ const CONFIG = {
           before:"割り込み受注や設備トラブルのたびに、ホワイトボードと勘で段取りを組み替える。",
           after:"条件を渡すと複数の並べ替え案と影響範囲が出る。判断は人が行うが、選択肢が見える。",
           hours:3.0, demo:"l1-office" },
-        { roles:["staff"], level:2, title:"作業手順の問い合わせ対応",
+        { roles:["staff"], level:2, needs:"office", title:"作業手順の問い合わせ対応",
           before:"若手が段取りで迷うたびにベテランを探す。ベテランが不在だと手が止まる。",
           after:"手順書と過去の判断を覚えた段取り相談ボットを現場で作り、まずそこに聞く運用にする。",
           hours:0.8, demo:"l2-bot" },
@@ -1294,7 +1306,7 @@ const CONFIG = {
           before:"顧客提出用の書式に合わせ、経緯と対策を毎回文章化する。表現の統一に神経を使う。",
           after:"事実を箇条書きで渡すと書式に沿った草案が整う。担当者は内容の妥当性を見る。",
           hours:1.5, demo:"l1-office" },
-        { roles:["staff","mgr"], level:2, title:"検査データの傾向確認",
+        { roles:["staff","mgr"], level:2, needs:"office", title:"検査データの傾向確認",
           before:"測定値をExcelに貼り、目視とグラフでばらつきを探す。傾向が見えるまで数時間。",
           after:"見るべき指標を仕込んだボットにデータを渡すと、工程別のばらつきと外れ値が返ってくる。",
           hours:3.0, demo:"l2-bot" },
@@ -1315,7 +1327,7 @@ const CONFIG = {
     {
       id:"proc", label:"調達・購買",
       tasks:[
-        { roles:["staff"], level:2, title:"仕入価格の比較と発注判断",
+        { roles:["staff"], level:2, needs:"office", title:"仕入価格の比較と発注判断",
           before:"複数の見積メールとExcelを行き来し、条件を揃えて比較する。抜けや見落としが起こる。",
           after:"比較の観点を仕込んだボットに見積を渡すと、条件を揃えた比較表が返ってくる。",
           hours:2.0, demo:"l2-bot" },
@@ -1340,7 +1352,7 @@ const CONFIG = {
     {
       id:"admin", label:"管理部門（経理・人事・総務）",
       tasks:[
-        { roles:["staff","mgr"], level:2, title:"社内規程の問い合わせ対応",
+        { roles:["staff","mgr"], level:2, needs:"office", title:"社内規程の問い合わせ対応",
           before:"「この場合どうなりますか」に、担当者が規程を読み直して個別回答している。",
           after:"就業規則と社内規程を読み込ませた規程QAボットを作り、社員が自分で確認できる状態にする。",
           hours:2.0, demo:"l2-bot" },
@@ -1365,7 +1377,7 @@ const CONFIG = {
     {
       id:"it", label:"技術・情報システム",
       tasks:[
-        { roles:["staff"], level:2, title:"社内からの問い合わせ対応",
+        { roles:["staff"], level:2, needs:"office", title:"社内からの問い合わせ対応",
           before:"「これどうやるの」という質問が個人宛に集まり、同じ回答を何度も書いている。",
           after:"社内マニュアルを読み込ませたヘルプデスクボットを作り、一次回答をそこに任せる。",
           hours:2.0, demo:"l2-bot" },
@@ -1426,7 +1438,7 @@ const CONFIG = {
       ]
     },
     {
-      id:"l2-bot", level:2, label:"反復作業をボットにする",
+      id:"l2-bot", level:2, needs:"office", label:"反復作業をボットにする",
       chrome:"workspace", app:"{{bot}}", title:"見積アシスタント（精密切削） — 営業部で共有中",
       why:"レベル2の到達点です。毎回お願いするのをやめ、仕組みを一度作って部門で使い回します。プログラミングは使いません。",
       steps:[
@@ -1657,7 +1669,7 @@ const CONFIG = {
     { q:"レベル4のデモのようなことを、本当に自社の社員ができるようになりますか。",
       a:"レベル2のボット作成はプログラミングを使いません。指示文を書き、参照する資料を指定するだけです。レベル4も、開発部門がない企業ではノーコードの自動化から入ります（デモの後半がその例です）。エージェント設計まで踏み込む場合は6か月の養成講座で、実務テーマに沿って伴走しながら進めます。講座終了時には学習履歴ではなく、業務棚卸し表・実装成果・効果測定・横展開パッケージという、実務で検証した成果が会社に残ります。" },
     { q:"ツールはどう選べばよいのでしょうか。",
-      a:"選んでいただくのは2つだけです。オフィスソフトの中で使うAIを Copilot（Microsoft 365）と Gemini（Google Workspace）のどちらにするか。そして、業務プロセスを自動化するときのエージェント設計ツールを Claude Code と Codex のどちらにするか。前者は既にお使いのグループウェアに合わせるのが基本です。ChatGPT・Claude は汎用の生成AIとして、選択に関わらず学習範囲に含まれます。" },
+      a:"選んでいただくのは2つだけです。オフィスソフトの中で使うAIを Copilot（Microsoft 365）と Gemini（Google Workspace）のどちらにするか。そして、業務プロセスを自動化するときのエージェント設計ツールを Claude Code と Codex のどちらにするか。前者は既にお使いのグループウェアに合わせるのが基本です。レベル1〜2でできることは Copilot と Gemini でほぼ同じなので、片方に統一して設計します。ChatGPT・Claude も学習範囲には含まれますが、日常業務は選んだオフィスAIに寄せたほうが定着します。" },
     { q:"社外のAIに、図面や取引先の情報を入れて大丈夫なのでしょうか。",
       a:"法人向けプランでは、入力した内容がAIの学習に使われない設定が標準です。そのうえで「入れてよい情報／だめな情報」の線引きを社内ルールとして決める必要があります。365にはAIセキュリティの学習コンテンツと、自社版ガイドラインの策定支援が含まれています。技術的な設定と運用ルールの両方が揃って初めて安全になる、という考え方です。" },
     { q:"うちの社員は忙しくて、学習の時間が取れません。",
@@ -1704,8 +1716,8 @@ const CONFIG = {
     chat:OF.chat, bot:OF.bot, nocode:OF.nocode, agentAI:AG.ai,
   };
   const T = v => typeof v === "string" ? v.replace(/\{\{(\w+)\}\}/g, (m,k) => TOKENS[k] ?? m) : v;
-  /** カード・デモがどのツールで届くかの表示名 */
-  const toolNameOf = needs => needs === "office" ? OF.ai : needs === "agent" ? AG.ai : "ChatGPT・Claude";
+  /** カード・デモがどのツールで届くかの表示名。レベル1〜2はオフィスAIに統一している */
+  const toolNameOf = needs => needs === "agent" ? AG.ai : OF.ai;
 
   document.documentElement.style.setProperty("--brand-src", CONFIG.brand.color);
 
