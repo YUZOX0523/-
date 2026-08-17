@@ -48,6 +48,7 @@ description: デジライズの「法人リスキリング」（法人リスキ�
 | `proposal-site/knowledge/tools.md` | デモ台本を書くとき（毎回） |
 | `proposal-site/knowledge/roi-and-qa.md` | 試算とQ&Aを書くとき（毎回） |
 | `proposal-site/knowledge/design-brand.md` | 色の判断に迷ったとき／ロゴ・デザインの可否 |
+| `proposal-site/manual/index.html` | 営業向け操作マニュアル。**「使い方を教えて」「他の営業にも配りたい」と言われたらこれを案内する**（生成には不要） |
 
 ## 入力
 
