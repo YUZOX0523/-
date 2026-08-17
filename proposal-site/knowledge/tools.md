@@ -14,10 +14,14 @@
 
 ```js
 choices: {
-  office: "copilot",     // "copilot"（Microsoft 365）or "gemini"（Google Workspace）
-  agent:  "claudecode",  // "claudecode" or "codex"
+  office: "both",   // "copilot" | "gemini" | "both"（両方併記・既定）
+  agent:  "both",   // "claudecode" | "codex" | "both"（両方併記・既定）
 }
 ```
+
+**既定は `"both"`（両方併記）。** 提案先のグループウェアが読み取れたら片方に絞る。
+読み取れないまま片方に決め打ちすると、商談で「うちは逆です」となり信用を落とす。
+どちらでも到達レベルは同じなので、併記のまま見せても提案は成立する。
 
 | 選択 | 何を選んでいるか | HPからの判断材料 |
 |---|---|---|
@@ -31,17 +35,23 @@ choices: {
 デモの本文に `{{...}}` を書くと、選択に応じて自動で置き換わる。
 **デモを2本に分ける必要はない。** 1本書けば両方の選択に対応する。
 
-| トークン | copilot | gemini |
-|---|---|---|
-| `{{officeAI}}` | Copilot | Gemini |
-| `{{officeSuite}}` | Microsoft 365 | Google Workspace |
-| `{{sheet}}` | Excel | スプレッドシート |
-| `{{doc}}` | Word | ドキュメント |
-| `{{mail}}` | Outlook | Gmail |
-| `{{chat}}` | Teams | Google Chat |
-| `{{bot}}` | Copilot エージェント | Gem |
-| `{{nocode}}` | Copilot Studio ＋ VBA | GAS（Apps Script） |
-| `{{agentAI}}` | Claude Code / Codex（`agent` の選択に追従） | 同左 |
+| トークン | copilot | gemini | both（既定） |
+|---|---|---|---|
+| `{{officeAI}}` | Copilot | Gemini | **Copilot / Gemini** |
+| `{{officeSuite}}` | Microsoft 365 | Google Workspace | Microsoft 365 / Google Workspace |
+| `{{sheet}}` | Excel | スプレッドシート | 表計算 |
+| `{{doc}}` | Word | ドキュメント | 文書 |
+| `{{mail}}` | Outlook | Gmail | メール |
+| `{{chat}}` | Teams | Google Chat | チャット |
+| `{{bot}}` | Copilot エージェント | Gem | Copilot エージェント / Gem |
+| `{{nocode}}` | Copilot Studio ＋ VBA | GAS（Apps Script） | Copilot Studio / GAS |
+| `{{agentAI}}` | Claude Code | Codex | Claude Code / Codex |
+
+`both` では**ツール名は併記、個別アプリ名は一般名詞**にしている
+（「Excel / スプレッドシートに集計して」は文中が冗長になるため「表計算に集計して」）。
+
+**トークンの前後に半角スペースを入れない。** 日本語文中では
+`{{mail}}に届いた` と書く（`{{mail}} に届いた` は併記時に「メール に届いた」と崩れる）。
 
 デモの `needs` は表示するツール名を決める。**レベル1〜3は `"office"`、レベル4はエージェント設計なら
 `"agent"`／ノーコードなら `"office"`。** 省略した場合もオフィスAI扱いになる。

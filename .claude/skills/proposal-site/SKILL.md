@@ -30,6 +30,7 @@ description: デジライズの「法人リスキリング」（法人リスキ�
   4. **簡易コーディング・ワークフロー自動化** — プロセスを最適化（GAS・Copilot Studio・VBA ＋ Claude Code / Codex）… 養成講座
   - **養成講座はレベル4まで対応する。** 軸は「人が起動する回数が減っていくこと」
 - **企業が選ぶツールは2つだけ。** `office`（Copilot or Gemini）と `agent`（Claude Code or Codex）。
+  どちらか分からなければ `"both"` で併記する（既定）。
   3つ目の選択肢を作らない。**レベル1〜2は Copilot / Gemini に統一**して表示し、
   ChatGPT・Claude はレベル表やデモのツール表記に出さない
 - **365は全社員に配るのが原則。**「使う人だけに配る」「少数から始める」は思想の否定
@@ -97,8 +98,11 @@ cp proposal-site/templates/proposal-site.html /tmp/<任意の名前>-proposal.ht
 3. `CONFIG.company` — `eyebrow` / `title` / `lead` / `profile`（社名が特定されない属性のみ）。
    `notice` と `footMeta` は基本そのまま使う
 4. `CONFIG.premise.facts` — HPから読み取った4項目。各項目に `src`（出典ページ名）を必ず付ける
-5. `CONFIG.choices` — `office`（"copilot" or "gemini"）と `agent`（"claudecode" or "codex"）の2つだけ。
-   デモの画面名・アプリ名・カードのツール表記は `{{...}}` トークンで自動追従する
+5. `CONFIG.choices` — `office`（"copilot" / "gemini" / "both"）と
+   `agent`（"claudecode" / "codex" / "both"）の2つだけ。**既定は両方 `"both"`（併記）。**
+   HPからグループウェアが読み取れたら片方に絞り、読み取れなければ `"both"` のままにする
+   （決め打ちすると商談で「うちは逆です」となる）。デモの画面名・アプリ名・カードの
+   ツール表記は `{{...}}` トークンで自動追従する
 6. `CONFIG.levels` — **公式定義なので変えない**（名称・説明・ツール・到達手段すべて）
 7. `CONFIG.departments` — 5〜7部門 × 各5枚。各カードに `level`（1〜4）と `needs` を付ける。
    `role-tasks.md` の共通カタログ＋業種固有を2〜3件

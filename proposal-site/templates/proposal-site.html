@@ -17,9 +17,9 @@
     3. CONFIG.company     業種・規模・事業サマリー（社名は入れない）
     4. CONFIG.premise     HPから読み取った貴社理解（出典つき）
     5. CONFIG.choices     ツールの2択のみ
-                            office: "copilot"（Microsoft 365）| "gemini"（Google Workspace）
-                            agent : "claudecode" | "codex"
-                          ChatGPT・Claude は選択に関わらず含まれる
+                            office: "copilot" | "gemini" | "both"（既定・両方併記）
+                            agent : "claudecode" | "codex" | "both"（既定・両方併記）
+                          提案先のグループウェアが分かったら片方に絞る
     6. CONFIG.levels      公式4レベル（名称・説明・ツール・到達手段は変えない）
     7. CONFIG.departments 部門 × 職位 × 到達レベル × 業務カード
     8. CONFIG.demos       レベル1〜4のデモ。デモは「次へ」で1ステップずつ進む。
@@ -1193,12 +1193,16 @@ const CONFIG = {
      前提として ChatGPT / Claude / Copilot / Gemini / Claude Code / Codex を
      すべて扱う。企業が選ぶのは次の2つだけ。
        office : オフィスソフト内のAI  … "copilot"（Microsoft 365）
-                                       or "gemini"（Google Workspace）
-       agent  : エージェント設計ツール … "claudecode" or "codex"
+                                       / "gemini"（Google Workspace）
+                                       / "both"（両方併記・既定）
+       agent  : エージェント設計ツール … "claudecode" / "codex" / "both"（既定）
+     提案先のグループウェアが分かったら片方に絞る。分からなければ both のまま。
      ====================================================================== */
   choices: {
-    office: "copilot",
-    agent:  "claudecode",
+    /* "copilot" | "gemini" | "both"（両方併記・既定）                        */
+    office: "both",
+    /* "claudecode" | "codex" | "both"（両方併記・既定）                      */
+    agent:  "both",
   },
 
   /* --- 到達レベル（1〜2=365で到達 / 3〜4=養成講座で到達） ----------------- */
@@ -1444,7 +1448,7 @@ const CONFIG = {
       steps:[
         { kind:"note", text:"営業担当者が、自分の見積業務用のボットを作ります。所要時間は10分ほどです。" },
         { kind:"prompt", cue:"やりたいこと", text:"図面の条件を伝えたら、過去の実績に沿った見積のたたき台を出してくれるアシスタントを作りたい。根拠も一緒に出してほしい。" },
-        { kind:"builder", title:"{{bot}} の設定（入力するのはこれだけ）", fields:[
+        { kind:"builder", title:"{{bot}}の設定（入力するのはこれだけ）", fields:[
           { k:"名前", v:"見積アシスタント（精密切削）" },
           { k:"役割の指示", v:"あなたは精密切削部品の見積担当です。渡された条件から、材料費・加工工数・検査工数・段取り費に分けて見積のたたき台を作ります。\n必ず各項目の根拠を併記し、類似実績が2件以下の項目は「確度低」と明示してください。\n最終判断は人が行う前提で、断定した金額提示はしません。" },
           { k:"参照する資料（ドラッグするだけ）", files:["過去受注実績_2023-2026.xlsx","材料単価表_最新.xlsx","加工工数マスタ.xlsx","見積書テンプレート.docx"] },
@@ -1467,12 +1471,12 @@ const CONFIG = {
     },
     {
       id:"l3-link", level:3, needs:"office", label:"業務ツールをつないで回す",
-      chrome:"m365", app:"{{officeAI}}（{{mail}} → {{sheet}} → {{doc}} → {{chat}}）", title:"品質月報 2026年7月 — 集計から配布まで",
+      chrome:"m365", app:"{{officeAI}}", title:"品質月報 2026年7月 — メールから集計・文書・共有まで",
       why:"レベル3の到達点です。1つのアプリの中で完結させず、メール・表計算・文書・チャットをつなぎます。ここから「情報を探す時間」が消え始めます。",
       steps:[
         { kind:"note", text:"品質保証の担当者が、毎月1.5日かけている月次レポートの作成をつなぎ直します。" },
-        { kind:"prompt", cue:"入力", text:"{{mail}} に届いた各工程の検査記録を {{sheet}} に集計して、悪化した工程を特定した月報を {{doc}} で作り、{{chat}} の品質保証チャネルに共有して。" },
-        { kind:"thinking", text:"{{mail}} の添付3件を読み、集計しています…" },
+        { kind:"prompt", cue:"入力", text:"{{mail}}に届いた各工程の検査記録を{{sheet}}に集計して、悪化した工程を特定した月報を{{doc}}で作り、{{chat}}の品質保証チャネルに共有して。" },
+        { kind:"thinking", text:"{{mail}}の添付3件を読み、集計しています…" },
         { kind:"sheet",
           head:["工程","不良率(7月)","前月比","主因区分","件数"],
           rows:[
@@ -1482,7 +1486,7 @@ const CONFIG = {
             ["組立","0.28%","−0.03pt","部品欠品","4"],
           ],
           total:["全工程","0.86%","+0.14pt","—","68"] },
-        { kind:"doc", title:"{{doc}} に生成された月報（抜粋）", body:"■ 7月の総括\n全工程の不良率は0.86%（前月比 +0.14pt）。悪化の主因は研磨工程の寸法外れに集中しています。\n\n■ 注視すべき工程\n研磨：1.82%（+0.61pt）。7月14日以降に増加傾向。設備 M-03 での発生が9件と偏りがあります。\n\n■ 改善が見られた工程\n検査（−0.12pt）・組立（−0.03pt）。ただし全体の悪化を打ち消せていません。\n\n■ 考察（担当記入）\n" },
+        { kind:"doc", title:"{{doc}}に生成された月報（抜粋）", body:"■ 7月の総括\n全工程の不良率は0.86%（前月比 +0.14pt）。悪化の主因は研磨工程の寸法外れに集中しています。\n\n■ 注視すべき工程\n研磨：1.82%（+0.61pt）。7月14日以降に増加傾向。設備 M-03 での発生が9件と偏りがあります。\n\n■ 改善が見られた工程\n検査（−0.12pt）・組立（−0.03pt）。ただし全体の悪化を打ち消せていません。\n\n■ 考察（担当記入）\n" },
         { kind:"handoff", before:{ label:"今（毎月1.5日）", steps:[
             "メールの添付を開いて保存する","Excelに貼り付けて整形する","工程別に集計する","前月比を計算する",
             "グラフを作り直す","悪化した工程を探す","月報を書く","チャネルに共有する"] },
@@ -1582,11 +1586,11 @@ const CONFIG = {
     {
       id:"l4-nocode", level:4, needs:"office", label:"ノーコードで自動化する",
       chrome:"m365", app:"{{nocode}}", title:"請求突合の自動化 — 稼働中",
-      why:"レベル4は開発部門がなくても届きます。{{nocode}} で、毎日決まった時刻に動く仕組みを推進人材が自分で組めます。",
+      why:"レベル4は開発部門がなくても届きます。{{nocode}}で、毎日決まった時刻に動く仕組みを推進人材が自分で組めます。",
       steps:[
         { kind:"note", text:"経理担当の推進人材が、毎月の請求突合を自動化します。コードは数行だけで、社内の標準機能の範囲で動きます。" },
         { kind:"prompt", cue:"やりたいこと", text:"請求書のデータとシステムの数字を毎晩突合して、差分が出た分だけ翌朝の一覧に載せたい。金額の判断は人がやる。" },
-        { kind:"builder", title:"{{nocode}} の設定", fields:[
+        { kind:"builder", title:"{{nocode}}の設定", fields:[
           { k:"動かすタイミング", v:"毎日 22:00（平日のみ）" },
           { k:"読む場所", v:"共有フォルダの請求データ ＋ 基幹システムの出力" },
           { k:"やること", v:"請求番号で突合し、金額差・件数差・未計上を抽出する。\n差分がゼロなら何も出力しない。\n1円未満の端数差は無視する。" },
@@ -1669,7 +1673,7 @@ const CONFIG = {
     { q:"レベル4のデモのようなことを、本当に自社の社員ができるようになりますか。",
       a:"レベル2のボット作成はプログラミングを使いません。指示文を書き、参照する資料を指定するだけです。レベル4も、開発部門がない企業ではノーコードの自動化から入ります（デモの後半がその例です）。エージェント設計まで踏み込む場合は6か月の養成講座で、実務テーマに沿って伴走しながら進めます。講座終了時には学習履歴ではなく、業務棚卸し表・実装成果・効果測定・横展開パッケージという、実務で検証した成果が会社に残ります。" },
     { q:"ツールはどう選べばよいのでしょうか。",
-      a:"選んでいただくのは2つだけです。オフィスソフトの中で使うAIを Copilot（Microsoft 365）と Gemini（Google Workspace）のどちらにするか。そして、業務プロセスを自動化するときのエージェント設計ツールを Claude Code と Codex のどちらにするか。前者は既にお使いのグループウェアに合わせるのが基本です。レベル1〜2でできることは Copilot と Gemini でほぼ同じなので、片方に統一して設計します。ChatGPT・Claude も学習範囲には含まれますが、日常業務は選んだオフィスAIに寄せたほうが定着します。" },
+      a:"選んでいただくのは2つだけです。オフィスソフトの中で使うAIを Copilot（Microsoft 365）と Gemini（Google Workspace）のどちらにするか。そして、業務プロセスを自動化するときのエージェント設計ツールを Claude Code と Codex のどちらにするか。前者は既にお使いのグループウェアに合わせるのが基本です。レベル1〜2でできることは Copilot と Gemini でほぼ同じなので、どちらでも同じ到達点まで届きます（本サイトは両方を併記しています）。ChatGPT・Claude も学習範囲には含まれますが、日常業務は選んだオフィスAIに寄せたほうが定着します。" },
     { q:"社外のAIに、図面や取引先の情報を入れて大丈夫なのでしょうか。",
       a:"法人向けプランでは、入力した内容がAIの学習に使われない設定が標準です。そのうえで「入れてよい情報／だめな情報」の線引きを社内ルールとして決める必要があります。365にはAIセキュリティの学習コンテンツと、自社版ガイドラインの策定支援が含まれています。技術的な設定と運用ルールの両方が揃って初めて安全になる、という考え方です。" },
     { q:"うちの社員は忙しくて、学習の時間が取れません。",
@@ -1707,10 +1711,20 @@ const CONFIG = {
               chat:"Teams", bot:"Copilot エージェント", nocode:"Copilot Studio ＋ VBA" },
     gemini: { ai:"Gemini",  suite:"Google Workspace", sheet:"スプレッドシート", doc:"ドキュメント", mail:"Gmail",
               chat:"Google Chat", bot:"Gem", nocode:"GAS（Apps Script）" },
+    /* どちらを使うか決まっていない段階では両方を併記する（既定）。
+       個別アプリ名は「Excel / スプレッドシート」と並べると文中が冗長になるため、
+       一般名詞にしておく（ツール名の併記だけで両対応が伝わる） */
+    both:   { ai:"Copilot / Gemini", suite:"Microsoft 365 / Google Workspace",
+              sheet:"表計算", doc:"文書", mail:"メール", chat:"チャット",
+              bot:"Copilot エージェント / Gem", nocode:"Copilot Studio / GAS" },
   };
-  const AGENT = { claudecode:{ ai:"Claude Code" }, codex:{ ai:"Codex" } };
-  const OF = OFFICE[CONFIG.choices.office] || OFFICE.copilot;
-  const AG = AGENT[CONFIG.choices.agent]   || AGENT.claudecode;
+  const AGENT = {
+    claudecode:{ ai:"Claude Code" },
+    codex:     { ai:"Codex" },
+    both:      { ai:"Claude Code / Codex" },
+  };
+  const OF = OFFICE[CONFIG.choices.office] || OFFICE.both;
+  const AG = AGENT[CONFIG.choices.agent]   || AGENT.both;
   const TOKENS = {
     officeAI:OF.ai, officeSuite:OF.suite, sheet:OF.sheet, doc:OF.doc, mail:OF.mail,
     chat:OF.chat, bot:OF.bot, nocode:OF.nocode, agentAI:AG.ai,

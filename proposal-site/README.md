@@ -134,10 +134,14 @@ proposal-site/
 
 ```js
 choices: {
-  office: "copilot",     // "copilot"（Microsoft 365）or "gemini"（Google Workspace）
-  agent:  "claudecode",  // "claudecode" or "codex"
+  office: "both",   // "copilot" | "gemini" | "both"（両方併記・既定）
+  agent:  "both",   // "claudecode" | "codex" | "both"（両方併記・既定）
 }
 ```
+
+**既定は両方併記**（「Copilot / Gemini」「Claude Code / Codex」と表示）。
+提案先のグループウェアが分かったら片方に絞ってください。
+どちらでも到達レベルは同じなので、併記のまま商談に出しても成立します。
 
 | 選択 | 何を選ぶか |
 |---|---|
