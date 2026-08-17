@@ -1,0 +1,1795 @@
+<title>精密加工現場のAI変化マップ</title>
+
+<!--
+  ============================================================================
+  デジライズ 提案前フックサイト テンプレート
+  ----------------------------------------------------------------------------
+  編集するのはファイル末尾の CONFIG オブジェクトだけです。CSS・HTML・描画
+  ロジックは触らないでください。手順は proposal-site/README.md を参照。
+
+  差し替え箇所（この順に上から埋めるだけ）
+    1. <title>            提案先の業務に即した固有名（社名は入れない）
+    2. CONFIG.brand.color 提案先HPから推定したコーポレートカラー（1色）
+    3. CONFIG.company      業種・規模・事業サマリー（社名は入れない）
+    4. CONFIG.tools        導入検討ツールを選択（gemini/copilot/claudecode/codex）
+    5. CONFIG.departments  部門 × 職位 × 業務カード
+    6. CONFIG.demos        選択ツールの再現デモ
+    7. CONFIG.roi          対象人数・想定削減時間
+    8. CONFIG.qa           想定質疑
+  ============================================================================
+-->
+
+<style>
+/* ===== 1. トークン =============================================== */
+:root{
+  /* 提案先コーポレートカラー（CONFIGから注入。ここは初期値） */
+  --brand-src:#0F5C8C;
+
+  --brand:var(--brand-src);
+  --brand-deep:color-mix(in oklab, var(--brand-src) 78%, #000);
+  --brand-wash:color-mix(in oklab, var(--brand-src) 7%, #fff);
+  --brand-wash-2:color-mix(in oklab, var(--brand-src) 14%, #fff);
+  --brand-edge:color-mix(in oklab, var(--brand-src) 32%, #E3E5EC);
+
+  /* ニュートラル：アクセント側へわずかに寒色バイアス */
+  --paper:#FAFAFB;
+  --surface:#FFFFFF;
+  --surface-2:#F2F3F7;
+  --line:#E3E5EC;
+  --line-strong:#C8CCD7;
+  --ink:#13151B;
+  --ink-2:#565D6E;
+  --ink-3:#868C9A;
+
+  --good:#12704A;
+  --good-wash:#E9F4EF;
+  --warn:#8A5A00;
+  --crit:#A32B1E;
+
+  /* デジライズ ブランド（ロゴロックアップと帰属表示のみで使用） */
+  --dr-cyan:#22E3F5;
+  --dr-violet:#6A11F0;
+  --dr-blue:#1B8CFF;
+  --dr-orange:#FF3D0D;
+
+  --f-sans:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI",YuGothic,"Yu Gothic","Noto Sans JP",Meiryo,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-serif:"Hiragino Mincho ProN","Yu Mincho",YuMincho,"Noto Serif JP","Times New Roman",serif;
+  --f-mono:ui-monospace,"SF Mono",SFMono-Regular,"Cascadia Mono","Roboto Mono","Noto Sans Mono",Menlo,Consolas,monospace;
+
+  --shell:1140px;
+  --read:64ch;
+  --r-s:6px;
+  --r-m:10px;
+  --r-l:16px;
+  --shadow-1:0 1px 2px rgba(19,21,27,.05), 0 4px 14px -6px rgba(19,21,27,.10);
+  --shadow-2:0 2px 4px rgba(19,21,27,.06), 0 18px 42px -18px rgba(19,21,27,.22);
+}
+
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --brand:color-mix(in oklab, var(--brand-src) 58%, #fff);
+    --brand-deep:color-mix(in oklab, var(--brand-src) 34%, #fff);
+    --brand-wash:color-mix(in oklab, var(--brand-src) 16%, #171A21);
+    --brand-wash-2:color-mix(in oklab, var(--brand-src) 26%, #171A21);
+    --brand-edge:color-mix(in oklab, var(--brand-src) 42%, #2A2F3A);
+
+    --paper:#0D0F14;
+    --surface:#171A21;
+    --surface-2:#1F232C;
+    --line:#2A2F3A;
+    --line-strong:#3D434F;
+    --ink:#EDEFF4;
+    --ink-2:#A8AFBD;
+    --ink-3:#79808E;
+
+    --good:#4FC38C;
+    --good-wash:#14291F;
+    --warn:#D8A03A;
+    --crit:#E8796B;
+
+    --shadow-1:0 1px 2px rgba(0,0,0,.5), 0 4px 14px -6px rgba(0,0,0,.6);
+    --shadow-2:0 2px 4px rgba(0,0,0,.5), 0 18px 42px -18px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"]{
+  --brand:color-mix(in oklab, var(--brand-src) 58%, #fff);
+  --brand-deep:color-mix(in oklab, var(--brand-src) 34%, #fff);
+  --brand-wash:color-mix(in oklab, var(--brand-src) 16%, #171A21);
+  --brand-wash-2:color-mix(in oklab, var(--brand-src) 26%, #171A21);
+  --brand-edge:color-mix(in oklab, var(--brand-src) 42%, #2A2F3A);
+  --paper:#0D0F14;
+  --surface:#171A21;
+  --surface-2:#1F232C;
+  --line:#2A2F3A;
+  --line-strong:#3D434F;
+  --ink:#EDEFF4;
+  --ink-2:#A8AFBD;
+  --ink-3:#79808E;
+  --good:#4FC38C;
+  --good-wash:#14291F;
+  --warn:#D8A03A;
+  --crit:#E8796B;
+  --shadow-1:0 1px 2px rgba(0,0,0,.5), 0 4px 14px -6px rgba(0,0,0,.6);
+  --shadow-2:0 2px 4px rgba(0,0,0,.5), 0 18px 42px -18px rgba(0,0,0,.8);
+}
+
+/* ===== 2. ベース =============================================== */
+*,*::before,*::after{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--f-sans);
+  font-size:16px;
+  line-height:1.85;
+  -webkit-font-smoothing:antialiased;
+  text-size-adjust:100%;
+}
+h1,h2,h3,h4,p,ul,ol,dl,figure{margin:0}
+ul,ol{padding:0;list-style:none}
+img{max-width:100%;display:block}
+button{font:inherit;color:inherit;cursor:pointer}
+:where(a){color:var(--brand-deep);text-underline-offset:3px}
+:focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:3px}
+
+.skip{position:absolute;left:-9999px;top:0;z-index:99;background:var(--surface);padding:.6rem 1rem;border:1px solid var(--line)}
+.skip:focus{left:8px;top:8px}
+
+.shell{width:100%;max-width:var(--shell);margin-inline:auto;padding-inline:clamp(1.15rem,4vw,2.5rem)}
+.read{max-width:var(--read)}
+
+.eyebrow{
+  font-family:var(--f-mono);
+  font-size:.6875rem;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+  line-height:1.6;
+}
+.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+
+/* ===== 3. ヘッダー / ロゴロックアップ ========================== */
+.top{
+  position:sticky;top:0;z-index:40;
+  background:color-mix(in oklab, var(--paper) 86%, transparent);
+  backdrop-filter:blur(12px) saturate(1.4);
+  border-bottom:1px solid var(--line);
+}
+.top-in{display:flex;align-items:center;gap:1rem;min-height:60px;flex-wrap:wrap}
+.lockup{display:flex;align-items:center;gap:.7rem;margin-right:auto}
+.lockup-plate{
+  display:flex;align-items:center;
+  padding:6px 9px;border-radius:8px;
+  background:#fff;
+  box-shadow:0 0 0 1px color-mix(in oklab, var(--line) 70%, transparent);
+}
+.lockup-plate img{height:22px;width:auto}
+.lockup-role{
+  font-family:var(--f-mono);font-size:.6875rem;letter-spacing:.1em;
+  color:var(--ink-3);padding-left:.7rem;border-left:1px solid var(--line);
+  line-height:1.5;
+}
+.top-badge{
+  font-size:.75rem;color:var(--ink-2);
+  border:1px solid var(--line);border-radius:999px;
+  padding:.2rem .7rem;background:var(--surface);
+  white-space:nowrap;
+}
+
+/* ===== 4. ヒーロー ============================================= */
+.hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+.hero::before{
+  content:"";position:absolute;inset:0;
+  background:
+    radial-gradient(120% 90% at 8% 0%, var(--brand-wash-2) 0%, transparent 62%),
+    linear-gradient(180deg, var(--brand-wash) 0%, transparent 55%);
+  pointer-events:none;
+}
+.hero-in{position:relative;padding-block:clamp(2.6rem,6vw,4.6rem) clamp(2.2rem,5vw,3.4rem)}
+.hero-grid{display:grid;gap:clamp(1.8rem,4vw,3rem);grid-template-columns:1fr}
+@media (min-width:900px){.hero-grid{grid-template-columns:minmax(0,1.35fr) minmax(280px,.85fr);align-items:end}}
+
+.spine{
+  display:inline-flex;align-items:center;gap:.65rem;
+  padding-left:.85rem;border-left:3px solid var(--brand);
+  margin-bottom:1.1rem;
+}
+h1{
+  font-size:clamp(1.95rem,1.1rem + 3.4vw,3.3rem);
+  font-weight:700;
+  letter-spacing:-.035em;
+  line-height:1.26;
+  text-wrap:balance;
+}
+h1 .hl{
+  color:var(--brand-deep);
+  background:linear-gradient(transparent 62%, var(--brand-wash-2) 62%);
+}
+.hero-lead{margin-top:1.2rem;max-width:46ch;color:var(--ink-2);font-size:1.0625rem}
+.profile{
+  display:flex;flex-wrap:wrap;gap:.4rem;margin-top:1.5rem;
+}
+.profile li{
+  font-size:.8125rem;color:var(--ink-2);
+  background:var(--surface);border:1px solid var(--line);
+  border-radius:999px;padding:.25rem .8rem;
+}
+
+.kpi-card{
+  background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--r-l);padding:1.4rem 1.5rem;box-shadow:var(--shadow-1);
+}
+.kpi-card .eyebrow{margin-bottom:.5rem}
+.kpi-big{
+  display:flex;align-items:baseline;gap:.3rem;
+  font-family:var(--f-mono);font-variant-numeric:tabular-nums;
+  font-size:clamp(2.4rem,1.4rem + 3vw,3.4rem);
+  font-weight:600;letter-spacing:-.04em;line-height:1;
+  color:var(--brand-deep);
+}
+.kpi-big .unit{font-size:1rem;font-weight:500;letter-spacing:0;color:var(--ink-2)}
+.kpi-sub{margin-top:.7rem;font-size:.8125rem;color:var(--ink-3);line-height:1.7}
+.kpi-rule{height:1px;background:var(--line);margin-block:1rem}
+.kpi-row{display:flex;justify-content:space-between;gap:1rem;font-size:.875rem}
+.kpi-row dt{color:var(--ink-2)}
+.kpi-row dd{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-weight:600}
+
+/* ===== 5. 誠実さの帯（前提の開示） ============================= */
+.notice{
+  border-bottom:1px solid var(--line);
+  background:var(--surface-2);
+}
+.notice-in{
+  display:flex;gap:.8rem;align-items:flex-start;
+  padding-block:.9rem;font-size:.8125rem;color:var(--ink-2);line-height:1.75;
+}
+.notice-in svg{flex:none;margin-top:.28rem;color:var(--ink-3)}
+
+/* ===== 6. レイアウト（進行順レール + 本文） ==================== */
+.body-grid{display:grid;grid-template-columns:1fr;gap:0}
+@media (min-width:1040px){
+  .body-grid{grid-template-columns:186px minmax(0,1fr);gap:clamp(2rem,4vw,3.5rem)}
+}
+.rail{display:none}
+@media (min-width:1040px){
+  .rail{display:block;position:sticky;top:76px;align-self:start;padding-top:3.2rem}
+  .rail .eyebrow{margin-bottom:.9rem}
+  .rail ol{display:flex;flex-direction:column;gap:.1rem;border-left:1px solid var(--line)}
+  .rail a{
+    display:flex;gap:.6rem;align-items:baseline;
+    padding:.42rem 0 .42rem .85rem;margin-left:-1px;
+    border-left:2px solid transparent;
+    font-size:.8125rem;line-height:1.5;color:var(--ink-2);
+    text-decoration:none;transition:color .15s, border-color .15s;
+  }
+  .rail a:hover{color:var(--ink)}
+  .rail a .n{font-family:var(--f-mono);font-size:.6875rem;color:var(--ink-3)}
+  .rail a[aria-current="true"]{color:var(--brand-deep);border-left-color:var(--brand);font-weight:600}
+  .rail a[aria-current="true"] .n{color:var(--brand)}
+}
+.rail-mobile{
+  position:sticky;top:60px;z-index:30;
+  display:flex;gap:.4rem;overflow-x:auto;
+  padding:.6rem clamp(1.15rem,4vw,2.5rem);
+  background:color-mix(in oklab, var(--paper) 90%, transparent);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+  scrollbar-width:none;
+}
+.rail-mobile::-webkit-scrollbar{display:none}
+.rail-mobile a{
+  flex:none;font-size:.8125rem;text-decoration:none;color:var(--ink-2);
+  border:1px solid var(--line);background:var(--surface);
+  border-radius:999px;padding:.22rem .8rem;white-space:nowrap;
+}
+.rail-mobile a[aria-current="true"]{color:#fff;background:var(--brand-deep);border-color:var(--brand-deep)}
+@media (min-width:1040px){.rail-mobile{display:none}}
+
+/* ===== 7. セクション ========================================== */
+.s{padding-block:clamp(2.8rem,6vw,4.4rem);border-top:1px solid var(--line)}
+.s:first-child{border-top:0}
+.s-head{display:flex;gap:1rem;align-items:baseline;margin-bottom:1.6rem}
+.s-head .n{
+  font-family:var(--f-mono);font-size:.75rem;letter-spacing:.1em;
+  color:var(--brand);flex:none;padding-top:.45rem;
+}
+.s h2{font-size:clamp(1.4rem,1.05rem + 1.4vw,2rem);font-weight:700;letter-spacing:-.028em;line-height:1.38;text-wrap:balance}
+.s-sub{margin-top:.5rem;color:var(--ink-2);font-size:.9375rem}
+.s-body{display:flex;flex-direction:column;gap:1.6rem}
+
+.reveal{opacity:0;transform:translateY(14px)}
+.reveal.in{opacity:1;transform:none;transition:opacity .55s ease, transform .55s cubic-bezier(.22,.61,.36,1)}
+@media (prefers-reduced-motion: reduce){
+  .reveal{opacity:1;transform:none}
+  .reveal.in{transition:none}
+}
+
+/* ===== 8. 前提カード ========================================== */
+.facts{display:grid;gap:1rem;grid-template-columns:1fr}
+@media (min-width:640px){.facts{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.fact{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r-m);
+  padding:1.1rem 1.25rem;display:flex;flex-direction:column;gap:.4rem;
+}
+.fact h3{font-size:.9375rem;font-weight:700;line-height:1.6}
+.fact p{font-size:.875rem;color:var(--ink-2);line-height:1.8}
+.src{
+  font-family:var(--f-mono);font-size:.625rem;letter-spacing:.08em;
+  color:var(--ink-3);text-transform:uppercase;
+}
+
+/* ===== 9. 業務変化マップ ====================================== */
+.picker{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r-l);
+  padding:1.1rem 1.2rem;display:flex;flex-direction:column;gap:1rem;box-shadow:var(--shadow-1);
+}
+.picker-row{display:flex;flex-direction:column;gap:.5rem}
+.picker-row > .eyebrow{margin:0}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem}
+.chip{
+  border:1px solid var(--line);background:var(--surface);
+  border-radius:999px;padding:.32rem .85rem;
+  font-size:.875rem;color:var(--ink-2);
+  transition:background .15s, border-color .15s, color .15s;
+}
+.chip:hover{border-color:var(--line-strong);color:var(--ink)}
+.chip[aria-pressed="true"]{
+  background:var(--brand-deep);border-color:var(--brand-deep);color:#fff;font-weight:600;
+}
+.seg{display:inline-flex;background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px}
+.seg button{
+  border:0;background:transparent;border-radius:999px;
+  padding:.28rem .95rem;font-size:.875rem;color:var(--ink-2);
+}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);font-weight:600;box-shadow:var(--shadow-1)}
+
+.map-summary{
+  display:flex;flex-wrap:wrap;align-items:baseline;gap:.4rem 1.3rem;
+  padding:.9rem 1.2rem;border:1px dashed var(--brand-edge);border-radius:var(--r-m);
+  background:var(--brand-wash);font-size:.875rem;
+}
+.map-summary strong{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-size:1.125rem;color:var(--brand-deep)}
+
+.tasks{display:grid;gap:1rem;grid-template-columns:1fr}
+@media (min-width:820px){.tasks{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.task{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r-m);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.task-hd{padding:1rem 1.15rem .85rem;display:flex;flex-direction:column;gap:.45rem;border-bottom:1px solid var(--line)}
+.task-hd h3{font-size:1rem;font-weight:700;line-height:1.55}
+.task-tags{display:flex;flex-wrap:wrap;gap:.3rem}
+.tag{
+  font-size:.6875rem;font-family:var(--f-mono);letter-spacing:.04em;
+  border:1px solid var(--line);border-radius:4px;padding:.1rem .45rem;color:var(--ink-3);
+}
+.tag.tool{border-color:var(--brand-edge);color:var(--brand-deep);background:var(--brand-wash)}
+.ba{display:grid;grid-template-columns:1fr;gap:0}
+@media (min-width:520px){.ba{grid-template-columns:1fr 1fr}}
+.ba > div{padding:.9rem 1.15rem;display:flex;flex-direction:column;gap:.35rem}
+.ba .before{background:var(--surface-2)}
+.ba .after{border-top:1px solid var(--line)}
+@media (min-width:520px){.ba .after{border-top:0;border-left:1px solid var(--line)}}
+.ba h4{font-family:var(--f-mono);font-size:.625rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:500}
+.ba .after h4{color:var(--good)}
+.ba p{font-size:.875rem;line-height:1.8;color:var(--ink-2)}
+.ba .after p{color:var(--ink)}
+.task-ft{
+  margin-top:auto;padding:.8rem 1.15rem;border-top:1px solid var(--line);
+  display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;
+}
+.save{
+  display:inline-flex;align-items:baseline;gap:.3rem;
+  font-size:.8125rem;color:var(--good);background:var(--good-wash);
+  border-radius:999px;padding:.15rem .7rem;font-weight:600;
+}
+.save .v{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-size:.9375rem}
+
+.btn{
+  display:inline-flex;align-items:center;gap:.45rem;
+  border:1px solid var(--line-strong);background:var(--surface);
+  border-radius:var(--r-s);padding:.4rem .85rem;
+  font-size:.8125rem;font-weight:600;color:var(--ink);
+  transition:background .15s, border-color .15s, transform .1s;
+}
+.btn:hover{border-color:var(--brand);background:var(--brand-wash)}
+.btn:active{transform:translateY(1px)}
+.btn-primary{background:var(--brand-deep);border-color:var(--brand-deep);color:#fff}
+.btn-primary:hover{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn-primary[disabled]{opacity:.45;cursor:not-allowed}
+.btn-lg{padding:.6rem 1.3rem;font-size:.9375rem}
+.empty{padding:2rem 1.2rem;text-align:center;color:var(--ink-3);font-size:.875rem;border:1px dashed var(--line);border-radius:var(--r-m)}
+
+/* ===== 10. デモ ================================================ */
+.demo-bar{display:flex;flex-wrap:wrap;gap:.75rem;align-items:center;justify-content:space-between}
+.demo-scenarios{display:flex;flex-wrap:wrap;gap:.4rem}
+.disclaim{
+  display:inline-flex;align-items:center;gap:.4rem;
+  font-size:.75rem;color:var(--warn);
+  border:1px solid color-mix(in oklab, var(--warn) 40%, var(--line));
+  background:color-mix(in oklab, var(--warn) 8%, var(--surface));
+  border-radius:999px;padding:.18rem .7rem;
+}
+.device{
+  border-radius:var(--r-l);overflow:hidden;
+  border:1px solid var(--line-strong);
+  box-shadow:var(--shadow-2);
+  background:var(--surface);
+}
+.device.dark{background:#12141A;border-color:#2C313C}
+.dev-chrome{
+  display:flex;align-items:center;gap:.6rem;
+  padding:.55rem .9rem;border-bottom:1px solid var(--line);
+  background:var(--surface-2);min-height:42px;
+}
+.device.dark .dev-chrome{background:#1B1F27;border-bottom-color:#2C313C}
+.dots{display:flex;gap:5px;flex:none}
+.dots i{width:9px;height:9px;border-radius:50%;background:var(--line-strong);display:block}
+.device.dark .dots i{background:#3B4250}
+.dev-title{
+  font-size:.75rem;color:var(--ink-2);font-family:var(--f-mono);
+  letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.device.dark .dev-title{color:#8B93A3}
+.dev-app{
+  display:inline-flex;align-items:center;gap:.35rem;flex:none;
+  font-size:.75rem;font-weight:600;color:var(--ink-2);
+}
+.device.dark .dev-app{color:#C3CAD6}
+.dev-stage{
+  min-height:330px;max-height:min(62vh,560px);overflow-y:auto;
+  padding:1.1rem 1.15rem;display:flex;flex-direction:column;gap:.8rem;
+  scroll-behavior:smooth;
+}
+@media (prefers-reduced-motion: reduce){.dev-stage{scroll-behavior:auto}}
+.device.dark .dev-stage{
+  font-family:var(--f-mono);font-size:.8125rem;line-height:1.75;color:#D6DBE4;
+}
+/* 常時ダークの端末フレーム内部は、ページのテーマに関係なく固定色で塗る */
+.device.dark .empty{color:#79808E;border-color:#333A46}
+.device.dark .prompt-line{background:#1B1F27;border-color:#3B4250;color:#EDEFF4}
+.device.dark .prompt-line .cue{color:#79808E}
+.device.dark .ai-panel{
+  background:rgba(79,195,140,.09);
+  border-color:rgba(79,195,140,.32);
+}
+.device.dark .ai-panel .who{color:#4FC38C}
+.device.dark .ai-panel p{color:#D6DBE4}
+.device.dark .doc{background:#1B1F27;border-color:#2C313C}
+.device.dark .doc-title{color:#EDEFF4}
+.device.dark .doc p{color:#B6BDC9}
+.device.dark .bullets li{color:#B6BDC9}
+.device.dark .bullets li::before{background:#4FC38C}
+
+/* 明るいアプリ画面（Workspace / M365）の中身 */
+.doc{
+  border:1px solid var(--line);border-radius:var(--r-s);background:var(--surface);
+  padding:.9rem 1rem;display:flex;flex-direction:column;gap:.5rem;
+}
+.doc-title{font-size:.9375rem;font-weight:700}
+.doc p{font-size:.875rem;color:var(--ink-2);line-height:1.85}
+.sheet{width:100%;border-collapse:collapse;font-size:.8125rem;font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.sheet th,.sheet td{border:1px solid var(--line);padding:.34rem .55rem;text-align:right;white-space:nowrap}
+.sheet th{background:var(--surface-2);color:var(--ink-2);font-weight:600;text-align:center}
+.sheet td:first-child,.sheet th:first-child{text-align:left}
+.sheet tr.total td{background:var(--brand-wash);font-weight:700}
+.sheet-wrap{overflow-x:auto;border-radius:var(--r-s)}
+.ai-panel{
+  border:1px solid var(--brand-edge);border-radius:var(--r-s);
+  background:var(--brand-wash);padding:.85rem 1rem;
+  display:flex;flex-direction:column;gap:.5rem;
+}
+.ai-panel .who{display:flex;align-items:center;gap:.4rem;font-size:.75rem;font-weight:700;color:var(--brand-deep)}
+.ai-panel p{font-size:.875rem;line-height:1.85}
+.prompt-line{
+  display:flex;gap:.55rem;align-items:flex-start;
+  border:1px solid var(--line-strong);border-radius:var(--r-s);
+  background:var(--surface);padding:.7rem .85rem;font-size:.875rem;
+}
+.prompt-line .cue{flex:none;font-family:var(--f-mono);font-size:.6875rem;color:var(--ink-3);padding-top:.28rem}
+.thinking{display:flex;align-items:center;gap:.55rem;font-size:.8125rem;color:var(--ink-3)}
+.device.dark .thinking{color:#8B93A3}
+.spin{width:13px;height:13px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:sp .8s linear infinite;flex:none}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion: reduce){.spin{animation-duration:2.4s}}
+.note-line{font-size:.8125rem;color:var(--ink-3);line-height:1.8;padding-left:.9rem;border-left:2px solid var(--line)}
+.device.dark .note-line{color:#8B93A3;border-left-color:#333A46}
+.bullets{display:flex;flex-direction:column;gap:.3rem}
+.bullets li{font-size:.875rem;line-height:1.8;padding-left:1.1rem;position:relative;color:var(--ink-2)}
+.bullets li::before{content:"";position:absolute;left:.15rem;top:.72em;width:5px;height:5px;border-radius:50%;background:var(--brand)}
+
+/* ターミナル / エディタ */
+.term-line{white-space:pre-wrap;word-break:break-word}
+.term-line.cmd{color:#EDEFF4}
+.term-line.cmd .ps{color:#4FC38C;user-select:none}
+.term-line.tool{color:#8FB8FF}
+.term-line.dim{color:#79808E}
+.term-line.ok{color:#4FC38C}
+.diff{border:1px solid #2C313C;border-radius:var(--r-s);overflow:hidden;background:#0E1015}
+.diff-hd{padding:.4rem .7rem;background:#1B1F27;border-bottom:1px solid #2C313C;font-size:.75rem;color:#8B93A3}
+.diff pre{margin:0;padding:.6rem 0;overflow-x:auto;font-size:.75rem;line-height:1.7}
+.diff .ln{display:block;padding-inline:.7rem}
+.diff .add{background:rgba(79,195,140,.12);color:#8FE0B4}
+.diff .del{background:rgba(232,121,107,.12);color:#F0A79C}
+.diff .ctx{color:#8B93A3}
+
+.dev-foot{
+  display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;
+  padding:.7rem .9rem;border-top:1px solid var(--line);background:var(--surface-2);
+}
+.device.dark .dev-foot{background:#1B1F27;border-top-color:#2C313C}
+.steps{display:flex;gap:5px;margin-right:auto;align-items:center}
+.steps i{width:22px;height:3px;border-radius:2px;background:var(--line-strong);display:block;transition:background .2s}
+.device.dark .steps i{background:#3B4250}
+.steps i.on{background:var(--brand)}
+.dev-caption{font-size:.75rem;color:var(--ink-3);font-family:var(--f-mono)}
+.device.dark .dev-caption{color:#79808E}
+.demo-link{font-size:.8125rem;color:var(--ink-2)}
+
+/* ===== 11. 効果の見立て ======================================= */
+.roi{display:grid;gap:1.2rem;grid-template-columns:1fr}
+@media (min-width:900px){.roi{grid-template-columns:minmax(0,1fr) minmax(300px,.8fr)}}
+.controls{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r-l);
+  padding:1.2rem 1.3rem;display:flex;flex-direction:column;gap:1.2rem;
+}
+.ctl{display:flex;flex-direction:column;gap:.5rem}
+.ctl-top{display:flex;justify-content:space-between;align-items:baseline;gap:1rem}
+.ctl-top label{font-size:.875rem;font-weight:600}
+.ctl-val{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-size:.9375rem;color:var(--brand-deep);font-weight:600}
+input[type="range"]{
+  -webkit-appearance:none;appearance:none;width:100%;height:22px;background:transparent;margin:0;
+}
+input[type="range"]::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:var(--line-strong)}
+input[type="range"]::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;width:18px;height:18px;border-radius:50%;
+  background:var(--brand-deep);border:2px solid var(--surface);margin-top:-7px;
+  box-shadow:0 1px 4px rgba(0,0,0,.28);
+}
+input[type="range"]::-moz-range-track{height:4px;border-radius:2px;background:var(--line-strong)}
+input[type="range"]::-moz-range-thumb{
+  width:18px;height:18px;border:2px solid var(--surface);border-radius:50%;
+  background:var(--brand-deep);box-shadow:0 1px 4px rgba(0,0,0,.28);
+}
+.ctl-hint{font-size:.75rem;color:var(--ink-3);line-height:1.7}
+
+.result{
+  background:var(--surface);border:1px solid var(--brand-edge);border-radius:var(--r-l);
+  padding:1.3rem 1.4rem;display:flex;flex-direction:column;gap:1rem;box-shadow:var(--shadow-1);
+}
+.result .big{
+  font-family:var(--f-mono);font-variant-numeric:tabular-nums;
+  font-size:clamp(2rem,1.3rem + 2.4vw,2.9rem);font-weight:600;
+  letter-spacing:-.04em;line-height:1;color:var(--brand-deep);
+  display:flex;align-items:baseline;gap:.25rem;
+}
+.result .big .unit{font-size:.9375rem;font-weight:500;letter-spacing:0;color:var(--ink-2)}
+.result dl{display:flex;flex-direction:column;gap:.55rem;margin:0}
+.result dl > div{display:flex;justify-content:space-between;gap:1rem;font-size:.875rem;padding-bottom:.55rem;border-bottom:1px solid var(--line)}
+.result dl > div:last-child{border-bottom:0;padding-bottom:0}
+.result dt{color:var(--ink-2)}
+.result dd{margin:0;font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-weight:600}
+
+.breakdown{overflow-x:auto}
+.breakdown table{width:100%;border-collapse:collapse;font-size:.8125rem;min-width:460px}
+.breakdown th,.breakdown td{padding:.5rem .7rem;text-align:right;border-bottom:1px solid var(--line)}
+.breakdown th{
+  font-family:var(--f-mono);font-size:.6875rem;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:500;text-align:right;white-space:nowrap;
+}
+.breakdown td:first-child,.breakdown th:first-child{text-align:left}
+.breakdown td{font-family:var(--f-mono);font-variant-numeric:tabular-nums;color:var(--ink-2)}
+.breakdown td:first-child{font-family:var(--f-sans);color:var(--ink)}
+.breakdown tr:last-child td{border-bottom:0}
+.breakdown tfoot td{font-weight:700;color:var(--ink);border-top:1px solid var(--line-strong)}
+.bar{height:5px;border-radius:3px;background:var(--brand);display:block;min-width:2px}
+.assume{
+  border:1px solid var(--line);border-radius:var(--r-m);background:var(--surface-2);
+  padding:1rem 1.15rem;display:flex;flex-direction:column;gap:.45rem;
+}
+.assume h3{font-size:.8125rem;font-family:var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);font-weight:500}
+.assume li{font-size:.8125rem;color:var(--ink-2);line-height:1.8;padding-left:1rem;position:relative}
+.assume li::before{content:"—";position:absolute;left:0;color:var(--ink-3)}
+
+/* ===== 12. Q&A ================================================= */
+.qa{display:flex;flex-direction:column;gap:.5rem}
+details.q{
+  border:1px solid var(--line);border-radius:var(--r-m);background:var(--surface);overflow:hidden;
+}
+details.q[open]{border-color:var(--brand-edge)}
+summary{
+  padding:.9rem 1.15rem;cursor:pointer;list-style:none;
+  display:flex;gap:.8rem;align-items:flex-start;
+  font-size:.9375rem;font-weight:600;line-height:1.65;
+}
+summary::-webkit-details-marker{display:none}
+summary .q-mark{
+  flex:none;font-family:var(--f-mono);font-size:.75rem;color:var(--brand);
+  padding-top:.28rem;
+}
+summary .caret{margin-left:auto;flex:none;color:var(--ink-3);transition:transform .2s}
+details.q[open] summary .caret{transform:rotate(180deg)}
+.q-body{padding:0 1.15rem 1.1rem 2.75rem;font-size:.875rem;color:var(--ink-2);line-height:1.9}
+
+/* ===== 13. 次のステップ / 締め ================================= */
+.steps-3{display:grid;gap:1rem;grid-template-columns:1fr;counter-reset:st}
+@media (min-width:760px){.steps-3{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.step{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r-m);
+  padding:1.1rem 1.2rem;display:flex;flex-direction:column;gap:.45rem;position:relative;
+}
+.step .n{
+  font-family:var(--f-mono);font-size:.6875rem;letter-spacing:.12em;color:var(--brand);
+}
+.step h3{font-size:.9375rem;font-weight:700;line-height:1.6}
+.step p{font-size:.8125rem;color:var(--ink-2);line-height:1.8}
+.step .when{font-family:var(--f-mono);font-size:.6875rem;color:var(--ink-3)}
+
+.stance{
+  border-left:3px solid var(--brand);
+  padding:.2rem 0 .2rem 1.4rem;
+  font-family:var(--f-serif);
+  font-size:clamp(1.0625rem,.95rem + .5vw,1.25rem);
+  line-height:2;
+  color:var(--ink);
+  max-width:52ch;
+}
+.foot{border-top:1px solid var(--line);background:var(--surface-2)}
+.foot-in{
+  padding-block:1.8rem 2.4rem;display:flex;flex-wrap:wrap;gap:1.2rem;
+  align-items:flex-end;justify-content:space-between;
+}
+.foot-meta{font-size:.75rem;color:var(--ink-3);line-height:1.9;max-width:56ch}
+.dr-dots{display:inline-flex;gap:4px;vertical-align:middle;margin-left:.3rem}
+.dr-dots i{width:6px;height:6px;border-radius:50%;display:block}
+@media print{
+  .top,.rail,.rail-mobile,.print-hide{display:none !important}
+  .reveal{opacity:1 !important;transform:none !important}
+  .s{break-inside:avoid;border-top:1px solid #ddd}
+  body{background:#fff}
+}
+</style>
+
+<a class="skip" href="#main">本文へスキップ</a>
+
+<header class="top print-hide">
+  <div class="shell top-in">
+    <div class="lockup">
+      <span class="lockup-plate"><img src="data:image/png;base64,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" alt="株式会社デジライズ"></span>
+      <span class="lockup-role" id="lockupRole">提案前のご確認用</span>
+    </div>
+    <span class="top-badge" id="topBadge">公開情報にもとづく想定シミュレーション</span>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="shell hero-in">
+    <div class="hero-grid">
+      <div>
+        <div class="spine"><span class="eyebrow" id="heroEyebrow"></span></div>
+        <h1 id="heroTitle"></h1>
+        <p class="hero-lead" id="heroLead"></p>
+        <ul class="profile" id="heroProfile"></ul>
+      </div>
+      <div class="kpi-card">
+        <p class="eyebrow">保守シナリオでの見立て</p>
+        <p class="kpi-big"><span id="heroHours">0</span><span class="unit">時間 / 年</span></p>
+        <p class="kpi-sub" id="heroKpiSub"></p>
+        <div class="kpi-rule"></div>
+        <dl class="kpi-row"><dt>人件費換算</dt><dd id="heroYen">—</dd></dl>
+        <div class="kpi-rule"></div>
+        <dl class="kpi-row"><dt>対象人数</dt><dd id="heroHeads">—</dd></dl>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="notice">
+  <div class="shell notice-in">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.4"/>
+      <path d="M8 7v4.2M8 4.6v.9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+    </svg>
+    <p id="noticeText"></p>
+  </div>
+</div>
+
+<nav class="rail-mobile print-hide" id="railMobile" aria-label="ページ内の進行"></nav>
+
+<div class="shell body-grid">
+  <nav class="rail print-hide" aria-label="本日の進行">
+    <p class="eyebrow">本日の進行</p>
+    <ol id="railList"></ol>
+  </nav>
+
+  <main id="main">
+
+    <!-- 01 前提 -->
+    <section class="s" id="sec-premise">
+      <div class="s-head">
+        <span class="n">01</span>
+        <div>
+          <h2 id="premiseTitle"></h2>
+          <p class="s-sub" id="premiseSub"></p>
+        </div>
+      </div>
+      <div class="s-body">
+        <div class="facts reveal" id="premiseFacts"></div>
+      </div>
+    </section>
+
+    <!-- 02 業務変化マップ -->
+    <section class="s" id="sec-map">
+      <div class="s-head">
+        <span class="n">02</span>
+        <div>
+          <h2>職種ごとに、どの業務がどう変わるか</h2>
+          <p class="s-sub">部門と職位を選ぶと、その立場の方の具体的な業務が「今」と「AI活用後」で並びます。</p>
+        </div>
+      </div>
+      <div class="s-body">
+        <div class="picker reveal">
+          <div class="picker-row">
+            <p class="eyebrow">部門</p>
+            <div class="chips" id="deptChips" role="group" aria-label="部門を選ぶ"></div>
+          </div>
+          <div class="picker-row">
+            <p class="eyebrow">職位</p>
+            <div class="seg" id="roleSeg" role="group" aria-label="職位を選ぶ"></div>
+          </div>
+        </div>
+        <p class="map-summary reveal" id="mapSummary" aria-live="polite"></p>
+        <div class="tasks" id="taskList"></div>
+      </div>
+    </section>
+
+    <!-- 03 デモ -->
+    <section class="s" id="sec-demo">
+      <div class="s-head">
+        <span class="n">03</span>
+        <div>
+          <h2>その場で動かせる再現デモ</h2>
+          <p class="s-sub">ボタンを押すと、実際の操作と同じ順番で画面が進みます。ご検討中のツールごとに用意しました。</p>
+        </div>
+      </div>
+      <div class="s-body">
+        <div class="demo-bar reveal">
+          <div class="demo-scenarios" id="demoTabs" role="group" aria-label="デモを選ぶ"></div>
+          <span class="disclaim">
+            <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 1.2 11 10.4H1L6 1.2Z" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linejoin="round"/><path d="M6 5v2.3M6 8.6v.6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+            画面はすべて再現イメージです
+          </span>
+        </div>
+        <div class="device" id="device">
+          <div class="dev-chrome">
+            <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span class="dev-app" id="devApp"></span>
+            <span class="dev-title" id="devTitle"></span>
+          </div>
+          <div class="dev-stage" id="devStage" aria-live="polite"></div>
+          <div class="dev-foot">
+            <span class="steps" id="devSteps" aria-hidden="true"></span>
+            <span class="dev-caption" id="devCaption"></span>
+            <button class="btn" id="devReset" type="button">最初から</button>
+            <button class="btn btn-primary" id="devNext" type="button">▶ 実行する</button>
+          </div>
+        </div>
+        <p class="demo-link" id="demoWhy"></p>
+      </div>
+    </section>
+
+    <!-- 04 効果の見立て -->
+    <section class="s" id="sec-roi">
+      <div class="s-head">
+        <span class="n">04</span>
+        <div>
+          <h2>効果の見立て（前提を開示した概算）</h2>
+          <p class="s-sub">数字は「置き換えたい」ものではなく、前提を動かして確かめていただくためのものです。</p>
+        </div>
+      </div>
+      <div class="s-body">
+        <div class="roi reveal">
+          <div class="controls">
+            <div class="ctl">
+              <div class="ctl-top">
+                <label for="ctlAdopt">定着シナリオ</label>
+                <span class="ctl-val" id="ctlAdoptVal"></span>
+              </div>
+              <div class="seg" id="adoptSeg" role="group" aria-label="定着シナリオ"></div>
+              <p class="ctl-hint">対象者のうち、AIを日常業務で使いこなす方の割合です。初期表示は最も保守的な設定にしています。</p>
+              <input type="range" id="ctlAdopt" min="0" max="2" step="1" value="0" aria-label="定着シナリオ（スライダー）">
+            </div>
+            <div class="ctl">
+              <div class="ctl-top">
+                <label for="ctlRate">時間単価</label>
+                <span class="ctl-val" id="ctlRateVal"></span>
+              </div>
+              <input type="range" id="ctlRate" min="2000" max="8000" step="250">
+              <p class="ctl-hint">人件費を時間あたりに換算した金額です。貴社の実額に合わせて動かしてください。</p>
+            </div>
+            <div class="breakdown">
+              <table>
+                <caption class="eyebrow" style="text-align:left;padding-bottom:.5rem">部門別の内訳</caption>
+                <thead>
+                  <tr><th scope="col">部門</th><th scope="col">対象人数</th><th scope="col">週/人</th><th scope="col">年間時間</th><th scope="col" style="width:74px">構成</th></tr>
+                </thead>
+                <tbody id="roiRows"></tbody>
+                <tfoot><tr><td>合計</td><td id="roiHeadsTotal"></td><td>—</td><td id="roiHoursTotal"></td><td></td></tr></tfoot>
+              </table>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:1.2rem">
+            <div class="result">
+              <p class="eyebrow">年間の削減時間（概算）</p>
+              <p class="big"><span id="roiHours">0</span><span class="unit">時間</span></p>
+              <dl>
+                <div><dt>人件費換算</dt><dd id="roiYen">—</dd></div>
+                <div><dt>1人あたり / 週</dt><dd id="roiPerWeek">—</dd></div>
+                <div><dt>正社員換算</dt><dd id="roiFte">—</dd></div>
+              </dl>
+              <p class="ctl-hint" id="roiCostNote"></p>
+            </div>
+            <div class="assume">
+              <h3>この試算の前提</h3>
+              <ul id="roiAssume"></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05 Q&A -->
+    <section class="s" id="sec-qa">
+      <div class="s-head">
+        <span class="n">05</span>
+        <div>
+          <h2>この場で出やすいご質問</h2>
+          <p class="s-sub">気になる項目を開いてご確認ください。ここに無いことは遠慮なくお聞きください。</p>
+        </div>
+      </div>
+      <div class="s-body"><div class="qa reveal" id="qaList"></div></div>
+    </section>
+
+    <!-- 06 次のステップ -->
+    <section class="s" id="sec-next">
+      <div class="s-head">
+        <span class="n">06</span>
+        <div>
+          <h2>この後の進め方</h2>
+          <p class="s-sub">本日は「イメージが合うか」だけをご確認いただければ十分です。</p>
+        </div>
+      </div>
+      <div class="s-body">
+        <div class="steps-3 reveal" id="nextSteps"></div>
+        <p class="stance" id="stanceText"></p>
+      </div>
+    </section>
+  </main>
+</div>
+
+<footer class="foot">
+  <div class="shell foot-in">
+    <div class="foot-meta" id="footMeta"></div>
+    <div class="foot-meta" style="text-align:right">
+      株式会社デジライズ
+      <span class="dr-dots" aria-hidden="true">
+        <i style="background:var(--dr-cyan)"></i><i style="background:var(--dr-violet)"></i><i style="background:var(--dr-blue)"></i><i style="background:var(--dr-orange)"></i>
+      </span>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ============================================================================
+   CONFIG — ここだけ書き換えてください
+   ========================================================================== */
+const CONFIG = {
+
+  /* --- ブランド：提案先HPから推定したコーポレートカラー1色 ---------------- */
+  brand: {
+    color: "#0F5C8C",
+    source: "コーポレートサイトのヘッダー・見出し色より",
+  },
+
+  /* --- 提案先プロフィール（社名は入れない。「貴社」で通す） --------------- */
+  company: {
+    // ヒーロー
+    eyebrow: "AI活用シミュレーション",
+    title: '<span class="hl">精密加工の現場</span>で、<br>AIはどの仕事から効くのか',
+    lead: "貴社の公開情報から業務を読み解き、部門・職位ごとに「今の手順」と「AI活用後の手順」を並べました。数字も画面も、その場で動かしてご確認いただけます。",
+    // 社名を出さないプロフィールチップ
+    profile: ["精密部品の製造・販売", "従業員 約320名", "国内3拠点", "対象 290名"],
+    // 冒頭の前提開示（誠実さの核。書き換えは慎重に）
+    notice: "本サイトは貴社の公開情報のみをもとに、デジライズが作成した想定シミュレーションです。社内の実データは使用しておらず、社名も記載していません。数値は前提を開示した概算であり、成果を保証するものではありません。",
+    footMeta: "本サイトは提案前の共通イメージづくりを目的に作成しています。記載の業務内容・数値は公開情報にもとづく想定です。実際のご提案は、貴社の実態をお伺いしたうえで別途ご説明します。画面はすべて再現イメージであり、各サービスの実画面ではありません。",
+  },
+
+  /* --- 01 前提の確認：HPから読み取った事実（推測は「想定」と明記） ------- */
+  premise: {
+    title: "はじめに、貴社の理解が合っているかご確認ください",
+    sub: "以下はコーポレートサイトから読み取った内容です。ズレていれば、この場で訂正してください。",
+    facts: [
+      { h:"事業の中心", p:"自動車・産業機械向けの精密切削部品の受託製造。小ロット多品種で、図面ベースの個別見積が中心と拝読しました。", src:"事業紹介ページ" },
+      { h:"強みとして掲げているもの", p:"短納期対応と品質保証体制。検査記録の作成・保管が業務の重要な一部になっていると想定しました。", src:"品質方針ページ" },
+      { h:"組織の構成", p:"営業・生産管理・製造・品質保証・調達・管理部門・技術／情報システムの各機能。拠点をまたいだ情報共有が発生します。", src:"会社概要・採用ページ" },
+      { h:"直近の関心事", p:"人手不足と技能承継。ベテランの判断を、若手が再現できる形に残すことが課題と想定しました。", src:"採用ページ・社長メッセージ" },
+    ],
+  },
+
+  /* --- 導入検討ツール：使うものだけ残す ---------------------------------- */
+  /* 利用可: gemini / copilot / claudecode / codex */
+  tools: ["gemini", "copilot", "claudecode", "codex"],
+
+  /* --- 職位 -------------------------------------------------------------- */
+  roles: [
+    { id:"exec",  label:"経営層" },
+    { id:"mgr",   label:"管理職" },
+    { id:"staff", label:"担当者" },
+  ],
+
+  /* --- 02 部門 × 業務カード ---------------------------------------------- */
+  departments: [
+    {
+      id:"mgmt", label:"経営・企画",
+      tasks:[
+        { roles:["exec","mgr"], title:"月次経営会議の資料づくり",
+          before:"各部門から届くExcelを担当者が手作業で統合し、グラフを作り直す。数字が固まるのは会議の前日。",
+          after:"表計算AIに前月比・要因コメントまで下書きさせ、担当者は数字の確認と判断の言葉づくりに時間を使う。",
+          hours:4.0, tool:"copilot", demo:"copilot-excel" },
+        { roles:["exec"], title:"取引先・市場の情報収集",
+          before:"気になる業界動向を都度検索。まとまった整理はできておらず、判断は経験と勘に依存する。",
+          after:"論点を決めてAIに一次調査させ、出典付きの要約を受け取る。判断材料の抜けに気づける。",
+          hours:2.5, tool:"gemini", demo:"gemini-minutes" },
+        { roles:["mgr"], title:"稟議・社内通達の作成",
+          before:"過去文書を探して体裁を真似る。書き出しに時間がかかり、担当者への差し戻しも多い。",
+          after:"要点を箇条書きで渡すと体裁の整った草案が出る。管理職は判断根拠の記述に集中できる。",
+          hours:1.5, tool:"gemini", demo:"gemini-minutes" },
+        { roles:["staff"], title:"会議資料の数字集めと差し込み",
+          before:"各部門にメールで依頼し、届いたExcelを整形して資料に差し込む。締め切り前は他の業務が止まる。",
+          after:"集まった数値の統合と整形が自動化され、担当者は不足データの確認と催促に集中できる。",
+          hours:2.5, tool:"copilot", demo:"copilot-excel" },
+      ]
+    },
+    {
+      id:"sales", label:"営業・受注",
+      tasks:[
+        { roles:["staff","mgr"], title:"図面ベースの見積作成",
+          before:"類似案件を過去ファイルから探し、単価と工数を転記して積み上げる。1件あたり40〜60分。",
+          after:"条件を伝えると過去実績の型に沿った見積のたたき台が生成される。担当者は妥当性の判断だけを行う。",
+          hours:3.0, tool:"gemini", demo:"gemini-quote" },
+        { roles:["staff"], title:"問い合わせメールの一次回答",
+          before:"納期・仕様の問い合わせに、担当者が都度過去メールを探して返信文を書く。",
+          after:"メールの内容を汲んだ返信ドラフトが受信箱の中で用意される。担当者は事実確認と送信のみ。",
+          hours:2.5, tool:"copilot", demo:"copilot-mail" },
+        { roles:["staff","mgr"], title:"客先訪問後の記録と次アクション",
+          before:"手元のメモが個人のノートで止まり、共有されない。上司が状況を把握するのに面談が必要。",
+          after:"メモを渡すと議事録・次アクション・関係者への共有文まで整う。管理職は文字で状況を追える。",
+          hours:2.0, tool:"gemini", demo:"gemini-minutes" },
+        { roles:["exec"], title:"受注動向の把握",
+          before:"案件の状況は月次の営業会議まで見えない。気になる案件は個別に聞くしかない。",
+          after:"訪問記録と日報の要約から、動きのあった案件と停滞している案件を週次で把握できる。",
+          hours:1.5, tool:"gemini", demo:"gemini-minutes" },
+      ]
+    },
+    {
+      id:"plant", label:"生産・製造現場",
+      tasks:[
+        { roles:["mgr"], title:"日々の生産計画の組み替え",
+          before:"割り込み受注や設備トラブルのたびに、ホワイトボードと勘で段取りを組み替える。",
+          after:"条件を入れると複数の並べ替え案と影響範囲が出る。判断そのものは人が行うが、選択肢が見える。",
+          hours:3.5, tool:"copilot", demo:"copilot-excel" },
+        { roles:["staff"], title:"日報・作業記録の入力",
+          before:"紙の日報に手書きし、事務担当が後からシステムへ転記する。二重入力が発生している。",
+          after:"現場で入力できるフォームに置き換え、集計まで自動化。転記作業そのものが無くなる。",
+          hours:0.8, tool:"codex", demo:"codex-form" },
+        { roles:["mgr","staff"], title:"技能・段取りノウハウの言語化",
+          before:"ベテランの判断が本人の頭の中にあり、若手はその場で聞くしかない。",
+          after:"作業の意図をAIと対話しながら書き起こし、手順書として残す。聞ける相手が増える。",
+          hours:1.2, tool:"gemini", demo:"gemini-minutes" },
+        { roles:["exec"], title:"現場の稼働とトラブルの把握",
+          before:"問題が大きくなってから報告が上がる。日々の細かい異常は現場の判断に委ねられている。",
+          after:"日報と記録の要約から、繰り返し起きている事象を早い段階で把握できる。",
+          hours:1.5, tool:"copilot", demo:"copilot-excel" },
+      ]
+    },
+    {
+      id:"qa", label:"品質保証",
+      tasks:[
+        { roles:["staff","mgr"], title:"検査データのばらつき分析",
+          before:"測定値をExcelに貼り、目視とグラフでばらつきを探す。傾向が見えるまで数時間。",
+          after:"データを渡すと工程別のばらつきと外れ値を出す分析を組み立て、その場で実行して図にする。",
+          hours:3.0, tool:"claudecode", demo:"claude-inspection" },
+        { roles:["staff"], title:"月次品質レポートの作成",
+          before:"不良率を集計し、原因区分ごとにグラフを作り直す。毎月1.5日を要する。",
+          after:"元データから集計・グラフ・前月比コメントまで自動で下書きされる。担当者は考察を書く。",
+          hours:2.5, tool:"copilot", demo:"copilot-excel" },
+        { roles:["mgr"], title:"是正処置報告書の下書き",
+          before:"顧客提出用の書式に合わせ、経緯と対策を毎回文章化する。表現の統一に神経を使う。",
+          after:"事実を箇条書きで渡すと、書式に沿った報告書の草案が整う。管理職は再発防止策の検討に時間を使える。",
+          hours:1.5, tool:"copilot", demo:"copilot-mail" },
+        { roles:["exec"], title:"品質リスクの把握",
+          before:"不良やクレームの報告は月次で受ける。数字の羅列で、どこが危ういのか判断しづらい。",
+          after:"工程別の傾向と悪化している項目を要約で受け取れる。現場に確認すべき点が絞れる。",
+          hours:1.5, tool:"copilot", demo:"copilot-excel" },
+      ]
+    },
+    {
+      id:"proc", label:"調達・購買",
+      tasks:[
+        { roles:["staff"], title:"仕入価格の比較と発注判断",
+          before:"複数の見積メールとExcelを行き来し、条件を揃えて比較する。抜けや見落としが起こる。",
+          after:"見積内容を条件ごとに整えた比較表が生成される。担当者は交渉と判断に集中できる。",
+          hours:2.0, tool:"copilot", demo:"copilot-excel" },
+        { roles:["staff","mgr"], title:"取引先とのやり取りの整理",
+          before:"納期回答や仕様変更の履歴がメールに散在し、経緯を追うのに時間がかかる。",
+          after:"スレッドを要約させ、決まったこと・未決事項を一覧化。引き継ぎもそのまま渡せる。",
+          hours:1.5, tool:"copilot", demo:"copilot-mail" },
+        { roles:["mgr"], title:"調達リスクの点検",
+          before:"代替先の検討は、余裕のあるときにしかできていない。",
+          after:"品目ごとの供給リスクと代替候補の一次調査をAIに任せ、点検を定例化できる。",
+          hours:1.0, tool:"gemini", demo:"gemini-minutes" },
+        { roles:["exec"], title:"仕入コストの推移の把握",
+          before:"値上げの報告は都度受けるが、全体でどう効いているかは年度末にしか見えない。",
+          after:"品目別の単価推移と影響額を整理した形で受け取れる。交渉の優先順位を判断できる。",
+          hours:1.0, tool:"copilot", demo:"copilot-excel" },
+      ]
+    },
+    {
+      id:"admin", label:"管理部門（経理・人事・総務）",
+      tasks:[
+        { roles:["staff"], title:"請求・支払データの突合",
+          before:"請求書とシステムの数字を目視で照合する。件数が多い月は残業になる。",
+          after:"差分の抽出を自動化し、担当者は例外だけを見る。目視の総量が減る。",
+          hours:3.0, tool:"claudecode", demo:"claude-inspection" },
+        { roles:["staff","mgr"], title:"社内規程・問い合わせ対応",
+          before:"「この場合どうなりますか」に、担当者が規程を読み直して個別回答している。",
+          after:"規程を読み込ませた回答補助を用意し、担当者は最終確認だけを行う。",
+          hours:2.0, tool:"copilot", demo:"copilot-mail" },
+        { roles:["mgr"], title:"採用・評価の文書作成",
+          before:"求人票や評価コメントを毎回ゼロから書く。表現の粒度が人によって揺れる。",
+          after:"要件を渡すと粒度の揃った草案が出る。管理職は内容の妥当性を見る。",
+          hours:1.5, tool:"gemini", demo:"gemini-minutes" },
+        { roles:["exec"], title:"人と数字の途中経過の把握",
+          before:"経理・人事の数字は締め後にまとまる。月中の状況は担当者に聞くしかない。",
+          after:"月中でも要約で状況を把握でき、判断や手当てのタイミングを早められる。",
+          hours:1.5, tool:"copilot", demo:"copilot-excel" },
+      ]
+    },
+    {
+      id:"it", label:"技術・情報システム",
+      tasks:[
+        { roles:["staff"], title:"古い社内マクロの解読と仕様化",
+          before:"20年前のVBAが動いているが、中身を知る人がいない。触れないまま使い続けている。",
+          after:"コードを読ませて処理の意図と仕様書を起こす。作り直しの判断ができる状態になる。",
+          hours:4.5, tool:"claudecode", demo:"claude-legacy" },
+        { roles:["staff","mgr"], title:"現場向け小規模ツールの開発",
+          before:"「こういう画面が欲しい」に応えられず、Excelの運用でしのいでいる。着手まで数ヶ月。",
+          after:"要望を伝えるとその日のうちに動く試作が出る。現場に見せて直しながら決められる。",
+          hours:4.0, tool:"codex", demo:"codex-form" },
+        { roles:["staff"], title:"基幹システムとのデータ連携",
+          before:"受注データの取り込みが手作業のCSV運用。担当者が休むと止まる。",
+          after:"取り込み処理を実装して自動化し、エラー時だけ人が見る運用に変える。",
+          hours:3.5, tool:"codex", demo:"codex-api" },
+        { roles:["exec"], title:"システム投資の判断材料づくり",
+          before:"「古くて危ない」以上の説明が上がってこず、どこから手を入れるべきか判断できない。",
+          after:"既存資産の中身と、放置した場合の影響が文書として上がる。優先順位を判断できる。",
+          hours:1.5, tool:"claudecode", demo:"claude-legacy" },
+      ]
+    },
+  ],
+
+  /* --- 03 再現デモ ------------------------------------------------------- */
+  /* chrome: workspace | m365 | terminal | editor                            */
+  /* step.kind: prompt | thinking | doc | sheet | ai | bullets | note        */
+  /*            | term | diff                                               */
+  demos: [
+    {
+      id:"gemini-quote", tool:"gemini", label:"見積のたたき台をつくる",
+      chrome:"workspace", app:"スプレッドシート", title:"見積_精密部品_2026-08 — Gemini",
+      why:"営業担当者が過去実績を探す時間を、判断の時間に振り替える例です。",
+      steps:[
+        { kind:"note", text:"見積依頼のメールと図面PDFが届いた状態から始めます。" },
+        { kind:"prompt", cue:"入力", text:"添付の図面と、過去3年の類似案件の実績から、この部品の見積たたき台を作ってください。材料費・加工工数・検査工数・段取り費に分けて、根拠も併記してください。" },
+        { kind:"thinking", text:"過去の受注実績シートを参照しています…" },
+        { kind:"sheet",
+          head:["項目","数量","単価","金額","根拠"],
+          rows:[
+            ["材料費（SUS304）","1.4 kg","1,850","2,590","直近3ヶ月の平均仕入単価"],
+            ["加工工数（旋盤）","0.8 h","6,200","4,960","類似形状 4件の中央値"],
+            ["加工工数（研磨）","0.5 h","6,800","3,400","公差 h6 の実績値"],
+            ["検査工数","0.3 h","5,400","1,620","全数寸法検査の実績"],
+            ["段取り費","—","—","8,500","小ロット案件の平均"],
+          ],
+          total:["小計（1個あたり／ロット50）","—","—","21,070","—"] },
+        { kind:"ai", text:"根拠のうち「研磨工数」は類似案件が2件しかなく、ばらつきが大きい項目です。実際の見積提出前にご確認ください。" },
+        { kind:"note", text:"AIは根拠と、確度の低い箇所を明示します。判断は担当者が行う前提の設計です。" },
+      ]
+    },
+    {
+      id:"gemini-minutes", tool:"gemini", label:"訪問メモを議事録にする",
+      chrome:"workspace", app:"ドキュメント", title:"20260817_客先訪問メモ — Gemini",
+      why:"個人のノートで止まっていた情報が、その日のうちに共有できる形になります。",
+      steps:[
+        { kind:"note", text:"移動中にスマートフォンで打った箇条書きメモが元データです。" },
+        { kind:"doc", title:"（元のメモ）", body:"8/17 A事業部 田中課長・購買 佐藤さん\n新規ライン用の部品、来期から / 数量まだ未定 3000〜5000/年くらい？\n公差きびしい 図面もらう約束\n今の取引先が納期遅れ気味らしい\n値段は今より下げたいと言われた が品質優先とも" },
+        { kind:"prompt", cue:"入力", text:"このメモを社内共有用の議事録にしてください。決まったこと・未確定のこと・次アクション（担当と期限つき）に分けてください。" },
+        { kind:"thinking", text:"議事録の体裁に整えています…" },
+        { kind:"bullets", title:"決まったこと", items:[
+          "新規ライン向け部品の引き合い。来期からの供給を前提に検討する。",
+          "先方から図面を受領する（公差が厳しい仕様との説明あり）。",
+          "評価軸は価格だけでなく品質・納期も含む、と先方認識。" ] },
+        { kind:"bullets", title:"未確定のこと", items:[
+          "年間数量（3,000〜5,000個との口頭情報のみ）。",
+          "要求公差の具体値。図面受領後に確認。",
+          "目標価格の水準（「今より下げたい」の具体値は未提示）。" ] },
+        { kind:"bullets", title:"次アクション", items:[
+          "図面の受領依頼メールを送る — 営業担当 / 8月19日まで",
+          "類似案件の実績から概算見積を用意 — 営業担当 / 8月22日まで",
+          "厳しい公差の実現可否を技術部門に確認 — 営業担当→技術 / 8月25日まで" ] },
+        { kind:"ai", text:"「納期遅れ気味」は先方の主観情報のため、社外共有用の資料には転記しない扱いにしています。" },
+      ]
+    },
+    {
+      id:"copilot-mail", tool:"copilot", label:"問い合わせメールに一次回答",
+      chrome:"m365", app:"Outlook", title:"受信トレイ — 納期のご確認について",
+      why:"返信の「書き出し」に使っていた時間がなくなり、事実確認だけが残ります。",
+      steps:[
+        { kind:"doc", title:"受信メール", body:"件名：品番 PX-4820 の納期について\n\nお世話になっております。\n先日ご発注しました PX-4820（数量200）について、\n当初9月5日納品の予定と伺っておりましたが、\n弊社の工程都合で8月29日に前倒しできないか検討しております。\n可否と、難しい場合の最短日をご教示ください。" },
+        { kind:"prompt", cue:"Copilot", text:"このメールに返信する下書きを作って。生産管理に確認が必要な点は【要確認】として残して、断定しないで。" },
+        { kind:"thinking", text:"過去のやり取りと社内の書式を参照しています…" },
+        { kind:"doc", title:"生成された下書き", body:"件名：Re: 品番 PX-4820 の納期について\n\nいつもお世話になっております。\n\n標題の件、8月29日への前倒しについてご連絡いただき\nありがとうございます。社内の生産計画を確認のうえ、\n改めて可否をご回答いたします。\n\n【要確認：現在の工程進捗と、前倒し時の他案件への影響】\n【要確認：最短で対応可能な納品日】\n\n本日中に一次回答を差し上げます。\n引き続きよろしくお願いいたします。" },
+        { kind:"ai", text:"納期の可否は社内確認が必要なため、確定表現を避けた下書きにしました。【要確認】の2点を生産管理へ回すと、そのまま送信できる状態になります。" },
+        { kind:"note", text:"AIに判断させず、人が判断すべき箇所を明示して残す設計にしています。" },
+      ]
+    },
+    {
+      id:"copilot-excel", tool:"copilot", label:"月次データを分析して図にする",
+      chrome:"m365", app:"Excel", title:"品質月報_2026年7月.xlsx",
+      why:"集計とグラフ作成に充てていた1.5日が、考察の時間になります。",
+      steps:[
+        { kind:"note", text:"検査記録から出力した生データ（3,140行）が入ったシートです。" },
+        { kind:"prompt", cue:"Copilot", text:"工程別・不良区分別に不良率を集計して、前月比が悪化している項目を上位から教えて。グラフも作って。" },
+        { kind:"thinking", text:"3,140行を集計しています…" },
+        { kind:"sheet",
+          head:["工程","不良率(7月)","前月比","主因区分","件数"],
+          rows:[
+            ["研磨","1.82%","+0.61pt","寸法外れ","24"],
+            ["旋盤","0.94%","+0.05pt","キズ","31"],
+            ["検査","0.41%","−0.12pt","記録不備","9"],
+            ["組立","0.28%","−0.03pt","部品欠品","4"],
+          ],
+          total:["全工程","0.86%","+0.14pt","—","68"] },
+        { kind:"bullets", title:"AIの指摘", items:[
+          "研磨工程の寸法外れが前月比 +0.61pt と突出。全体悪化の主因はここに集中している。",
+          "同工程の不良は7月14日以降に増加。設備・治具・材料ロットのいずれかの変化と重なる可能性がある。",
+          "検査・組立は改善しており、全体の悪化を打ち消せていない。" ] },
+        { kind:"ai", text:"7月14日という変化点は数値上の傾向です。原因の特定には現場の記録との突き合わせが必要です。" },
+      ]
+    },
+    {
+      id:"claude-inspection", tool:"claudecode", label:"検査データの分析を組んで実行",
+      chrome:"terminal", app:"Claude Code", title:"~/inspection-analysis",
+      why:"「分析できる人がいないからやらない」状態を解消します。手順ごと残るので次回は数分です。",
+      steps:[
+        { kind:"term", lines:[
+          { t:"cmd", text:"claude" },
+          { t:"dim", text:"Claude Code — 検査記録の分析を手伝います" },
+        ]},
+        { kind:"prompt", cue:"入力", text:"inspection_2026-07.csv を読んで、工程別に寸法のばらつき（標準偏差）と外れ値を出して。公差を外れる確率も推定して、図にして保存して。" },
+        { kind:"term", lines:[
+          { t:"tool", text:"⏵ Read  inspection_2026-07.csv  (3,140 行 / 12 列)" },
+          { t:"dim",  text:"  列: 日付, 工程, 品番, 測定値, 公差上限, 公差下限, 設備ID, 作業者ID …" },
+          { t:"tool", text:"⏵ Write analyze.py" },
+          { t:"tool", text:"⏵ Bash  python analyze.py" },
+        ]},
+        { kind:"thinking", text:"実行しています…" },
+        { kind:"term", lines:[
+          { t:"ok",   text:"✓ 完了（4.2秒）" },
+          { t:"plain",text:"工程別 ばらつき（σ）と公差外れ推定" },
+          { t:"plain",text:"  研磨   σ=0.0082mm   Cpk=0.91   公差外れ推定 0.9%  ← 要注意" },
+          { t:"plain",text:"  旋盤   σ=0.0041mm   Cpk=1.62   公差外れ推定 0.01%" },
+          { t:"plain",text:"  検査   σ=0.0038mm   Cpk=1.74   公差外れ推定 0.00%" },
+          { t:"dim",  text:"外れ値 11件（うち9件が研磨・設備ID M-03）" },
+          { t:"ok",   text:"✓ 図を保存: variation_by_process.png / outliers.png" },
+        ]},
+        { kind:"ai", text:"研磨工程の Cpk が 0.91 と基準（1.33）を下回っています。外れ値11件のうち9件が設備 M-03 に集中しており、設備側の要因を先に確認する価値があります。" },
+        { kind:"note", text:"同じ分析は次回から「先月と同じ分析をして」の一言で済みます。手順が資産として残ります。" },
+      ]
+    },
+    {
+      id:"claude-legacy", tool:"claudecode", label:"古いマクロを読み解いて仕様化",
+      chrome:"terminal", app:"Claude Code", title:"~/legacy-macro",
+      why:"「触れないから放置」を解消し、作り直すかどうかを判断できる状態にします。",
+      steps:[
+        { kind:"prompt", cue:"入力", text:"生産管理.xls のVBAを読んで、何をしている処理なのか、業務仕様書の形で書き出して。危ない箇所があれば指摘して。" },
+        { kind:"term", lines:[
+          { t:"tool", text:"⏵ Read  生産管理.xls  (VBA モジュール 7件 / 3,412 行)" },
+          { t:"dim",  text:"  Module1, Module2, 受注取込, 在庫更新, 帳票出力, ThisWorkbook, Sheet1" },
+          { t:"tool", text:"⏵ Write docs/生産管理_仕様書.md" },
+        ]},
+        { kind:"thinking", text:"処理の依存関係をたどっています…" },
+        { kind:"bullets", title:"書き出された仕様（抜粋）", items:[
+          "受注取込：共有フォルダの受注CSVを日付順に読み、品番マスタと照合して受注明細シートへ追記する。",
+          "在庫更新：受注明細から所要量を計算し、在庫シートを減算する。マイナス在庫は許容している。",
+          "帳票出力：作業指示書を印刷用シートに展開し、既定プリンタへ直接出力する。" ] },
+        { kind:"term", lines:[
+          { t:"plain",text:"⚠ 注意が必要な箇所" },
+          { t:"dim",  text:"  1. 在庫更新に排他制御がなく、同時実行で数量がずれる可能性" },
+          { t:"dim",  text:"  2. 品番マスタのパスがコード内に直書き（\\\\fileserver01\\master）" },
+          { t:"dim",  text:"  3. エラー処理が On Error Resume Next のみ。失敗が記録されない" },
+        ]},
+        { kind:"ai", text:"仕様書を docs/ に保存しました。3点のうち「在庫のずれ」は実務影響が出やすい箇所です。作り直す前に、現状の運用でどう回避しているかを確認することをお勧めします。" },
+      ]
+    },
+    {
+      id:"codex-form", tool:"codex", label:"紙の日報をWebフォームにする",
+      chrome:"editor", app:"Codex", title:"daily-report / feature/report-form",
+      why:"「欲しい画面」が数ヶ月待ちではなく、その日のうちに試せる状態になります。",
+      steps:[
+        { kind:"prompt", cue:"入力", text:"現場の紙の日報をWebフォームにしたい。項目は日付・作業者・設備・品番・生産数・不良数・所感。スマホで入力できて、集計はCSVで出せるように。" },
+        { kind:"term", lines:[
+          { t:"tool", text:"⏵ 既存の構成を確認しています (package.json / prisma/schema.prisma)" },
+          { t:"tool", text:"⏵ 生成: app/report/page.tsx, app/api/report/route.ts, prisma/migration" },
+          { t:"tool", text:"⏵ テスト: 7 passed" },
+        ]},
+        { kind:"diff", file:"app/report/page.tsx", lines:[
+          { t:"ctx", text:" export default function ReportForm() {" },
+          { t:"add", text:"+  const [values, setValues] = useState(initialValues);" },
+          { t:"add", text:"+  // 現場のスマホ入力向けに、数値項目はテンキーを出す" },
+          { t:"add", text:"+  return (" },
+          { t:"add", text:"+    <form onSubmit={handleSubmit} className=\"grid gap-4\">" },
+          { t:"add", text:"+      <Field label=\"生産数\" type=\"number\" inputMode=\"numeric\" />" },
+          { t:"add", text:"+      <Field label=\"不良数\" type=\"number\" inputMode=\"numeric\" />" },
+          { t:"del", text:"-  return <div>TODO</div>;" },
+          { t:"ctx", text:" }" },
+        ]},
+        { kind:"term", lines:[
+          { t:"ok", text:"✓ プルリクエストを作成: #128 現場日報の入力フォームを追加" },
+          { t:"dim",text:"  変更 6ファイル / +214 −3   プレビュー環境で確認できます" },
+        ]},
+        { kind:"ai", text:"転記作業をなくすことが目的なので、集計側のCSV出力も同じPRに含めています。現場に見せて項目を直す前提の作りです。" },
+        { kind:"note", text:"レビューして取り込むかどうかは、人が判断します。勝手に本番へ反映されることはありません。" },
+      ]
+    },
+    {
+      id:"codex-api", tool:"codex", label:"CSV手運用を自動連携にする",
+      chrome:"editor", app:"Codex", title:"order-sync / feature/import-batch",
+      why:"「担当者が休むと止まる」業務を、仕組みに移します。",
+      steps:[
+        { kind:"prompt", cue:"入力", text:"受注CSVの手動取り込みをやめたい。毎朝7時に共有フォルダを見て、基幹システムのAPIに登録するバッチにして。失敗したら通知して、二重登録は防いで。" },
+        { kind:"term", lines:[
+          { t:"tool", text:"⏵ 既存のAPI仕様を確認 (docs/erp-api.md)" },
+          { t:"tool", text:"⏵ 生成: jobs/importOrders.ts, lib/dedupe.ts, jobs/schedule.ts" },
+          { t:"tool", text:"⏵ テスト: 12 passed（重複・文字化け・欠損列のケースを含む）" },
+        ]},
+        { kind:"diff", file:"jobs/importOrders.ts", lines:[
+          { t:"add", text:"+// 受注番号 + 明細行番号で冪等性を担保する（再実行しても二重登録しない）" },
+          { t:"add", text:"+const key = `${order.orderNo}-${line.lineNo}`;" },
+          { t:"add", text:"+if (await alreadyImported(key)) { skipped.push(key); continue; }" },
+          { t:"add", text:"+await erp.registerOrderLine(line);" },
+          { t:"ctx", text:" " },
+          { t:"add", text:"+if (failed.length > 0) {" },
+          { t:"add", text:"+  await notifySlack(`受注取込で ${failed.length} 件失敗しました`, failed);" },
+          { t:"add", text:"+}" },
+        ]},
+        { kind:"term", lines:[
+          { t:"cmd", text:"npm run import:dry-run -- --date 2026-08-17" },
+          { t:"plain",text:"読み込み 142件 / 登録 138件 / スキップ 4件（既登録）/ 失敗 0件" },
+          { t:"ok",   text:"✓ 想定どおり。毎朝07:00の定期実行を設定しました" },
+        ]},
+        { kind:"ai", text:"再実行しても二重登録にならない作りにしています。失敗時だけ通知が飛ぶので、平常時は誰も見なくて構いません。" },
+      ]
+    },
+  ],
+
+  /* --- 04 効果の見立て --------------------------------------------------- */
+  roi: {
+    weeksPerYear: 47,
+    hourlyRate: 3800,
+    scenarios: [
+      { id:"cons", label:"保守的", rate:0.30, note:"一部の関心の高い方から定着する段階" },
+      { id:"std",  label:"標準",   rate:0.50, note:"部門ごとに使い方が共有された段階" },
+      { id:"amb",  label:"積極",   rate:0.70, note:"日常業務の標準手順に組み込まれた段階" },
+    ],
+    /* departments の id と対応させる。hours は「1人あたり週の削減時間（保守見積）」 */
+    rows: [
+      { dept:"mgmt",  heads:12,  hours:2.0 },
+      { dept:"sales", heads:46,  hours:2.5 },
+      { dept:"plant", heads:150, hours:0.8 },
+      { dept:"qa",    heads:24,  hours:2.0 },
+      { dept:"proc",  heads:14,  hours:1.5 },
+      { dept:"admin", heads:28,  hours:2.5 },
+      { dept:"it",    heads:16,  hours:4.0 },
+    ],
+    assumptions: [
+      "対象人数・削減時間は公開情報からの想定値です。実データではありません。",
+      "年間稼働を47週として計算しています。",
+      "削減時間は各部門の代表業務のみを積み上げた保守的な値で、ここに挙げていない業務は含めていません。",
+      "削減された時間がそのまま人件費の削減になるとは限りません。多くの場合、手が回っていなかった業務に振り替わります。",
+      "ツールのライセンス費用・導入支援費用は含めていません（ご提案時にご案内します）。",
+    ],
+    costNote: "投資額（ライセンス・導入支援）は貴社の体制に合わせて変わるため、この場では出していません。ご提案資料で内訳とともにご説明します。",
+  },
+
+  /* --- 05 想定質疑 ------------------------------------------------------- */
+  qa: [
+    { q:"社外のAIに、図面や取引先の情報を入れて大丈夫なのでしょうか。",
+      a:"法人向けプランでは、入力した内容がAIの学習に使われない設定が標準です。そのうえで「入れてよい情報／だめな情報」の線引きを社内ルールとして決めることをお勧めしています。デジライズではこのルール策定から支援します。技術的な設定と運用ルールの両方が揃って初めて安全になる、という考え方です。" },
+    { q:"現場が使ってくれるか自信がありません。",
+      a:"最も多いご相談です。私たちの経験では、全社一斉に配るより「困っている業務が明確な数名」から始めたほうが定着します。本サイトの02で挙げた業務は、その最初の対象を選ぶための材料としてお使いいただけます。定着状況は使用頻度と業務数で測り、進捗を可視化しながら進めます。" },
+    { q:"効果はどのくらいの期間で出ますか。",
+      a:"文章作成・要約・調査といった業務は、1〜2週間で体感できることが多いです。一方で、業務の手順そのものを変える取り組み（03のデモの後半にあたるもの）は3〜6ヶ月を見ていただく必要があります。短期と中期の両方を並行させる進め方をご提案しています。" },
+    { q:"04の数字は、どこまで信じてよいものですか。",
+      a:"公開情報からの想定であり、実データではありません。前提はすべて画面上に開示しています。目的は「金額を確定させること」ではなく「桁が合っているか」「どの部門から着手する価値が大きいか」をご判断いただくことです。実データをお預かりできれば、精度の高い試算をお出しできます。" },
+    { q:"すでに一部でAIを使っています。重複しませんか。",
+      a:"重複しません。既にお使いの範囲を確認し、その延長として設計します。多くの企業で「個人が便利に使っている」段階から「業務手順として定着している」段階への移行が課題になっており、そこが私たちの主な支援領域です。" },
+    { q:"ツールは結局どれを選べばよいのでしょうか。",
+      a:"既にお使いのグループウェアに合わせるのが基本です。Google Workspace をお使いなら Gemini、Microsoft 365 なら Copilot が自然です。加えて、社内システムやデータ処理に踏み込む場合は Claude Code や Codex を組み合わせます。本サイトの03は、貴社でご検討中のものだけを表示しています。" },
+    { q:"内製化したいのですが、依存関係になりませんか。",
+      a:"内製化を前提に設計します。社内で推進する方を決めていただき、その方が自走できる状態をつくることをゴールにしています。研修・伴走支援・ルール整備を組み合わせ、最終的に私たちが抜けても回る形を目指します。" },
+    { q:"まず何から決めればよいですか。",
+      a:"本日は「02の業務変化のイメージが合っているか」だけご確認いただければ十分です。合っていれば、対象部門とツールを仮決めし、次回のご提案でスケジュールと投資額をご説明します。" },
+  ],
+
+  /* --- 06 次のステップ --------------------------------------------------- */
+  next: {
+    steps: [
+      { n:"STEP 1", when:"本日", h:"イメージのすり合わせ", p:"02の業務変化と03のデモをご覧いただき、実態とのズレをご指摘ください。ここが合っていれば先に進めます。" },
+      { n:"STEP 2", when:"1〜2週間後", h:"ご提案資料でのご説明", p:"対象部門・進め方・スケジュール・投資額を具体化したご提案書をお持ちします。" },
+      { n:"STEP 3", when:"ご判断後", h:"小さく始めて広げる", p:"効果の見えやすい部門から着手し、成果を社内で共有しながら対象を広げます。" },
+    ],
+    stance: "私たちは「AIを入れること」を目的にしていません。貴社の仕事のどこに無理があり、そこに技術がどう効くのかを、数字と画面で確かめられる状態にすることが役割です。本日の内容にズレがあれば、遠慮なくお聞かせください。",
+  },
+};
+
+/* ============================================================================
+   ここから下は描画ロジック（編集不要）
+   ========================================================================== */
+(() => {
+  "use strict";
+
+  const $  = (s, r=document) => r.querySelector(s);
+  const el = (tag, cls, text) => { const n=document.createElement(tag); if(cls)n.className=cls; if(text!=null)n.textContent=text; return n; };
+  const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const nf = new Intl.NumberFormat("ja-JP");
+
+  const TOOL_META = {
+    gemini:     { name:"Gemini",      suite:"Google Workspace" },
+    copilot:    { name:"Copilot",     suite:"Microsoft 365" },
+    claudecode: { name:"Claude Code", suite:"開発・データ処理" },
+    codex:      { name:"Codex",       suite:"開発・システム連携" },
+  };
+  const activeTools = CONFIG.tools.filter(t => TOOL_META[t]);
+  const toolLabel = id => TOOL_META[id] ? `${TOOL_META[id].name}（${TOOL_META[id].suite}）` : id;
+
+  /* --- ブランドカラー注入 ---------------------------------------------- */
+  document.documentElement.style.setProperty("--brand-src", CONFIG.brand.color);
+
+  /* --- アイコン --------------------------------------------------------- */
+  const ICON = {
+    sparkle: `<svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.2l1.5 3.9L13.4 6.6 9.5 8.1 8 12 6.5 8.1 2.6 6.6 6.5 5.1 8 1.2Z" fill="currentColor"/><path d="M12.8 10.6l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7.7-1.8Z" fill="currentColor" opacity=".55"/></svg>`,
+    caret:   `<svg width="13" height="13" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 6l4.5 4.5L12.5 6" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  };
+
+  /* --- ヒーロー / 固定文言 --------------------------------------------- */
+  const c = CONFIG.company;
+  $("#heroEyebrow").textContent = c.eyebrow;
+  $("#heroTitle").innerHTML     = c.title;
+  $("#heroLead").textContent    = c.lead;
+  $("#noticeText").textContent  = c.notice;
+  $("#footMeta").textContent    = c.footMeta;
+  $("#premiseTitle").textContent = CONFIG.premise.title;
+  $("#premiseSub").textContent   = CONFIG.premise.sub;
+  $("#stanceText").textContent   = CONFIG.next.stance;
+  $("#topBadge").textContent     = "公開情報にもとづく想定シミュレーション";
+
+  c.profile.forEach(p => $("#heroProfile").append(el("li", null, p)));
+
+  CONFIG.premise.facts.forEach(f => {
+    const n = el("div","fact");
+    n.append(el("h3",null,f.h), el("p",null,f.p), el("p","src",f.src));
+    $("#premiseFacts").append(n);
+  });
+
+  /* --- 進行レール ------------------------------------------------------- */
+  const SECTIONS = [
+    { id:"sec-premise", n:"01", label:"前提の確認" },
+    { id:"sec-map",     n:"02", label:"業務変化マップ" },
+    { id:"sec-demo",    n:"03", label:"再現デモ" },
+    { id:"sec-roi",     n:"04", label:"効果の見立て" },
+    { id:"sec-qa",      n:"05", label:"想定Q&A" },
+    { id:"sec-next",    n:"06", label:"次のステップ" },
+  ];
+  SECTIONS.forEach(s => {
+    const li = el("li");
+    const a = el("a"); a.href = "#"+s.id; a.dataset.sec = s.id;
+    a.append(el("span","n",s.n), el("span",null,s.label));
+    li.append(a); $("#railList").append(li);
+
+    const m = el("a", null, s.n+" "+s.label); m.href = "#"+s.id; m.dataset.sec = s.id;
+    $("#railMobile").append(m);
+  });
+
+  /* --- 02 業務変化マップ ----------------------------------------------- */
+  const depts = CONFIG.departments;
+  const roles = CONFIG.roles;
+  let curDept = depts[0].id;
+  let curRole = roles[0].id;
+
+  depts.forEach(d => {
+    const b = el("button","chip",d.label);
+    b.type="button"; b.dataset.dept=d.id; b.setAttribute("aria-pressed", String(d.id===curDept));
+    b.addEventListener("click", () => { curDept=d.id; syncPicker(); renderTasks(); });
+    $("#deptChips").append(b);
+  });
+  roles.forEach(r => {
+    const b = el("button",null,r.label);
+    b.type="button"; b.dataset.role=r.id; b.setAttribute("aria-pressed", String(r.id===curRole));
+    b.addEventListener("click", () => { curRole=r.id; syncPicker(); renderTasks(); });
+    $("#roleSeg").append(b);
+  });
+  function syncPicker(){
+    $("#deptChips").querySelectorAll("button").forEach(b =>
+      b.setAttribute("aria-pressed", String(b.dataset.dept===curDept)));
+    $("#roleSeg").querySelectorAll("button").forEach(b =>
+      b.setAttribute("aria-pressed", String(b.dataset.role===curRole)));
+  }
+
+  const deptById = id => depts.find(d => d.id===id);
+  const roleLabel = id => (roles.find(r=>r.id===id)||{}).label || id;
+
+  function visibleTasks(){
+    const d = deptById(curDept);
+    if(!d) return [];
+    return d.tasks.filter(t => t.roles.includes(curRole) && activeTools.includes(t.tool));
+  }
+
+  function renderTasks(){
+    const list = $("#taskList");
+    list.textContent = "";
+    const tasks = visibleTasks();
+    const hours = tasks.reduce((s,t)=>s+(t.hours||0),0);
+
+    $("#mapSummary").textContent = "";
+    const sum = $("#mapSummary");
+    sum.append(
+      el("span",null,`${deptById(curDept).label} × ${roleLabel(curRole)}`),
+      Object.assign(el("span"),{innerHTML:`該当業務 <strong>${tasks.length}</strong> 件`}),
+      Object.assign(el("span"),{innerHTML:`1人あたり週 <strong>${hours.toFixed(1)}</strong> 時間の削減見込み`})
+    );
+
+    if(!tasks.length){
+      list.append(el("p","empty","この組み合わせの業務は、今回の想定には含めていません。他の部門・職位をお試しください。"));
+      return;
+    }
+
+    tasks.forEach(t => {
+      const card = el("div","task");
+
+      const hd = el("div","task-hd");
+      hd.append(el("h3",null,t.title));
+      const tags = el("div","task-tags");
+      tags.append(el("span","tag",roleLabel(curRole)));
+      const tt = el("span","tag tool", TOOL_META[t.tool].name);
+      tags.append(tt);
+      hd.append(tags);
+
+      const ba = el("div","ba");
+      const b = el("div","before");
+      b.append(el("h4",null,"今の手順"), el("p",null,t.before));
+      const a = el("div","after");
+      a.append(el("h4",null,"AI活用後"), el("p",null,t.after));
+      ba.append(b,a);
+
+      const ft = el("div","task-ft");
+      const save = el("span","save");
+      save.append(el("span","v",t.hours.toFixed(1)), el("span",null,"時間 / 週・人"));
+      ft.append(save);
+
+      const demo = CONFIG.demos.find(d => d.id===t.demo);
+      if(demo){
+        const btn = el("button","btn","▶ この業務のデモを見る");
+        btn.type="button";
+        btn.addEventListener("click", () => {
+          selectDemo(demo.id, true);
+          $("#sec-demo").scrollIntoView({behavior: reduceMotion ? "auto" : "smooth", block:"start"});
+        });
+        ft.append(btn);
+      }
+
+      card.append(hd, ba, ft);
+      list.append(card);
+    });
+  }
+
+  /* --- 03 デモ ---------------------------------------------------------- */
+  const demos = CONFIG.demos.filter(d => activeTools.includes(d.tool));
+  let curDemo = demos[0] || null;
+  let stepIdx = 0;
+  let timers = [];
+
+  function clearTimers(){ timers.forEach(clearTimeout); timers = []; }
+
+  demos.forEach(d => {
+    const b = el("button","chip");
+    b.type="button"; b.dataset.demo=d.id;
+    b.append(document.createTextNode(`${TOOL_META[d.tool].name}：${d.label}`));
+    b.addEventListener("click", () => selectDemo(d.id, true));
+    $("#demoTabs").append(b);
+  });
+
+  function selectDemo(id, autorun){
+    const d = demos.find(x => x.id===id);
+    if(!d) return;
+    curDemo = d;
+    $("#demoTabs").querySelectorAll("button").forEach(b =>
+      b.setAttribute("aria-pressed", String(b.dataset.demo===id)));
+    resetDemo();
+    if(autorun) advance();
+  }
+
+  function resetDemo(){
+    clearTimers();
+    stepIdx = 0;
+    const d = curDemo;
+    const dev = $("#device");
+    dev.classList.toggle("dark", d.chrome==="terminal" || d.chrome==="editor");
+    $("#devApp").innerHTML = `${d.chrome==="workspace"||d.chrome==="m365" ? ICON.sparkle : ""}<span>${d.app}</span>`;
+    $("#devTitle").textContent = d.title;
+    $("#devCaption").textContent = `${toolLabel(d.tool)}／再現イメージ`;
+    $("#devStage").textContent = "";
+    $("#demoWhy").textContent = d.why || "";
+    const dots = $("#devSteps"); dots.textContent = "";
+    d.steps.forEach(() => dots.append(el("i")));
+    const next = $("#devNext");
+    next.disabled = false;
+    next.textContent = "▶ 実行する";
+    const hint = el("p","empty","下の「実行する」を押すと、実際の操作と同じ順番で進みます。");
+    $("#devStage").append(hint);
+  }
+
+  function markSteps(){
+    $("#devSteps").querySelectorAll("i").forEach((n,i) => n.classList.toggle("on", i < stepIdx));
+  }
+
+  function advance(){
+    const d = curDemo;
+    if(!d || stepIdx >= d.steps.length) return;
+    if(stepIdx === 0) $("#devStage").textContent = "";
+
+    const step = d.steps[stepIdx];
+    stepIdx++;
+    markSteps();
+
+    const node = renderStep(step, d);
+    if(node) $("#devStage").append(node);
+
+    const next = $("#devNext");
+    if(stepIdx >= d.steps.length){
+      next.textContent = "完了";
+      next.disabled = true;
+    } else {
+      next.textContent = "次へ ▸";
+    }
+
+    /* thinking は自動で次へ進める（待ちの体験を再現） */
+    if(step.kind === "thinking" && stepIdx < d.steps.length){
+      next.disabled = true;
+      timers.push(setTimeout(() => {
+        const t = $("#devStage").querySelector(".thinking:last-of-type");
+        if(t) t.remove();
+        $("#devNext").disabled = false;
+        advance();
+      }, reduceMotion ? 400 : 1100));
+    }
+    $("#devStage").scrollTop = $("#devStage").scrollHeight;
+  }
+
+  function type(node, text){
+    if(reduceMotion){ node.textContent = text; return; }
+    node.textContent = "";
+    let i = 0;
+    const chunk = Math.max(1, Math.round(text.length / 44));
+    const tick = () => {
+      i = Math.min(text.length, i + chunk);
+      node.textContent = text.slice(0, i);
+      if(i < text.length) timers.push(setTimeout(tick, 18));
+    };
+    tick();
+  }
+
+  function renderStep(s, d){
+    switch(s.kind){
+      case "note": {
+        return el("p","note-line",s.text);
+      }
+      case "prompt": {
+        const n = el("div","prompt-line");
+        n.append(el("span","cue",(s.cue||"入力")+" ▸"));
+        const t = el("span"); n.append(t); type(t, s.text);
+        return n;
+      }
+      case "thinking": {
+        const n = el("div","thinking");
+        n.append(el("span","spin"), el("span",null,s.text||"処理しています…"));
+        return n;
+      }
+      case "ai": {
+        const n = el("div","ai-panel");
+        const who = el("div","who");
+        who.innerHTML = ICON.sparkle + `<span>${TOOL_META[d.tool].name} の応答</span>`;
+        const p = el("p"); n.append(who,p); type(p, s.text);
+        return n;
+      }
+      case "doc": {
+        const n = el("div","doc");
+        if(s.title) n.append(el("p","doc-title",s.title));
+        const p = el("p"); p.style.whiteSpace="pre-wrap"; n.append(p);
+        type(p, s.body);
+        return n;
+      }
+      case "bullets": {
+        const n = el("div","doc");
+        if(s.title) n.append(el("p","doc-title",s.title));
+        const ul = el("ul","bullets");
+        s.items.forEach(i => ul.append(el("li",null,i)));
+        n.append(ul);
+        return n;
+      }
+      case "sheet": {
+        const wrap = el("div","sheet-wrap");
+        const tb = el("table","sheet");
+        const thead = el("thead"), tr = el("tr");
+        s.head.forEach(h => { const th=el("th",null,h); th.scope="col"; tr.append(th); });
+        thead.append(tr); tb.append(thead);
+        const body = el("tbody");
+        s.rows.forEach(r => {
+          const row = el("tr");
+          r.forEach(v => row.append(el("td",null,v)));
+          body.append(row);
+        });
+        if(s.total){
+          const row = el("tr","total");
+          s.total.forEach(v => row.append(el("td",null,v)));
+          body.append(row);
+        }
+        tb.append(body); wrap.append(tb);
+        return wrap;
+      }
+      case "term": {
+        const box = el("div");
+        box.style.display="flex"; box.style.flexDirection="column";
+        s.lines.forEach(l => {
+          const n = el("div","term-line "+(l.t||"plain"));
+          if(l.t === "cmd"){
+            n.append(Object.assign(el("span","ps"),{textContent:"$ "}));
+            const t = el("span"); n.append(t); type(t, l.text);
+          } else {
+            n.textContent = l.text;
+          }
+          box.append(n);
+        });
+        return box;
+      }
+      case "diff": {
+        const n = el("div","diff");
+        n.append(el("div","diff-hd", s.file));
+        const pre = el("pre");
+        s.lines.forEach(l => {
+          const ln = el("span","ln "+(l.t||"ctx"));
+          ln.textContent = l.text;
+          pre.append(ln);
+        });
+        n.append(pre);
+        return n;
+      }
+      default: return null;
+    }
+  }
+
+  $("#devNext").addEventListener("click", advance);
+  $("#devReset").addEventListener("click", () => { resetDemo(); });
+
+  /* --- 04 効果の見立て -------------------------------------------------- */
+  const roi = CONFIG.roi;
+  let scenIdx = 0;
+  let rate = roi.hourlyRate;
+
+  roi.scenarios.forEach((s,i) => {
+    const b = el("button",null,s.label);
+    b.type="button"; b.dataset.i=String(i);
+    b.setAttribute("aria-pressed", String(i===scenIdx));
+    b.addEventListener("click", () => { scenIdx=i; $("#ctlAdopt").value=String(i); renderRoi(); });
+    $("#adoptSeg").append(b);
+  });
+  $("#ctlAdopt").max = String(roi.scenarios.length-1);
+  $("#ctlAdopt").addEventListener("input", e => { scenIdx = +e.target.value; renderRoi(); });
+  $("#ctlRate").value = String(rate);
+  $("#ctlRate").addEventListener("input", e => { rate = +e.target.value; renderRoi(); });
+
+  const totalHeads = roi.rows.reduce((s,r)=>s+r.heads,0);
+  const potentialByRow = roi.rows.map(r => r.heads * r.hours * roi.weeksPerYear);
+  const potentialTotal = potentialByRow.reduce((a,b)=>a+b,0);
+
+  function renderRoi(){
+    const sc = roi.scenarios[scenIdx];
+    const hours = potentialTotal * sc.rate;
+    const yen = hours * rate;
+
+    $("#adoptSeg").querySelectorAll("button").forEach((b,i) =>
+      b.setAttribute("aria-pressed", String(i===scenIdx)));
+    $("#ctlAdoptVal").textContent = `${sc.label}（定着 ${Math.round(sc.rate*100)}%）`;
+    $("#ctlRateVal").textContent  = `${nf.format(rate)} 円 / 時`;
+
+    $("#roiHours").textContent   = nf.format(Math.round(hours));
+    $("#roiYen").textContent     = `約 ${nf.format(Math.round(yen/10000))} 万円 / 年`;
+    $("#roiPerWeek").textContent = `${(hours / roi.weeksPerYear / totalHeads).toFixed(1)} 時間`;
+    $("#roiFte").textContent     = `約 ${(hours/1880).toFixed(1)} 人分`;
+    $("#roiCostNote").textContent = roi.costNote;
+
+    const tbody = $("#roiRows"); tbody.textContent = "";
+    const max = Math.max(...potentialByRow);
+    roi.rows.forEach((r,i) => {
+      const d = deptById(r.dept);
+      const tr = el("tr");
+      tr.append(
+        el("td",null, d ? d.label : r.dept),
+        el("td",null, nf.format(r.heads)),
+        el("td",null, r.hours.toFixed(1)),
+        el("td",null, nf.format(Math.round(potentialByRow[i]*sc.rate)))
+      );
+      const cell = el("td");
+      const bar = el("span","bar");
+      bar.style.width = Math.round(potentialByRow[i]/max*100)+"%";
+      cell.append(bar); tr.append(cell);
+      tbody.append(tr);
+    });
+    $("#roiHeadsTotal").textContent = nf.format(totalHeads);
+    $("#roiHoursTotal").textContent = nf.format(Math.round(hours));
+
+    $("#heroHours").textContent = nf.format(Math.round(potentialTotal * roi.scenarios[0].rate));
+    $("#heroYen").textContent   = `約 ${nf.format(Math.round(potentialTotal*roi.scenarios[0].rate*roi.hourlyRate/10000))} 万円`;
+    $("#heroHeads").textContent = `${nf.format(totalHeads)} 名`;
+    $("#heroKpiSub").textContent = `定着 ${Math.round(roi.scenarios[0].rate*100)}%・時間単価 ${nf.format(roi.hourlyRate)}円で計算した、02の業務のみの積み上げです。前提は04で変更できます。`;
+  }
+
+  roi.assumptions.forEach(a => $("#roiAssume").append(el("li",null,a)));
+
+  /* --- 05 Q&A ----------------------------------------------------------- */
+  CONFIG.qa.forEach((item,i) => {
+    const d = el("details","q");
+    const s = el("summary");
+    s.append(el("span","q-mark", "Q"+String(i+1).padStart(2,"0")), el("span",null,item.q));
+    const car = el("span","caret"); car.innerHTML = ICON.caret; s.append(car);
+    d.append(s, el("div","q-body",item.a));
+    $("#qaList").append(d);
+  });
+
+  /* --- 06 次のステップ -------------------------------------------------- */
+  CONFIG.next.steps.forEach(s => {
+    const n = el("div","step");
+    n.append(el("p","n",s.n), el("h3",null,s.h), el("p",null,s.p), el("p","when",s.when));
+    $("#nextSteps").append(n);
+  });
+
+  /* --- 初期描画 --------------------------------------------------------- */
+  renderTasks();
+  if(curDemo) selectDemo(curDemo.id, false);
+  renderRoi();
+
+  /* --- スクロール連動 --------------------------------------------------- */
+  const revealObs = new IntersectionObserver(es => {
+    es.forEach(e => { if(e.isIntersecting){ e.target.classList.add("in"); revealObs.unobserve(e.target); } });
+  }, { rootMargin:"0px 0px -12% 0px", threshold:0.05 });
+  document.querySelectorAll(".reveal").forEach(n => revealObs.observe(n));
+
+  const railLinks = [...document.querySelectorAll("[data-sec]")];
+  const spy = new IntersectionObserver(es => {
+    es.forEach(e => {
+      if(!e.isIntersecting) return;
+      railLinks.forEach(a => a.setAttribute("aria-current", String(a.dataset.sec===e.target.id)));
+    });
+  }, { rootMargin:"-25% 0px -65% 0px" });
+  SECTIONS.forEach(s => { const n=document.getElementById(s.id); if(n) spy.observe(n); });
+})();
+</script>
