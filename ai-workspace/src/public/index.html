@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AIワークスペース</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <!-- ホーム画面 -->
+  <div id="homeView">
+    <div class="topbar">
+      <span class="brand">🤝 AIワークスペース</span>
+      <span class="user">
+        <span id="userName"></span>
+        <button class="link-btn" id="adminLink" style="display:none">管理画面</button>
+        <button class="link-btn" id="logoutBtn">ログアウト</button>
+      </span>
+    </div>
+    <div class="container">
+      <h1 class="home-title">今日は何をしますか？</h1>
+      <p class="home-sub">やりたいことのボタンを押してください</p>
+
+      <div class="cards" id="cards"></div>
+
+      <div class="gauge-wrap">
+        <div class="gauge-label">
+          <span>今月のAI利用量</span>
+          <strong id="gaugeText">確認中…</strong>
+        </div>
+        <div class="gauge-bar"><div class="gauge-fill" id="gaugeFill" style="width:0%"></div></div>
+      </div>
+
+      <div class="recent" id="recentWrap" style="display:none">
+        <h2>前回のつづきから</h2>
+        <div id="recentList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- チャット画面 -->
+  <div id="chatView" class="chat-page" style="display:none">
+    <div class="chat-head">
+      <button class="back-btn" id="backBtn">← もどる</button>
+      <span class="title" id="chatTitle"></span>
+    </div>
+    <div class="chat-body" id="chatBody"><div class="chat-inner" id="chatInner"></div></div>
+    <div class="chat-foot">
+      <div class="foot-inner">
+        <div class="file-chips" id="fileChips"></div>
+        <div class="input-row">
+          <button class="attach-btn" id="attachBtn" title="ファイルを付ける">📎</button>
+          <input type="file" id="fileInput" multiple style="display:none"
+                 accept=".pdf,.png,.jpg,.jpeg,.gif,.webp,.txt,.csv,.md,.json">
+          <textarea id="msgInput" rows="1" placeholder="ここに入力してください"></textarea>
+          <button class="send-btn" id="sendBtn">送信</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

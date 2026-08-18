@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>初期設定 | AIワークスペース</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="login-wrap">
+    <div class="login-box">
+      <h1>🤝 AIワークスペース</h1>
+      <p class="sub">ようこそ！最初に管理者アカウントを作ります（1分で終わります）</p>
+      <form id="setupForm">
+        <div class="field">
+          <label for="name">お名前</label>
+          <input type="text" id="name" required placeholder="例：堤 雄三" autocomplete="name">
+        </div>
+        <div class="field">
+          <label for="email">メールアドレス</label>
+          <input type="email" id="email" required placeholder="例：tanaka@kaisha.co.jp" autocomplete="username">
+        </div>
+        <div class="field">
+          <label for="password">パスワード（8文字以上・半角）</label>
+          <input type="password" id="password" required minlength="8" autocomplete="new-password"
+                 autocapitalize="off" autocorrect="off" spellcheck="false">
+        </div>
+        <div class="field">
+          <label for="password2">パスワード（もう一度）</label>
+          <input type="password" id="password2" required minlength="8" autocomplete="new-password"
+                 autocapitalize="off" autocorrect="off" spellcheck="false">
+        </div>
+        <label style="display:flex;align-items:center;gap:8px;margin-bottom:20px;font-size:.95rem;cursor:pointer">
+          <input type="checkbox" id="showPw" style="width:20px;height:20px"> 入力した文字を表示する
+        </label>
+        <button type="submit" class="btn-primary" id="setupBtn">この内容ではじめる</button>
+        <p class="error-msg" id="errorMsg"></p>
+      </form>
+    </div>
+  </div>
+  <script src="/setup.js"></script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>管理画面 | AIワークスペース</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="topbar">
+    <span class="brand">⚙️ 管理画面</span>
+    <span class="user"><button class="link-btn" id="backToApp">← ワークスペースへ戻る</button></span>
+  </div>
+  <div class="container">
+    <div class="admin-nav">
+      <button data-tab="usage" class="on">利用状況</button>
+      <button data-tab="users">ユーザー管理</button>
+      <button data-tab="audit">監査ログ</button>
+    </div>
+
+    <!-- 利用状況 -->
+    <div id="tab-usage">
+      <div class="stat-grid" id="statGrid"></div>
+      <h2 style="font-size:1rem;margin:8px 0">モデル別コスト（今月）</h2>
+      <table id="modelTable"><thead><tr><th>モデル</th><th>リクエスト数</th><th>コスト（円）</th></tr></thead><tbody></tbody></table>
+      <h2 style="font-size:1rem;margin:20px 0 8px">日別コスト（直近30日）</h2>
+      <table id="dayTable"><thead><tr><th>日付</th><th>リクエスト数</th><th>コスト（円）</th></tr></thead><tbody></tbody></table>
+    </div>
+
+    <!-- ユーザー管理 -->
+    <div id="tab-users" style="display:none">
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:18px">
+        <h2 style="font-size:1rem;margin-bottom:12px">新しいユーザーを追加</h2>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <input id="nuName" placeholder="氏名" style="padding:10px;border:1px solid var(--border);border-radius:8px">
+          <input id="nuEmail" placeholder="メールアドレス" style="padding:10px;border:1px solid var(--border);border-radius:8px">
+          <input id="nuPass" placeholder="初期パスワード（8文字以上）" style="padding:10px;border:1px solid var(--border);border-radius:8px">
+          <button class="small-btn" style="background:var(--blue);color:#fff;border:none" id="nuAdd">追加</button>
+        </div>
+        <p class="error-msg" id="nuError" style="text-align:left"></p>
+      </div>
+      <table id="userTable">
+        <thead><tr><th>氏名</th><th>メール</th><th>権限</th><th>状態</th><th>今月の利用</th><th>月上限（円）</th><th>操作</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <!-- 監査ログ -->
+    <div id="tab-audit" style="display:none">
+      <table id="auditTable">
+        <thead><tr><th>日時</th><th>ユーザー</th><th>操作</th><th>詳細</th><th>IP</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="/admin.js"></script>
+</body>
+</html>

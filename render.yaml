@@ -1,0 +1,23 @@
+# Render (https://render.com) にブラウザ操作だけでデプロイするための設定
+#
+# 手順:
+#   1. https://render.com にGitHubアカウントでサインアップ（無料）
+#   2. New + → Blueprint → このリポジトリを選択
+#   3. 環境変数（APIキー）を入力 → Apply
+#   4. 数分で https://xxxx.onrender.com のURLが発行される
+#   5. そのURLを開くと、最初の管理者アカウントを作る初期設定画面が出る
+#
+# 注意: 無料プランはディスクが永続化されないため、再デプロイでデータが消えます（デモ用途向け）。
+#       本番はVPSまたはRender有料プラン＋Persistent Diskを使ってください。
+services:
+  - type: web
+    name: digirise-ai-workspace
+    runtime: node
+    rootDir: ai-workspace
+    buildCommand: npm ci
+    startCommand: npm start
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: DEFAULT_MONTHLY_BUDGET_JPY
+        value: "500"
